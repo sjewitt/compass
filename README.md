@@ -24,6 +24,11 @@
  
 ### PHP dev
 
-Assuming PHP is installed (should be when apache is installed):
+Assuming PHP is installed (should be when apache is installed). was quite fiddly, and probably not the best practice... 
+And because of the file permissions set above this needs to be done in a certain order...
+(note also that it is `mv` not `rename` to - er - rename...)
 
- - because of the file permissions set above 
+Assuming no `/compass/` subdirectory, but is a repo of that name:
+ 
+ - first, `cd /var/www` 
+ - then, `sudo git clone https://github.com/sjewitt/compass.git` - need sudo because we don't own the `/var/www/` directory
