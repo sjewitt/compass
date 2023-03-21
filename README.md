@@ -40,6 +40,8 @@ Assuming no `/compass/` subdirectory, but is a repo of that name:
  
 ## Typescript
 
+ see https://www.typescriptlang.org/docs/
+ 
  - Install globally (find ref!)
    - first, need `node`: `https://nodejs.dev/en/download/package-manager/`. This gives us `npm` 
    - `sudo npm install -g typescript` (this installs the node version of typescript)

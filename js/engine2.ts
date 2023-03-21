@@ -1,3 +1,18 @@
+/**
+define each element in the final data
+
+interface quad{
+	{
+    	"key": [
+        	0,
+        	0,
+        	0
+    	],
+    	"rating": 2
+	}
+}
+*/
+
 let engine = {
 	/* do an array mapping data-rating to a colour, and set the element background colour to be that...
 	TODO:
@@ -10,8 +25,7 @@ let engine = {
 	     sector BODY if not -1
 	 ]
 	*/
-	
-	/* display data */
+
 /** 
  * quadrant descriptions
  I need to be REALLY careful to map these indexes correctly!
@@ -178,36 +192,38 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 	current_score : -1,
 	current_rating : -1,
 	
-	current_data : {},
-	
+	/** https://stackoverflow.com/questions/27089452/how-to-remove-typescript-warning-property-length-does-not-exist-on-type */
+	current_data : <any>[],
+	// current_data : <number>[][], 
 	init : function(){
+	
+		console.log("TS compiled.");
 		let page = document.getElementsByTagName('body')[0].getAttribute('data-page');
 		this.current_data = [];	
-		/** TODO: switch on pag type ? */
 		/** onload, retrieve the current data 
 		 * This will require soe refactoring to account for async call to rertieve the data
 		*/
 				
 		for(let id of this.elems){
-			let elem = document.getElementById(id)
+			/**  
+			declare elem as either a HTMLElement, or as null, in case the selector returns null - which it might... 
+			*/
+			let elem : HTMLElement | null  = document.getElementById(id)
+			if(elem){
 			elem.addEventListener('mouseover',this.test_in)
 			elem.addEventListener('mouseout',this.test_out);
-			elem.addEventListener('click',this.test_handler)
+			elem.addEventListener('click',this.test_handler)			
+			}
 		};
-		//TEST
-//		let in_data = [
-//			{'key':[1,3,3],'rating':1},
-//			{'key':[1,2,2],'rating':1},
-//			{'key':[3,0,0],'rating':6},
-//			{'key':[0,0,0],'rating':5}
-//			]
-		
+				
 		if(page === 'svg'){
 			engine.test_load_data();
 			
 			/** data export from localstorage */
-			let export_data_elem = document.getElementById('flyout');
-			export_data_elem.addEventListener('click', this.export_data)
+			let export_data_elem : HTMLElement | null = document.getElementById('flyout');
+			if(export_data_elem){
+				export_data_elem.addEventListener('click', this.export_data)
+			}
 		}
 		
 		
@@ -235,7 +251,10 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 		
 		/** collect data from localstorage (or database, eventually) and return as CSV */
 		console.log(engine.current_data);
-		let _out = [];
+		
+		/** see https://stackoverflow.com/questions/32738387/how-can-i-make-an-empty-string-array-in-typescript */
+		let _out: any[];	//first declare its type (Can I declare either int or string?)
+		_out = []			//THEN instantiate an empty array, of type string
 		_out.push(['quadrant','sector','rating']);
 		for(let x=0; x < engine.current_data.length; x++){
 			console.log(engine.current_data[x]);
@@ -247,153 +266,143 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 		let _return = "data:text/csv;charset=utf-8,";
 		_out.forEach(function(arr){	//'arr' is the 'each'...
 			console.log(arr);
-		    //let row = arr.join(",");
 		    _return += arr.join(",") + "\r\n";
 		})
-		//console.log(_return);
 		
-		//test - crude - 'download.csv'
 		var encodedUri = encodeURI(_return);
-		//window.open(encodedUri);
 		
 		/** better option - named download, but needs an anchor tag */
-		let link = document.getElementById("download_hidden_link");
-		link.setAttribute("href", encodedUri);
-		link.setAttribute("download", "compass.csv");
-		link.click();
+		let link : HTMLElement | null = document.getElementById("download_hidden_link");
+		if(link){
+			link.setAttribute("href", encodedUri);
+			link.setAttribute("download", "compass.csv");
+			link.click();
+		}
 	},
 	
 	/** call API endpoint to return currently stored data
 	 * This will be a call to a back-end storage of previously stored data for current user.
 	 * NOTE: this may need to be refactored if something becomes dependent on this data being loaded first
-	 * 
-	 * replace this with localStorage.get();?
-
 	 */
 	test_load_data : function(){
-
-		console.log('getting localstorage...');
-		console.log(localStorage.getItem('compassData'))
-		let data = JSON.parse(localStorage.getItem('compassData'));
-		for(let a=0;a<data.length;a++){
-			//console.log(data[a])
-			engine.addToUserdata(data[a].key,data[a].rating);
-			
-			/**
-			 * and identify the elements to autoclick:
-			 * https://stackoverflow.com/questions/29937768/document-queryselector-multiple-data-attributes-in-one-element
-			 */
-			// console.log('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]')
-			let elem = document.querySelector('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]');
-			//console.log(elem);
-			elem.click();
+		
+		let currentData : string | null = localStorage.getItem('compassData')
+		if(currentData){
+			let data  = JSON.parse(currentData);
+			for(let a=0;a<data.length;a++){
+				engine.addToUserdata(data[a].key,data[a].rating);
+				
+				/**
+				 * and identify the elements to autoclick:
+				 * https://stackoverflow.com/questions/29937768/document-queryselector-multiple-data-attributes-in-one-element
+				 */
+				console.log('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]')
+				let elem : HTMLElement | null = document.querySelector('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]');
+				if(elem){
+					elem.click();
+				}
+			}			
 		}
-		
-		
-//		fetch("/test_data/data.txt")
-//		.then(
-//			(response) => response.json()
-//		)
-//		.then(function(data){
-//			//console.log(data);
-//			
-//			for(let a=0;a<data.length;a++){
-//				//console.log(data[a])
-//				engine.addToUserdata(data[a].key,data[a].rating);
-//				
-//				/**
-//				 * and identify the elements to autoclick:
-//				 * https://stackoverflow.com/questions/29937768/document-queryselector-multiple-data-attributes-in-one-element
-//				 */
-//				// console.log('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]')
-//				let elem = document.querySelector('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]');
-//				//console.log(elem);
-//				elem.click();
-//			}
-//		});
-
+		//let data  =	fetch("/test_data/data.txt")
 	},
 	
 	test_handler : function(){
 		if(this.current_score > -1){
 			engine.addToUserdata([this.current_quad,this.current_sector,this.current_score], this.current_rating);
 			this.setAttribute('class','clicked');
-			//console.log(this);
 		}
 		/** also need to set the class so the mouse leave only hides if the given item has NOT been clicked */
-		engine.setSectorSVGDClicked(this);
+		engine.setSectorSVGClicked(this);
 	},
 
 	test_in : function(){
-		let self = document.getElementById(this.getAttribute('id'))
-		//console.log(self)
-		//console.log(document.getElementById('svg_'+this.getAttribute('id')))
-		// document.getElementById('svg_'+this.getAttribute('id')).classList.add('svg_show');
-		engine.setSectorSVGDDisplay(self,true);
-		let sector_rating = -1;
-	    let lookup = JSON.parse(this.getAttribute('data-lookup')); // expects a string of '[n,n,n]' where n is integer
-	    
-	    this.current_quad = lookup[0];
-		this.current_sector = lookup[1];
-		this.current_score = lookup[2];
-	    
-	    /** quadrant */
-	    let quad_description = false;
-	    let quad_title = false;
-	    let sector_title = '';
-	    if(lookup[0] > -1){
-		    quad_description = engine.data_0[lookup[0]].description;
-	        quad_title = engine.data_0[lookup[0]].title;
-	    }
-	    
-	    /** sector titles */
-	    let sector_title_description = '';
-		if(lookup[1] > -1){
-		    sector_title_description = engine.data_1[lookup[0]][lookup[1]].description;
-		    sector_title = engine.data_1[lookup[0]][lookup[1]].title;
+		let self : HTMLElement | null = document.getElementById(this.getAttribute('id'))
+		if(self){
+			
+			//console.log(self)
+			//console.log(document.getElementById('svg_'+this.getAttribute('id')))
+			// document.getElementById('svg_'+this.getAttribute('id')).classList.add('svg_show');
+			engine.setSectorSVGDisplay(self,true);
+			let sector_rating = -1;
+		    let lookup = JSON.parse(this.getAttribute('data-lookup')); // expects a string of '[n,n,n]' where n is integer
+		    
+		    this.current_quad  = lookup[0];
+			this.current_sector = lookup[1];
+			this.current_score = lookup[2];
+		    
+		    /** quadrant */
+		    let quad_description : string | null = "";		//declarative syntax, no assignment (e.g. https://stackoverflow.com/questions/32738387/how-can-i-make-an-empty-string-array-in-typescript)
+		    let quad_title : string | null = "";
+		    let sector_title : string | null = "";
+	// 	    quad_description = "";
+	// 	    quad_title = "";
+	// 	    sector_title = "";
+		    
+		    if(lookup[0] > -1){
+			    quad_description = engine.data_0[lookup[0]].description;
+		        quad_title = engine.data_0[lookup[0]].title;
+		    }
+		    
+		    /** sector titles */
+		    let sector_title_description = '';
+			if(lookup[1] > -1){
+			    sector_title_description = engine.data_1[lookup[0]][lookup[1]].description;
+			    sector_title = engine.data_1[lookup[0]][lookup[1]].title;
+			}
+			
+			/** sector blocks (all) */
+			let sector_block_description = '';
+			if(lookup[2] > -1){
+				sector_title = engine.data_1[lookup[0]][lookup[1]].title;
+				sector_rating = parseInt(this.getAttribute('data-rating'));
+				this.current_rating = sector_rating;
+			    sector_block_description = engine.data_2[lookup[0]][lookup[2]];
+			}
+	
+			let output_rating = '';
+			if(sector_rating > -1){
+				output_rating = engine.rating_description_lookup[sector_rating].title;
+			}
+			
+			/** set the expected types for the output elements: */
+			let elem_quad_title : HTMLElement | null = document.getElementById('quad_title')
+			let elem_quad_description : HTMLElement | null = document.getElementById('quad_description')
+			let elem_sector_title : HTMLElement | null = document.getElementById('sector_title')
+			let elem_sector_title_description : HTMLElement | null = document.getElementById('sector_title_description')
+			let elem_block_description : HTMLElement | null = document.getElementById('sector_block_description')
+			let elem_rating : HTMLElement | null = document.getElementById('rating')
+			
+			if(elem_quad_title) elem_quad_title.innerText = quad_title;
+			if(elem_quad_description) elem_quad_description.innerText = quad_description;
+			if(elem_sector_title) elem_sector_title.innerText = sector_title;
+			if(elem_sector_title_description) elem_sector_title_description.innerText = sector_title_description;
+			if(elem_block_description) elem_block_description.innerText = sector_block_description;
+			if(elem_rating) elem_rating.innerText = output_rating;
+			let elem_title : Array<string> = [];
+			//console.log(lookup)
+			if(quad_title && lookup[2] === -1) elem_title.push(quad_title);
+			if(quad_description && lookup[2] === -1) elem_title.push(quad_description);
+			if(sector_title && lookup[2] === -1) elem_title.push(sector_title);
+			if(sector_title_description  && lookup[2] !== -1) elem_title.push(sector_title_description);
+			if(sector_block_description && lookup[2] !== -1) elem_title.push(sector_block_description);
+			
+			self.setAttribute('title',elem_title.join('\n\n'))
 		}
-		
-		/** sector blocks (all) */
-		let sector_block_description = '';
-		if(lookup[2] > -1){
-			sector_title = engine.data_1[lookup[0]][lookup[1]].title;
-			sector_rating = parseInt(this.getAttribute('data-rating'));
-			this.current_rating = sector_rating;
-		    sector_block_description = engine.data_2[lookup[0]][lookup[2]];
-		}
-
-		let output_rating = '';
-		if(sector_rating > -1){
-			output_rating = engine.rating_description_lookup[sector_rating].title;
-		}
-
-		document.getElementById('quad_title').innerText = quad_title;
-		document.getElementById('quad_description').innerText = quad_description;
-		document.getElementById('sector_title').innerText = sector_title;
-		document.getElementById('sector_title_description').innerText = sector_title_description;
-		document.getElementById('sector_block_description').innerText = sector_block_description;
-		document.getElementById('rating').innerText = output_rating;
-		let elem_title = [];
-		//console.log(lookup)
-		if(quad_title && lookup[2] === -1) elem_title.push(quad_title);
-		if(quad_description && lookup[2] === -1) elem_title.push(quad_description);
-		if(sector_title && lookup[2] === -1) elem_title.push(sector_title);
-		if(sector_title_description  && lookup[2] !== -1) elem_title.push(sector_title_description);
-		if(sector_block_description && lookup[2] !== -1) elem_title.push(sector_block_description);
-		
-		self.setAttribute('title',elem_title.join('\n\n'))
 	},
 	
 	test_out : function(){
-		let self = document.getElementById(this.getAttribute('id'))
-		engine.setSectorSVGDDisplay(self,false);
-		//document.getElementById('svg_'+this.getAttribute('id')).classList.remove('svg_show');
-		document.getElementById('rating').innerText = "";
+		let self : HTMLElement | null = document.getElementById(this.getAttribute('id'));
+		if(self){
+			engine.setSectorSVGDisplay(self,false);
+			//document.getElementById('svg_'+this.getAttribute('id')).classList.remove('svg_show');
+			let _rating : HTMLElement | null = document.getElementById('rating');
+			if(_rating){
+				_rating.innerText = "";
+			}
+		}
 	},
 	
-	addToUserdata : function(lookup,rating){
-		//console.log(lookup,rating);
-		//if(lookup[2]>-1){
+	addToUserdata : function(lookup : Array<any>,rating : number){
 		let append = true;
 		for(let a=0;a<engine.current_data.length;a++){
 			if(engine.current_data[a].key[0] === lookup[0] && engine.current_data[a].key[1] === lookup[1] && engine.current_data[a].key[2] === lookup[2]){
@@ -417,11 +426,11 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 		//}
 	},
 	
-	/** 
+	/**      
 	 * set a 'clicked' flag on a sector from the clicked element to the centre. This flag is used
 	 * to suppress the hover off removal of the colour:
 	 */
-	setSectorSVGDClicked : function(elem){
+	setSectorSVGClicked : function(elem : HTMLElement){
 		let id_prefix = elem.getAttribute('id').split('-')[0];
 		let max_id = parseInt(elem.getAttribute('id').split('-')[1]);
 		
@@ -439,46 +448,50 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 	},
 	
 	/** 
-	 * Take a hover element, and set the visibility of all LOWER rated ones
+	 Take a hover element, and set the visibility of all LOWER rated ones
 	 */
-	setSectorSVGDDisplay : function(elem,show){
-		//console.log(elem.getAttribute('id'),elem.getAttribute('data-lookup'),elem.getAttribute('data-rating'));
-		let id_prefix = elem.getAttribute('id').split('-')[0];
-		let max_id = parseInt(elem.getAttribute('id').split('-')[1]);
-		//console.log(id_prefix,max_id);
+	setSectorSVGDisplay : function(elem : HTMLElement,show : boolean){
+		let id_prefix : string = elem.getAttribute('id').split('-')[0];
+		let max_id : number = parseInt(elem.getAttribute('id').split('-')[1]);
 
 		/** build IDs: */
-		for(let x=1;x<=max_id;x++){
-			//console.log('svg_'+id_prefix + '-'+x);
+		for(let x : number = 1; x <= max_id; x++){
 			let elem = document.getElementById('svg_'+id_prefix + '-'+x);
 			if(elem){
 				if(show){
-					//document.getElementById('svg_'+id_prefix + '-'+x).classList.add('svg_show');
-					//elem.classList.add('svg_show');
 					elem.classList.add('svg_hover');
 				}
 				else{
-//					if(!elem.classList.contains('svg_clicked')){
-//						elem.classList.remove('svg_show');
-//					}
 					elem.classList.remove('svg_hover');
-//					if(!document.getElementById('svg_'+id_prefix + '-'+x).classList.contains('svg_clicked')){
-//						document.getElementById('svg_'+id_prefix + '-'+x).classList.remove('svg_show');
-//					}
-					
 				}				
 			}
-
 		}
-		//document.getElementById('svg_'+elem.getAttribute('id')).classList.add('svg_show');
 	},
 	
 	renderRatings : function(){
+		
+		//https://www.tutorialspoint.com/typescript/typescript_multi_dimensional_arrays.htm
+
+	
 		//console.log(engine.current_data);
 		let target = document.getElementById('userdata');
 		target.innerText = "";
-		engine.current_data.sort((a,b) => (a.key[0] > b.key[0]) ? 1 : -1);
+//		engine.current_data.sort((a, b) => (engine.current_data.sort((a, b) => (a.key[0] > b.key[0]) ? 1 : -1);) ? 1 : -1);
+		console.log('sortin....')
+		engine.current_data.sort(function(a,b){
+			console.log(a,b);
+			if(a.key[0] > b.key[0]){
+				return(1);
+			}
+			else{
+				return(-1);
+			}
+			
+		});
+		
+		
 		for(let a=0;a<engine.current_data.length;a++){
+			
 //			console.log('sector:',engine.current_data[a].key[0])
 //			console.log('segment title data:',engine.current_data[a].key[1])
 //			console.log('segment block data:',engine.current_data[a].key[2])

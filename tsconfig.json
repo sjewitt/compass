@@ -1,4 +1,4 @@
 {
-	"compilerOptions": {},
-	"files": ["/js/engine2.ts"]
+	"compilerOptions": {"removeComments": true},
+	"files": ["js/engine2.ts"]
 }
