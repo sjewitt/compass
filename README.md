@@ -32,3 +32,9 @@ Assuming no `/compass/` subdirectory, but is a repo of that name:
  
  - first, `cd /var/www` 
  - then, `sudo git clone https://github.com/sjewitt/compass.git` - need sudo because we don't own the `/var/www/` directory
+   - this gives us our web contents, and is now serveable at `http://localhost/` if above apache settings are configured
+ - but we can't edit yet because we don't own the files. Therefore:
+   - `sudo chown silas:silas -R compass` to take ownership of directory and files, recursively.
+ - once done, we can point Eclipse at this folder and edit _in-situ_
+ 
+ 
