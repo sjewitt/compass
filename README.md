@@ -38,3 +38,31 @@ Assuming no `/compass/` subdirectory, but is a repo of that name:
  - once done, we can point Eclipse at this folder and edit _in-situ_
  
  
+## Typescript
+
+ - Install globally (find ref!)
+   - first, need `node`: `https://nodejs.dev/en/download/package-manager/`. This gives us `npm` 
+   - `sudo npm install -g typescript` (this installs the node version of typescript)
+   - `sudo npm install -g ts-node`    (This is a JIT engine for node.js)
+   - set up ability to watch for ANY typescript file changes
+   - a dependency was a JSON config file IN THE PROJECT ROOT, specifying the files to watch 
+     (see https://stackoverflow.com/questions/12799237/how-to-watch-and-compile-all-typescript-sources/66104668#66104668). 
+     This was fiddly to find because I went down a rabbit hole looking for a way to run `tsc` through Eclipse. This option is 
+     much better:
+     
+     ```
+	{
+		"compilerOptions": {},
+		"files": ["file1.ts","file2.ts"]
+	}
+     ```
+   - THEN we can open a terminal and simply watch the directory for changes to the specified file(s) 
+     `tsc --watch`
+       - this is of course dependent on a global install of typescript (via node) 
+ 
+ - add plugin for Eclipse that knows about TS syntax (e.g. LiClipse, WWD)
+ - start a file change watcher
+ 
+ 
+ 
+ 
