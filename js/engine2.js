@@ -1,3 +1,4 @@
+;
 var engine = {
     rating_description_lookup: [
         { 'title': 'unrated', 'description': 'n/a' },
@@ -116,7 +117,6 @@ var engine = {
     init: function () {
         console.log("TS compiled.");
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
-        this.current_data = [];
         for (var _i = 0, _a = this.elems; _i < _a.length; _i++) {
             var id = _a[_i];
             var elem = document.getElementById(id);
@@ -147,17 +147,15 @@ var engine = {
             .then(function (response) { return response.json(); })
             .then(function (response) { return console.log(response); });
         console.log(engine.current_data);
-        var _out;
-        _out = [];
-        _out.push(['quadrant', 'sector', 'rating']);
+        var _out = [['quadrant', 'sector', 'rating']];
         for (var x = 0; x < engine.current_data.length; x++) {
-            console.log(engine.current_data[x]);
+            console.log("APPENDING ", engine.current_data[x]);
             _out.push([engine.current_data[x].key[0], engine.current_data[x].key[1], engine.current_data[x].rating]);
         }
-        console.log(_out);
+        console.log("OUTPUT: ", _out);
         var _return = "data:text/csv;charset=utf-8,";
         _out.forEach(function (arr) {
-            console.log(arr);
+            console.log("SORTING... ", arr);
             _return += arr.join(",") + "\r\n";
         });
         var encodedUri = encodeURI(_return);
@@ -270,6 +268,7 @@ var engine = {
                 append = false;
                 engine.current_data[a].rating = rating;
             }
+            ;
         }
         if (append) {
             engine.current_data.push({ 'key': lookup, 'rating': rating });
@@ -320,6 +319,7 @@ var engine = {
                 return (-1);
             }
         });
+        console.log("CURRENT DATA: ", engine.current_data);
         for (var a = 0; a < engine.current_data.length; a++) {
             var row = document.createElement('div');
             row.appendChild(document.createTextNode(engine.data_0[engine.current_data[a].key[0]].title
@@ -331,5 +331,9 @@ var engine = {
             target.appendChild(row);
         }
     },
+    fish: function () {
+        var fish = 1255;
+        return (fish);
+    }
 };
 engine.init();

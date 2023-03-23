@@ -1,19 +1,24 @@
-/**
-define each element in the final data
+// define each element in the final data
+// see https://www.typescriptlang.org/play#example/types-vs-interfaces
+//test
+// type quadrant = {
+// 	key: number[],
+// 	rating: number
+// };
 
-interface quad{
-	{
-    	"key": [
-        	0,
-        	0,
-        	0
-    	],
-    	"rating": 2
-	}
-}
-*/
+// or interface? according to above ref, this is preferred method as is more flexible.
+interface quadrant{
+	key: number[],
+	rating: number,
+// 	fish: string
+};
+// but both the above forms work 
 
-let engine = {
+// TODO: define shape of engine?
+// see https://stackoverflow.com/questions/12787781/type-definition-in-object-literal-in-typescript
+
+
+let engine = {	
 	/* do an array mapping data-rating to a colour, and set the element background colour to be that...
 	TODO:
 	 - main titles data attr
@@ -192,14 +197,22 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 	current_score : -1,
 	current_rating : -1,
 	
-	/** https://stackoverflow.com/questions/27089452/how-to-remove-typescript-warning-property-length-does-not-exist-on-type */
-	current_data : <any>[],
+	/** 
+	https://stackoverflow.com/questions/27089452/how-to-remove-typescript-warning-property-length-does-not-exist-on-type 
+	https://bobbyhadz.com/blog/typescript-conversion-of-type-to-type-may-be-mistake
+	*/
+	current_data : [] as unknown as quadrant[],
 	// current_data : <number>[][], 
+	
+	/*
+	Eclipse adds implicit return type (:void here) 
+	See https://www.educba.com/typescript-function-return-type/
+	*/
 	init : function(){
 	
 		console.log("TS compiled.");
 		let page = document.getElementsByTagName('body')[0].getAttribute('data-page');
-		this.current_data = [];	
+		// this.current_data = <quadrant>[];	
 		/** onload, retrieve the current data 
 		 * This will require soe refactoring to account for async call to rertieve the data
 		*/
@@ -225,9 +238,6 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 				export_data_elem.addEventListener('click', this.export_data)
 			}
 		}
-		
-		
-//		let svg = document.getElementById('svg_compass');
 	},
 	
 	/**
@@ -253,19 +263,27 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 		console.log(engine.current_data);
 		
 		/** see https://stackoverflow.com/questions/32738387/how-can-i-make-an-empty-string-array-in-typescript */
-		let _out: any[];	//first declare its type (Can I declare either int or string?)
-		_out = []			//THEN instantiate an empty array, of type string
-		_out.push(['quadrant','sector','rating']);
+		// let _out: any;	//first declare its type (Can I declare either int or string?)
+		//declare a type of array with first element as an array of strings, and the rest as arrays of numbers 
+		type out_pattern = [string[],...Array<number>[]];
+		let _out: out_pattern = [['quadrant','sector','rating']];
+		//_out = []			//THEN instantiate an empty array, of type string?
+		
+		/** OK so _out is expected to be a 2D array, with the first row being strings (the titles) and the rest being ints. So we use teh spread syntax:
+		https://stackoverflow.com/questions/44402096/in-typescript-define-a-type-for-an-array-where-the-first-element-is-more-specif
+		https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
+		 */
+		//_out.push(['quadrant','sector','rating']); //HMM - why does this fail?
 		for(let x=0; x < engine.current_data.length; x++){
-			console.log(engine.current_data[x]);
+			console.log("APPENDING ",engine.current_data[x]);
 			_out.push([engine.current_data[x].key[0], engine.current_data[x].key[1],engine.current_data[x].rating])
 		}
-		console.log(_out);
+		console.log("OUTPUT: ",_out);
 
 		/** now generate CSV data: */
 		let _return = "data:text/csv;charset=utf-8,";
 		_out.forEach(function(arr){	//'arr' is the 'each'...
-			console.log(arr);
+			console.log("SORTING... ", arr);
 		    _return += arr.join(",") + "\r\n";
 		})
 		
@@ -402,14 +420,14 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 		}
 	},
 	
-	addToUserdata : function(lookup : Array<any>,rating : number){
+	addToUserdata : function(lookup : Array<number>,rating : number){
 		let append = true;
 		for(let a=0;a<engine.current_data.length;a++){
 			if(engine.current_data[a].key[0] === lookup[0] && engine.current_data[a].key[1] === lookup[1] && engine.current_data[a].key[2] === lookup[2]){
 				append = false;
 				//console.log('updating');
 				engine.current_data[a].rating = rating;
-			}
+			};
 		}
 		if(append){
 			//console.log('appending');
@@ -489,7 +507,7 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 			
 		});
 		
-		
+		console.log("CURRENT DATA: ",engine.current_data);
 		for(let a=0;a<engine.current_data.length;a++){
 			
 //			console.log('sector:',engine.current_data[a].key[0])
@@ -510,6 +528,15 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 			target.appendChild(row);
 		}
 	},
+	
+	// return type test. 
+	// see https://www.typescriptlang.org/docs/handbook/functions.html
+	fish: function(): number{
+		//const fish:string = 'fish';
+		const fish:number = 1255;
+		//return('fish'); //fails because return type is incorrect
+		return(fish);
+	}
 }
 
 engine.init();
