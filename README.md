@@ -65,6 +65,33 @@ Assuming no `/compass/` subdirectory, but is a repo of that name:
  - add plugin for Eclipse that knows about TS syntax (e.g. LiClipse, WWD)
  - start a file change watcher
  
+## SASS
+
+https://sass-lang.com/
+
+### deploy
+
+https://sass-lang.com/install
  
- 
+i'll use NPM as I have node already installed...
+
+global:
+
+```
+$ sudo npm install -g sass
+[sudo] password for silas: 
+
+added 17 packages in 3s
+
+2 packages are looking for funding
+  run `npm fund` for details
+npm notice 
+npm notice New minor version of npm available! 9.5.0 -> 9.6.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v9.6.2
+npm notice Run npm install -g npm@9.6.2 to update!
+npm notice 
+
+```
+
+
  
