@@ -1,17 +1,49 @@
 // define each element in the final data
 // see https://www.typescriptlang.org/play#example/types-vs-interfaces
-//test
+
 // type quadrant = {
 // 	key: number[],
 // 	rating: number
 // };
 
+// enums and tuples:
+// so for the below example, 'number[]' is an array of ints, of length 3
+// and as such we can declare it as a tuple type:
+// https://www.typescriptlang.org/docs/handbook/2/objects.html#tuple-types
+//
+
+// TURN THIS INTO A CALLABLE FUINCTION!!!
+type compass_key = [number, number, number]
+
+// which means that if we try and use an array of length 4, of ints, it wil complain...
+// and rating can be only 1 to 6, so is suited to an enum:
+// https://www.typescriptlang.org/docs/handbook/enums.html
+// note that 
+
+enum compass_rating{
+	UNFAMILIAR = 1,
+	NOVICE,
+	FOUNDATION,
+	COMPETENT,
+	ADVANCED,
+	MASTER
+}
+
 // or interface? according to above ref, this is preferred method as is more flexible.
+// This also shows the use of compound interfaces (allowed values are also defined types/enums):
+
 interface quadrant{
-	key: number[],
-	rating: number,
+//	key: number[],
+	key : compass_key,		//tighten up the array with this type
+// 	rating: number,
+	rating: compass_rating	//and tighten up the rating to allow 1 -> 6 only (the enum above)
 // 	fish: string
 };
+
+type quad_sector_rating = [number,number,compass_rating]
+
+
+
 // but both the above forms work 
 
 // TODO: define shape of engine?
@@ -19,6 +51,7 @@ interface quadrant{
 
 
 let engine = {	
+	
 	/* do an array mapping data-rating to a colour, and set the element background colour to be that...
 	TODO:
 	 - main titles data attr
@@ -265,7 +298,9 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 		/** see https://stackoverflow.com/questions/32738387/how-can-i-make-an-empty-string-array-in-typescript */
 		// let _out: any;	//first declare its type (Can I declare either int or string?)
 		//declare a type of array with first element as an array of strings, and the rest as arrays of numbers 
-		type out_pattern = [string[],...Array<number>[]];
+		
+		// type out_pattern = [string[],...Array<number>[]];
+		type out_pattern = [string[],...quad_sector_rating[]];
 		let _out: out_pattern = [['quadrant','sector','rating']];
 		//_out = []			//THEN instantiate an empty array, of type string?
 		
@@ -306,22 +341,44 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 		
 		let currentData : string | null = localStorage.getItem('compassData')
 		if(currentData){
-			let data  = JSON.parse(currentData);
+			let data  = JSON.parse(currentData);// TEST:
+		    
 			for(let a=0;a<data.length;a++){
-				engine.addToUserdata(data[a].key,data[a].rating);
-				
-				/**
-				 * and identify the elements to autoclick:
-				 * https://stackoverflow.com/questions/29937768/document-queryselector-multiple-data-attributes-in-one-element
-				 */
-				console.log('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]')
-				let elem : HTMLElement | null = document.querySelector('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]');
-				if(elem){
-					elem.click();
+				//data[a].rating = 7;
+				if(this.isQuadrant(data[a])){
+					
+				//}
+					engine.addToUserdata(data[a].key,data[a].rating);
+					
+					/**
+					 * and identify the elements to autoclick:
+					 * https://stackoverflow.com/questions/29937768/document-queryselector-multiple-data-attributes-in-one-element
+					 */
+					
+					console.log('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]')
+					let elem : HTMLElement | null = document.querySelector('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]');
+					if(elem){
+						elem.click();
+					}
 				}
 			}			
 		}
 		//let data  =	fetch("/test_data/data.txt")
+	},
+	
+    /** type guard: 
+	https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates 
+	https://stackoverflow.com/questions/44078205/how-to-check-the-object-type-on-runtime-in-typescript
+    There doesn't appear to be an intuitive way to type check VALUES at runtime? - therefor, it's basically javascript
+    value checking?
+    
+    OK so it does check the property names.
+	*/
+	isQuadrant : function(data: quadrant) : data is quadrant{
+		//runtime type checking:
+		// see https://stackoverflow.com/questions/44078205/how-to-check-the-object-type-on-runtime-in-typescript
+		console.log("checking data: ",data);
+		return (data as quadrant).rating >= 0 && (data as quadrant).rating <= 6;// && data['rating'] <= 6;
 	},
 	
 	test_handler : function(){
@@ -420,8 +477,13 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 		}
 	},
 	
-	addToUserdata : function(lookup : Array<number>,rating : number){
+	//addToUserdata : function(lookup : Array<number>,rating : number){
+	addToUserdata : function(lookup : compass_key, rating : compass_rating){
 		let append = true;
+		// This is allowed by the enum:
+		// rating = 6
+		// This is NOT allowed by the enum!, and throws a comilation error:
+		// rating = 7
 		for(let a=0;a<engine.current_data.length;a++){
 			if(engine.current_data[a].key[0] === lookup[0] && engine.current_data[a].key[1] === lookup[1] && engine.current_data[a].key[2] === lookup[2]){
 				append = false;

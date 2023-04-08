@@ -1,3 +1,12 @@
+var compass_rating;
+(function (compass_rating) {
+    compass_rating[compass_rating["UNFAMILIAR"] = 1] = "UNFAMILIAR";
+    compass_rating[compass_rating["NOVICE"] = 2] = "NOVICE";
+    compass_rating[compass_rating["FOUNDATION"] = 3] = "FOUNDATION";
+    compass_rating[compass_rating["COMPETENT"] = 4] = "COMPETENT";
+    compass_rating[compass_rating["ADVANCED"] = 5] = "ADVANCED";
+    compass_rating[compass_rating["MASTER"] = 6] = "MASTER";
+})(compass_rating || (compass_rating = {}));
 ;
 var engine = {
     rating_description_lookup: [
@@ -171,14 +180,20 @@ var engine = {
         if (currentData) {
             var data = JSON.parse(currentData);
             for (var a = 0; a < data.length; a++) {
-                engine.addToUserdata(data[a].key, data[a].rating);
-                console.log('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
-                var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
-                if (elem) {
-                    elem.click();
+                if (this.isQuadrant(data[a])) {
+                    engine.addToUserdata(data[a].key, data[a].rating);
+                    console.log('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+                    var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+                    if (elem) {
+                        elem.click();
+                    }
                 }
             }
         }
+    },
+    isQuadrant: function (data) {
+        console.log("checking data: ", data);
+        return data.rating >= 0 && data.rating <= 6;
     },
     test_handler: function () {
         if (this.current_score > -1) {
