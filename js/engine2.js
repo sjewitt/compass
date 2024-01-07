@@ -304,7 +304,8 @@ var engine = {
         for (var x = 1; x <= max_id; x++) {
             document.getElementById('svg_' + id_prefix + '-' + x).classList.add('svg_clicked');
             document.getElementById('svg_' + id_prefix + '-' + x).classList.add('svg_show');
-        }
+        };
+        return(false);
     },
     setSectorSVGDisplay: function (elem, show) {
         var id_prefix = elem.getAttribute('id').split('-')[0];
@@ -345,6 +346,7 @@ var engine = {
                 + ' (' + engine.rating_description_lookup[engine.current_data[a].rating].description + ')'));
             target.appendChild(row);
         }
+        return(false);
     },
     fish: function () {
         var fish = 1255;
