@@ -197,9 +197,9 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 				
 		for(id of this.elems){
 			elem = document.getElementById(id)
-			elem.addEventListener('mouseover',this.test_in)
+			elem.addEventListener('mouseover',this.test_in);
 			elem.addEventListener('mouseout',this.test_out);
-			elem.addEventListener('click',this.test_handler)
+			elem.addEventListener('click',this.test_handler);
 		};
 		//TEST
 //		let in_data = [
@@ -216,8 +216,6 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 			let export_data_elem = document.getElementById('flyout');
 			export_data_elem.addEventListener('click', this.export_data)
 		}
-		
-		
 //		let svg = document.getElementById('svg_compass');
 	},
 	
@@ -237,27 +235,20 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 		})
 	   .then(response => response.json())
 	   .then(response => console.log(response));
-	   
 	   /** end test */
 		
 		/** collect data from localstorage (or database, eventually) and return as CSV */
-		console.log(engine.current_data);
 		let _out = [];
 		_out.push(['quadrant','sector','rating']);
 		for(let x=0; x < engine.current_data.length; x++){
-			console.log(engine.current_data[x]);
 			_out.push([engine.current_data[x].key[0], engine.current_data[x].key[1],engine.current_data[x].rating])
 		}
-		console.log(_out);
 
 		/** now generate CSV data: */
 		let _return = "data:text/csv;charset=utf-8,";
 		_out.forEach(function(arr){	//'arr' is the 'each'...
-			console.log(arr);
-		    //let row = arr.join(",");
 		    _return += arr.join(",") + "\r\n";
 		})
-		//console.log(_return);
 		
 		//test - crude - 'download.csv'
 		var encodedUri = encodeURI(_return);
@@ -275,71 +266,55 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 	 * NOTE: this may need to be refactored if something becomes dependent on this data being loaded first
 	 * 
 	 * replace this with localStorage.get();?
-
 	 */
 	test_load_data : function(){
-
-		console.log('getting localstorage...');
-		console.log(localStorage.getItem('compassData'))
 		let data = JSON.parse(localStorage.getItem('compassData'));
 		for(let a=0;a<data.length;a++){
-			//console.log(data[a])
 			engine.addToUserdata(data[a].key,data[a].rating);
 			
 			/**
 			 * and identify the elements to autoclick:
 			 * https://stackoverflow.com/questions/29937768/document-queryselector-multiple-data-attributes-in-one-element
 			 */
-			// console.log('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]')
 			let elem = document.querySelector('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]');
-			//console.log(elem);
 			elem.click();
 		}
-		
-		
+
 //		fetch("/test_data/data.txt")
 //		.then(
 //			(response) => response.json()
 //		)
 //		.then(function(data){
-//			//console.log(data);
-//			
 //			for(let a=0;a<data.length;a++){
-//				//console.log(data[a])
 //				engine.addToUserdata(data[a].key,data[a].rating);
 //				
 //				/**
 //				 * and identify the elements to autoclick:
 //				 * https://stackoverflow.com/questions/29937768/document-queryselector-multiple-data-attributes-in-one-element
 //				 */
-//				// console.log('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]')
 //				let elem = document.querySelector('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]');
-//				//console.log(elem);
 //				elem.click();
 //			}
 //		});
-
 	},
 	
-	test_handler : function(){
+	test_handler : function(event){
 		if(this.current_score > -1){
 			engine.addToUserdata([this.current_quad,this.current_sector,this.current_score], this.current_rating);
 			this.setAttribute('class','clicked');
-			//console.log(this);
 		}
 		/** also need to set the class so the mouse leave only hides if the given item has NOT been clicked */
 		engine.setSectorSVGDClicked(this);
+		/** suppress the scrolling to top on click */
+		event.preventDefault();
 	},
 
 	test_in : function(){
 		let self = document.getElementById(this.getAttribute('id'))
-		//console.log(self)
-		//console.log(document.getElementById('svg_'+this.getAttribute('id')))
 		// document.getElementById('svg_'+this.getAttribute('id')).classList.add('svg_show');
 		engine.setSectorSVGDDisplay(self,true);
 		let sector_rating = -1;
 	    let lookup = JSON.parse(this.getAttribute('data-lookup')); // expects a string of '[n,n,n]' where n is integer
-	    
 	    this.current_quad = lookup[0];
 		this.current_sector = lookup[1];
 		this.current_score = lookup[2];
@@ -381,7 +356,7 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 		document.getElementById('sector_block_description').innerText = sector_block_description;
 		document.getElementById('rating').innerText = output_rating;
 		let elem_title = [];
-		//console.log(lookup)
+
 		if(quad_title && lookup[2] === -1) elem_title.push(quad_title);
 		if(quad_description && lookup[2] === -1) elem_title.push(quad_description);
 		if(sector_title && lookup[2] === -1) elem_title.push(sector_title);
@@ -399,25 +374,21 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 	},
 	
 	addToUserdata : function(lookup,rating){
-		//console.log(lookup,rating);
 		//if(lookup[2]>-1){
 		let append = true;
 		for(let a=0;a<engine.current_data.length;a++){
 			if(engine.current_data[a].key[0] === lookup[0] && engine.current_data[a].key[1] === lookup[1] && engine.current_data[a].key[2] === lookup[2]){
 				append = false;
-				//console.log('updating');
 				engine.current_data[a].rating = rating;
 			}
 		}
 		if(append){
-			//console.log('appending');
 			engine.current_data.push({'key':lookup,'rating':rating})
 		}
 		console.log(engine.current_data);
 		/** hook in API database update call here */
 		
 		/** or push to localstorage... */
-		console.log('setting localStorage:')
 		localStorage.removeItem('compassData')
 		localStorage.setItem('compassData',JSON.stringify(engine.current_data));
 		this.renderRatings();
@@ -434,7 +405,6 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 		
 		/** first, remove ALL */
 		for(let a=1;a<=6;a++){
-			//console.log('removing','svg_'+id_prefix + '-'+a);
 			document.getElementById('svg_'+id_prefix + '-'+a).classList.remove('svg_clicked');
 			document.getElementById('svg_'+id_prefix + '-'+a).classList.remove('svg_show');
 		}
@@ -449,14 +419,11 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 	 * Take a hover element, and set the visibility of all LOWER rated ones
 	 */
 	setSectorSVGDDisplay : function(elem,show){
-		//console.log(elem.getAttribute('id'),elem.getAttribute('data-lookup'),elem.getAttribute('data-rating'));
 		let id_prefix = elem.getAttribute('id').split('-')[0];
 		let max_id = parseInt(elem.getAttribute('id').split('-')[1]);
-		//console.log(id_prefix,max_id);
 
 		/** build IDs: */
 		for(let x=1;x<=max_id;x++){
-			//console.log('svg_'+id_prefix + '-'+x);
 			let elem = document.getElementById('svg_'+id_prefix + '-'+x);
 			if(elem){
 				if(show){
@@ -472,24 +439,17 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 //					if(!document.getElementById('svg_'+id_prefix + '-'+x).classList.contains('svg_clicked')){
 //						document.getElementById('svg_'+id_prefix + '-'+x).classList.remove('svg_show');
 //					}
-					
 				}				
 			}
-
 		}
 		//document.getElementById('svg_'+elem.getAttribute('id')).classList.add('svg_show');
 	},
 	
 	renderRatings : function(){
-		//console.log(engine.current_data);
 		let target = document.getElementById('userdata');
 		target.innerText = "";
 		engine.current_data.sort((a,b) => (a.key[0] > b.key[0]) ? 1 : -1);
 		for(let a=0;a<engine.current_data.length;a++){
-//			console.log('sector:',engine.current_data[a].key[0])
-//			console.log('segment title data:',engine.current_data[a].key[1])
-//			console.log('segment block data:',engine.current_data[a].key[2])
-//			console.log('rating:',engine.current_data[a].rating)
 			let row = document.createElement('div');
 			/** do as better DOM elements! */
 			row.appendChild(document.createTextNode(
@@ -499,8 +459,7 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 				+': '
 				+engine.rating_description_lookup[engine.current_data[a].rating].title
 				+ ' (' + engine.rating_description_lookup[engine.current_data[a].rating].description + ')'
-			))
-			//console.log(engine.data_0[engine.current_data[a].key[0]])
+			));
 			target.appendChild(row);
 		}
 	},

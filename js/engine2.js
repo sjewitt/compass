@@ -195,12 +195,13 @@ var engine = {
         console.log("checking data: ", data);
         return data.rating >= 0 && data.rating <= 6;
     },
-    test_handler: function () {
+    test_handler: function (event) {
         if (this.current_score > -1) {
             engine.addToUserdata([this.current_quad, this.current_sector, this.current_score], this.current_rating);
             this.setAttribute('class', 'clicked');
         }
         engine.setSectorSVGClicked(this);
+        event.preventDefault();
     },
     test_in: function () {
         var self = document.getElementById(this.getAttribute('id'));
@@ -304,8 +305,7 @@ var engine = {
         for (var x = 1; x <= max_id; x++) {
             document.getElementById('svg_' + id_prefix + '-' + x).classList.add('svg_clicked');
             document.getElementById('svg_' + id_prefix + '-' + x).classList.add('svg_show');
-        };
-        return(false);
+        }
     },
     setSectorSVGDisplay: function (elem, show) {
         var id_prefix = elem.getAttribute('id').split('-')[0];
@@ -346,7 +346,6 @@ var engine = {
                 + ' (' + engine.rating_description_lookup[engine.current_data[a].rating].description + ')'));
             target.appendChild(row);
         }
-        return(false);
     },
     fish: function () {
         var fish = 1255;

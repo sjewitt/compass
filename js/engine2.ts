@@ -381,19 +381,21 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 		return (data as quadrant).rating >= 0 && (data as quadrant).rating <= 6;// && data['rating'] <= 6;
 	},
 	
-	test_handler : function(){
+	test_handler : function(event){
 		if(this.current_score > -1){
 			engine.addToUserdata([this.current_quad,this.current_sector,this.current_score], this.current_rating);
 			this.setAttribute('class','clicked');
 		}
 		/** also need to set the class so the mouse leave only hides if the given item has NOT been clicked */
 		engine.setSectorSVGClicked(this);
+		/** suppress the scrolling to top on click */
+		event.preventDefault();
 	},
 
 	test_in : function(){
 		let self : HTMLElement | null = document.getElementById(this.getAttribute('id'))
 		if(self){
-			
+
 			//console.log(self)
 			//console.log(document.getElementById('svg_'+this.getAttribute('id')))
 			// document.getElementById('svg_'+this.getAttribute('id')).classList.add('svg_show');
