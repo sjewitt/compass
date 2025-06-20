@@ -1,6 +1,10 @@
 # README for imagemap
 
 ## Simple setup (not prod!!)
+
+### python http.server
+
+TODO:
  
 ### apache2
 
@@ -10,7 +14,8 @@
    - update `DocumentRoot` to be `/var/www/compass`
      - we are not doing multiple virtual hosts, so this will serve our Compass on localhost:80 or 127.0.0.1:80
    - apache2 is autostart by default - leave this 
-     
+
+
 ### repo and file perms
  - cd to /var/www/
  - do `sudo git clone https://github.com/sjewitt/compass.git`
