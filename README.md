@@ -4,10 +4,30 @@
 
 ### python http.server
 
-TODO:
+To view the compass, and save stuff to localdata (ATM) just run python3 
+
+
+```console
+
+$ python3 -m http.server
+
+```
+ on default port of :8000. Or - if you really don't want a port on the URL...
+
+```console
+
+$sudo -m http.server 80
+
+```
+
+This will need elevated permissions...
  
 ### apache2
 
+This may be a bit much. Let's do a Python3 container? running fastAPI/uvicorn, with a sqlite database. 
+
+
+ 
  - Install apache2
  - `cd /etc/apache2/sites-available/`
  - `sudo nano 000-default.conf`:
