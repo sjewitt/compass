@@ -1,16 +1,41 @@
 # README for imagemap
 
 ## Simple setup (not prod!!)
+
+### python http.server
+
+To view the compass, and save stuff to localdata (ATM) just run python3 
+
+
+```console
+
+$ python3 -m http.server
+
+```
+ on default port of :8000. Or - if you really don't want a port on the URL...
+
+```console
+
+$sudo -m http.server 80
+
+```
+
+This will need elevated permissions...
  
 ### apache2
 
+This may be a bit much. Let's do a Python3 container? running fastAPI/uvicorn, with a sqlite database. 
+
+
+ 
  - Install apache2
  - `cd /etc/apache2/sites-available/`
  - `sudo nano 000-default.conf`:
    - update `DocumentRoot` to be `/var/www/compass`
      - we are not doing multiple virtual hosts, so this will serve our Compass on localhost:80 or 127.0.0.1:80
    - apache2 is autostart by default - leave this 
-     
+
+
 ### repo and file perms
  - cd to /var/www/
  - do `sudo git clone https://github.com/sjewitt/compass.git`
