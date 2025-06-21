@@ -16,7 +16,7 @@ $ python3 -m http.server
 
 ```console
 
-$sudo python3 -m http.server 80
+$sudo -m http.server 80
 
 ```
 
@@ -118,5 +118,13 @@ npm notice
 
 ```
 
+# NOTES
+
+> 1 GH account
+https://stackoverflow.com/questions/62625513/i-have-2-github-accounts-how-can-i-use-both-when-i-am-working-in-vs-code
+
 
  
+ - do a http redirect from root path to /static
+ - make API endpoints that map to the digits used for the data:
+   - save/<user>/
