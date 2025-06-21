@@ -1,0 +1,75 @@
+#display {
+  display: none;
+  vertical-align: top;
+}
+
+.italic {
+  font-style: italic;
+}
+
+#flyout {
+  display: inline-block;
+  position: absolute;
+}
+#flyout > a > img {
+  width: 40px;
+}
+
+#sector_title_description {
+  padding-bottom: 5px;
+}
+
+#rating {
+  height: 30px;
+}
+
+/* svg */
+#svg_compass {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  width: 1152;
+  height: 900px;
+  z-index: -1;
+}
+
+.svg_title {
+  fill: white;
+  stroke: #888;
+  stroke-width: 2px;
+}
+
+/* initially hide in markup, these elements */
+.svg_hide {
+  fill: none;
+}
+
+/* and identify any that have been previously flagged by the user */
+.svg_show.q1 {
+  fill: #d5f9d5;
+}
+.svg_show.q2 {
+  fill: #daedf3;
+}
+.svg_show.q3 {
+  fill: #ffe1e6;
+}
+.svg_show.q4 {
+  fill: #ffffe6;
+}
+
+/* trigger the se (via the javascript) on hover: */
+.svg_hover.q1 {
+  fill: lightgreen;
+}
+.svg_hover.q2 {
+  fill: lightblue;
+}
+.svg_hover.q3 {
+  fill: lightpink;
+}
+.svg_hover.q4 {
+  fill: #ffff66;
+}
+
+/*# sourceMappingURL=styles2.css.map */

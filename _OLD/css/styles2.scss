@@ -1,0 +1,98 @@
+// pre-compile comments only. These will not appear in the generated markup.
+// normal CSS comments (/*  */) will be retained.
+// https://www.tutorialspoint.com/sass/sass_comments.htm
+// declare some variables for colours:
+$green-hover: lightgreen;
+$blue-hover: lightblue;
+$red-hover: lightpink;
+$yellow-hover: #ffff66;
+
+$green: #d5f9d5;
+$blue: #daedf3;
+$red: #ffe1e6;
+$yellow: #ffffe6;
+
+#display{
+	display: none;
+    vertical-align: top;
+}
+
+.italic{
+	font-style: italic;
+}
+
+// you can intersect direct properties as well as simply nested properties
+// Direct descendent: https://stackoverflow.com/questions/2075257/sass-direct-descendent-rule
+#flyout{
+	display: inline-block;
+	position: absolute;
+	>a > img{
+		width: 40px;
+	}
+}
+
+#sector_title_description{
+	padding-bottom: 5px;
+}
+
+#rating{
+	height: 30px;
+}
+
+/* svg */
+#svg_compass{
+	position: absolute;
+    top: 9px;
+    left: 9px;
+    width: 1152;
+    height: 900px;
+    z-index: -1;
+}
+.svg_title{
+	fill: white;
+	stroke: #888;
+	stroke-width: 2px;
+}
+
+/* initially hide in markup, these elements */
+.svg_hide{
+	fill: none;
+}
+
+// first nesting test: 
+// Because I specifically want a chained selector, I need the '&' operator to abut
+// the class defs:
+// See e.g.: https://css-tricks.com/the-sass-ampersand/
+
+/* and identify any that have been previously flagged by the user */
+.svg_show{
+	&.q1{
+		fill: $green;
+	}
+	&.q2{
+		fill: $blue;
+	}
+	&.q3{
+		fill: $red;
+	}
+	&.q4{
+		fill: $yellow;
+	}
+}
+
+/* trigger the se (via the javascript) on hover: */
+.svg_hover{
+	&.q1{
+		fill: $green_hover;
+	}
+	&.q2{
+		fill: $blue-hover;
+	}
+	&.q3{
+		fill: $red-hover;
+	}
+	&.q4{
+		fill: $yellow-hover;
+	}
+	
+}
