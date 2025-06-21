@@ -1,0 +1,95 @@
+
+
+#display{
+/* 	display: inline-block; */
+/*     height: 900px; */
+/*     min-height: 900px; */
+/*     width: 700px; */
+/*     max-width: 700px; */
+	display: none;
+    vertical-align: top;
+}
+/* #display > div{ */
+/* 	height: 210px; */
+/* } */
+/* #imagemap-container{ */
+/*     display: inline-block;	 */
+/* } */
+
+.italic{
+	font-style: italic;
+}
+
+#flyout{
+	display: inline-block;
+	position: absolute;
+}
+
+
+ #flyout > a > img{
+ 	width: 40px;
+ }
+#sector_title_description{
+	padding-bottom: 5px;
+}
+
+#rating{
+	height: 30px;
+}
+
+/* svg */
+#svg_compass{
+	position: absolute;
+    top: 9px;
+    left: 9px;
+    width: 1152;
+    height: 900px;
+    z-index: -1;
+}
+.svg_title{
+	fill: white;
+	stroke: #888;
+	stroke-width: 2px;
+}
+
+.svg_hide{
+	fill: none;
+}
+
+
+.svg_show.q1{
+	fill: #d5f9d5;
+	
+}
+.svg_show.q2{
+	fill: #daedf3;
+	
+}
+.svg_show.q3{
+	fill: #ffe1e6;
+	
+}
+.svg_show.q4{
+	fill: #ffffa5;
+	
+}
+
+.svg_hover.q1{
+	fill: lightgreen;
+}
+
+.svg_hover.q2{
+	fill: lightblue;
+}
+
+.svg_hover.q3{
+	fill: lightpink;
+}
+
+.svg_hover.q4{
+	fill: #ffff66;
+}
+
+/* #svg_compass > polygon{ */
+/* 	fill: none; */
+/* } */
