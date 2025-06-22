@@ -124,7 +124,6 @@ var engine = {
     current_rating: -1,
     current_data: [],
     init: function () {
-        console.log("TS compiled.");
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
         for (var _i = 0, _a = this.elems; _i < _a.length; _i++) {
             var id = _a[_i];
@@ -145,31 +144,6 @@ var engine = {
         }
     },
     export_data: function () {
-        console.log("RUNNING TEST FETCH")
-        // old PHP test
-        // fetch('/handler.php', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify(engine.current_data)
-        // })
-        //     .then(function (response) { return response.json(); })
-        //     .then(function (response) { return console.log(response); });
-        // console.log(engine.current_data);
-
-        // test getting dastapi data:
-        fetch('/', {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            // body: JSON.stringify(engine.current_data)
-        })
-            .then(function (response) { return response.json(); })
-            .then(function (response) { return console.log(response); });
 
         var _out = [['quadrant', 'sector', 'rating']];
         for (var x = 0; x < engine.current_data.length; x++) {
@@ -190,21 +164,76 @@ var engine = {
             link.click();
         }
     },
-    test_load_data: function () {
-        var currentData = localStorage.getItem('compassData');
-        if (currentData) {
-            var data = JSON.parse(currentData);
-            for (var a = 0; a < data.length; a++) {
-                if (this.isQuadrant(data[a])) {
-                    engine.addToUserdata(data[a].key, data[a].rating);
-                    console.log('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
-                    var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
-                    if (elem) {
-                        elem.click();
+    test_load_data: function (user_id) {
+
+        // var currentData = localStorage.getItem('compassData');
+
+        // test getting fastapi data:
+        fetch('/users/1/competencies/', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        }).then(function (response) {
+             return response.json(); 
+            }).then(function (response) { 
+                
+                /** build display data here instead: 
+                 * [
+                 * {
+                 * key:[a,b,b], rating: c
+                 * },
+                 * ]
+                 * 
+                */
+                // data = response.JSON()
+                // console.log(data);
+                currentData = [];
+                for(let a=0;a<response.length;a++){
+                    currentData.push({
+                        "key":[response[a].quadrant, response[a].sector,response[a].sector],
+                        "rating":response[a].rating})
+                }
+                console.log(currentData)
+                // return console.log(response); 
+                if (currentData) {
+                    console.log(currentData)
+                    // var data = JSON.parse(currentData);
+                    var data = currentData;
+                    for (var a = 0; a < data.length; a++) {
+                        console.log(data[a]);
+                        if (engine.isQuadrant(data[a])) {
+                            console.log(data[a])
+                            engine.addToUserdata(data[a].key, data[a].rating);
+                            console.log(data[a])
+                            console.log("ADDED TO USERDATA")
+                            console.log(data[a])
+                            console.log('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+                            var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+                            if (elem) {
+                                elem.click();
+                            }
+                            
+                        }
                     }
                 }
-            }
-        }
+            });
+
+        // if (currentData) {
+        //     console.log(currentData)
+        //     var data = JSON.parse(currentData);
+        //     for (var a = 0; a < data.length; a++) {
+        //         if (this.isQuadrant(data[a])) {
+        //             engine.addToUserdata(data[a].key, data[a].rating);
+        //             console.log('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+        //             var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+        //             if (elem) {
+        //                 elem.click();
+        //             }
+        //         }
+        //     }
+        // }
     },
     isQuadrant: function (data) {
         console.log("checking data: ", data);
@@ -293,21 +322,47 @@ var engine = {
         }
     },
     addToUserdata: function (lookup, rating) {
+        console.log(`ADDING DATA: ${lookup}, ${rating}`);
+        /**  here we add the data to the database rather than localstorage. Therefore, this also 
+         * needs to have an async promise handler: */
+        // test POSTing to fastapi data:
+        data = {
+            "user_id": 1,
+            "quadrant": lookup[0],
+            "sector": lookup[1],
+            "rating": rating,
+        }
+
+        fetch('/competencies/add/', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        }).then(function (response) {
+             return response.json(); 
+            }).then(function (response) { 
+        
+        });
+
         var append = true;
         for (var a = 0; a < engine.current_data.length; a++) {
-            if (engine.current_data[a].key[0] === lookup[0] && engine.current_data[a].key[1] === lookup[1] && engine.current_data[a].key[2] === lookup[2]) {
+            if (engine.current_data[a].key[0] === lookup[0] 
+                    && engine.current_data[a].key[1] === lookup[1] 
+                    && engine.current_data[a].key[2] === lookup[2])
+                {
                 append = false;
                 engine.current_data[a].rating = rating;
-            }
-            ;
+            };
         }
         if (append) {
             engine.current_data.push({ 'key': lookup, 'rating': rating });
         }
         console.log(engine.current_data);
-        console.log('setting localStorage:');
-        localStorage.removeItem('compassData');
-        localStorage.setItem('compassData', JSON.stringify(engine.current_data));
+        // console.log('setting localStorage:');
+        // localStorage.removeItem('compassData');
+        // localStorage.setItem('compassData', JSON.stringify(engine.current_data));
         this.renderRatings();
     },
     setSectorSVGClicked: function (elem) {
@@ -361,6 +416,7 @@ var engine = {
                 + ' (' + engine.rating_description_lookup[engine.current_data[a].rating].description + ')'));
             target.appendChild(row);
         }
+        console.log("RENDER RATINGS COMPLETED")
     },
     fish: function () {
         var fish = 1255;

@@ -124,7 +124,6 @@ var engine = {
     current_rating: -1,
     current_data: [],
     init: function () {
-        console.log("TS compiled.");
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
         for (var _i = 0, _a = this.elems; _i < _a.length; _i++) {
             var id = _a[_i];
@@ -145,17 +144,19 @@ var engine = {
         }
     },
     export_data: function () {
-        fetch('/handler.php', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(engine.current_data)
-        })
-            .then(function (response) { return response.json(); })
-            .then(function (response) { return console.log(response); });
-        console.log(engine.current_data);
+        console.log("RUNNING TEST FETCH")
+
+        // // test getting fastapi data:
+        // fetch('/users/1/competencies/', {
+        //     method: 'GET',
+        //     headers: {
+        //         'Accept': 'application/json',
+        //         'Content-Type': 'application/json'
+        //     },
+        // })
+        //     .then(function (response) { return response.json(); })
+        //     .then(function (response) { return console.log(response); });
+
         var _out = [['quadrant', 'sector', 'rating']];
         for (var x = 0; x < engine.current_data.length; x++) {
             console.log("APPENDING ", engine.current_data[x]);
@@ -175,21 +176,70 @@ var engine = {
             link.click();
         }
     },
-    test_load_data: function () {
-        var currentData = localStorage.getItem('compassData');
-        if (currentData) {
-            var data = JSON.parse(currentData);
-            for (var a = 0; a < data.length; a++) {
-                if (this.isQuadrant(data[a])) {
-                    engine.addToUserdata(data[a].key, data[a].rating);
-                    console.log('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
-                    var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
-                    if (elem) {
-                        elem.click();
+    test_load_data: function (user_id) {
+
+        // var currentData = localStorage.getItem('compassData');
+
+        // test getting fastapi data:
+        fetch('/users/1/competencies/', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(function (response) { return response.json(); })
+            .then(function (response) { 
+                
+                /** build display data here instead: 
+                 * [
+                 * {
+                 * key:[a,b,b], rating: c
+                 * },
+                 * ]
+                 * 
+                */
+                // data = response.JSON()
+                // console.log(data);
+                currentData = [];
+                for(let a=0;a<response.length;a++){
+                    currentData.push({
+                        "key":[response[a].quadrant, response[a].sector,response[a].sector],
+                        "rating":response[a].rating})
+                }
+                console.log(currentData)
+                // return console.log(response); 
+                if (currentData) {
+                    console.log(currentData)
+                    // var data = JSON.parse(currentData);
+                    data = currentData;
+                    for (var a = 0; a < data.length; a++) {
+                        if (engine.isQuadrant(data[a])) {
+                            engine.addToUserdata(data[a].key, data[a].rating);
+                            console.log('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+                            var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+                            if (elem) {
+                                elem.click();
+                            }
+                        }
                     }
                 }
-            }
-        }
+            });
+
+        // if (currentData) {
+        //     console.log(currentData)
+        //     var data = JSON.parse(currentData);
+        //     for (var a = 0; a < data.length; a++) {
+        //         if (this.isQuadrant(data[a])) {
+        //             engine.addToUserdata(data[a].key, data[a].rating);
+        //             console.log('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+        //             var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+        //             if (elem) {
+        //                 elem.click();
+        //             }
+        //         }
+        //     }
+        // }
     },
     isQuadrant: function (data) {
         console.log("checking data: ", data);
