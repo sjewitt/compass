@@ -8,11 +8,19 @@
 </head>
 <body data-page="svg">
 <div id="flyout">
-<a href='#' title="Download data">
-<img src="/static/images/arrow-down.png" alt="Download"/>
-</a>
+	<a href='#' title="Download data">
+		<img src="/static/images/arrow-down.png" alt="Download"/>
+	</a>
+	<select id="select_user" name="select_user">
+		<option>-- Select yourself --</option>
+        <option value="1">User #1</option>
+        <option value="2">User #2</option>
+        <option value="3">User #3</option>
+    </select>
 </div>
+
 <img src='/static/compass_trans.png' id='test' alt='test' usemap="#testmap">
+
 <div style="width:1152px;">
 		<!-- q1 -->
 		<svg viewBox="0 0 1152 900" id="svg_compass">

@@ -95,6 +95,17 @@ Base.metadata.create_all(engine)
 async def root():
     return {"api":"root"}
 
+
+@app.get("/users/")
+async def users():
+    ''' retrieve all users from database '''
+    try:
+        result = handlers.get_users(engine)
+        return result
+    except UserNotFound as ex:
+        return {"An exception ocurred":ex}  # to fix later...
+
+
 @app.get("/users/{userid}/")
 async def user(userid:int):
     ''' retrieve user from database '''

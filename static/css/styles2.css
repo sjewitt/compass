@@ -11,6 +11,19 @@
   display: inline-block;
   position: absolute;
 }
+
+#flyout > a{
+  text-decoration: none;
+}
+
+#select_user{
+/* #flyout > select{ */
+    width: 180px;
+    margin-left: 20px;
+    vertical-align: top;
+    padding: 10px;
+}
+
 #flyout > a > img {
   width: 40px;
 }

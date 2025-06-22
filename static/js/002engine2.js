@@ -123,8 +123,6 @@ var engine = {
     current_score: -1,
     current_rating: -1,
     current_data: [],
-
-
     init: function () {
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
         for (var _i = 0, _a = this.elems; _i < _a.length; _i++) {
@@ -135,41 +133,27 @@ var engine = {
                 elem.addEventListener('mouseout', this.test_out);
                 elem.addEventListener('click', this.test_handler);
             }
-        };
-
-
-        // if (page === 'svg') {
-        //     engine.test_load_data();
-        //     var export_data_elem = document.getElementById('flyout').firstChild;
-        //     if (export_data_elem) {
-        //         export_data_elem.addEventListener('click', this.export_data);
-        //     }
-        // }
-        
-        /** add event listener for the user dropdown: */
-        var user_dropdown_btn = document.getElementById("select_user_button");
-        var user_dropdown = document.getElementById("select_user");
-
-        console.log(user_dropdown_btn)
-        if(user_dropdown_btn){
-            console.log("Adding handler")
-            user_dropdown_btn.addEventListener("click",() => {engine.selectAndLoadUser()});
-            // user_dropdown_btn.addEventListener("click",()=> {console.log("clicked")});
         }
-        if(user_dropdown){
-            console.log("Adding handler")
-            user_dropdown.addEventListener("change",() => {engine.selectAndLoadUser()});
-            // user_dropdown_btn.addEventListener("click",()=> {console.log("clicked")});
+        ;
+        if (page === 'svg') {
+            engine.test_load_data();
+            var export_data_elem = document.getElementById('flyout');
+            if (export_data_elem) {
+                export_data_elem.addEventListener('click', this.export_data);
+            }
         }
     },
     export_data: function () {
 
         var _out = [['quadrant', 'sector', 'rating']];
         for (var x = 0; x < engine.current_data.length; x++) {
+            console.log("APPENDING ", engine.current_data[x]);
             _out.push([engine.current_data[x].key[0], engine.current_data[x].key[1], engine.current_data[x].rating]);
         }
+        console.log("OUTPUT: ", _out);
         var _return = "data:text/csv;charset=utf-8,";
         _out.forEach(function (arr) {
+            console.log("SORTING... ", arr);
             _return += arr.join(",") + "\r\n";
         });
         var encodedUri = encodeURI(_return);
@@ -180,27 +164,12 @@ var engine = {
             link.click();
         }
     },
-    test_load_data: function (user_id=0) {
-        console.log(user_id)
-        /** first, clear the current data */
-        // https://developer.mozilla.org/en-US/docs/Web/API/NodeList
-        var svg_compass = Array.from(document.getElementById("svg_compass").childNodes);
-        console.log(svg_compass[1])
-        for(let _x=0;_x<svg_compass.length; _x++){
-            if(svg_compass[_x].tagName === "polygon"){
-                console.log(svg_compass[_x].classList);
-                svg_compass[_x].classList.remove('svg_clicked');
-                svg_compass[_x].classList.remove('svg_show');
-            }
-        }
+    test_load_data: function (user_id) {
 
-        /** 
-         * here, we get the ID of the selected User, and this is re-triggered
-         * by the OK button...
-         */
+        // var currentData = localStorage.getItem('compassData');
 
-        /** get userdata from fastapi backend: */
-        fetch(`/users/${user_id}/competencies/`, {
+        // test getting fastapi data:
+        fetch('/users/1/competencies/', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -208,32 +177,68 @@ var engine = {
             },
         }).then(function (response) {
              return response.json(); 
-        }).then(function (response) { 
-            currentData = [];
-            for(let a=0;a<response.length;a++){
-                currentData.push({
-                    "key":[response[a].quadrant, response[a].sector,response[a].sector],
-                    "rating":response[a].rating})
-            }
-            if (currentData) {
-                var data = currentData;
-                for (var a = 0; a < data.length; a++) {
-                    if (engine.isQuadrant(data[a])) {
-                        engine.addToUserdata(data[a].key, data[a].rating);
-                        var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
-                        if (elem) {
-                            elem.click();
+            }).then(function (response) { 
+                
+                /** build display data here instead: 
+                 * [
+                 * {
+                 * key:[a,b,b], rating: c
+                 * },
+                 * ]
+                 * 
+                */
+                // data = response.JSON()
+                // console.log(data);
+                currentData = [];
+                for(let a=0;a<response.length;a++){
+                    currentData.push({
+                        "key":[response[a].quadrant, response[a].sector,response[a].sector],
+                        "rating":response[a].rating})
+                }
+                console.log(currentData)
+                // return console.log(response); 
+                if (currentData) {
+                    console.log(currentData)
+                    // var data = JSON.parse(currentData);
+                    var data = currentData;
+                    for (var a = 0; a < data.length; a++) {
+                        console.log(data[a]);
+                        if (engine.isQuadrant(data[a])) {
+                            console.log(data[a])
+                            engine.addToUserdata(data[a].key, data[a].rating);
+                            console.log(data[a])
+                            console.log("ADDED TO USERDATA")
+                            console.log(data[a])
+                            console.log('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+                            var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+                            if (elem) {
+                                elem.click();
+                            }
+                            
                         }
                     }
                 }
-            }
-        });
+            });
+
+        // if (currentData) {
+        //     console.log(currentData)
+        //     var data = JSON.parse(currentData);
+        //     for (var a = 0; a < data.length; a++) {
+        //         if (this.isQuadrant(data[a])) {
+        //             engine.addToUserdata(data[a].key, data[a].rating);
+        //             console.log('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+        //             var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+        //             if (elem) {
+        //                 elem.click();
+        //             }
+        //         }
+        //     }
+        // }
     },
     isQuadrant: function (data) {
-        // console.log("checking data: ", data);
+        console.log("checking data: ", data);
         return data.rating >= 0 && data.rating <= 6;
     },
-    
     test_handler: function (event) {
         if (this.current_score > -1) {
             engine.addToUserdata([this.current_quad, this.current_sector, this.current_score], this.current_rating);
@@ -242,7 +247,6 @@ var engine = {
         engine.setSectorSVGClicked(this);
         event.preventDefault();
     },
-
     test_in: function () {
         var self = document.getElementById(this.getAttribute('id'));
         if (self) {
@@ -307,7 +311,6 @@ var engine = {
             self.setAttribute('title', elem_title.join('\n\n'));
         }
     },
-
     test_out: function () {
         var self = document.getElementById(this.getAttribute('id'));
         if (self) {
@@ -318,33 +321,13 @@ var engine = {
             }
         }
     },
-    
-    
-    selectAndLoadUser: function(){
-        var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
-        
-        let selected_user = document.getElementById("select_user").value;
-        console.log(selected_user);
-
-        /**  here we can loca the profile for the selected user:  */
-        
-        if (page === 'svg') {
-            engine.test_load_data(selected_user);
-            var export_data_elem = document.getElementById('flyout').firstChild;
-            if (export_data_elem) {
-                export_data_elem.addEventListener('click', this.export_data);
-            }
-        }
-    },
-    
     addToUserdata: function (lookup, rating) {
-        // console.log(`ADDING DATA: ${lookup}, ${rating}`);
+        console.log(`ADDING DATA: ${lookup}, ${rating}`);
         /**  here we add the data to the database rather than localstorage. Therefore, this also 
          * needs to have an async promise handler: */
-        /** get the ID of the user from the dropdown */
-        let user_id = document.getElementById("select_user").value;
+        // test POSTing to fastapi data:
         data = {
-            "user_id": user_id,
+            "user_id": 1,
             "quadrant": lookup[0],
             "sector": lookup[1],
             "rating": rating,
@@ -376,7 +359,7 @@ var engine = {
         if (append) {
             engine.current_data.push({ 'key': lookup, 'rating': rating });
         }
-        // console.log(engine.current_data);
+        console.log(engine.current_data);
         // console.log('setting localStorage:');
         // localStorage.removeItem('compassData');
         // localStorage.setItem('compassData', JSON.stringify(engine.current_data));
@@ -412,9 +395,9 @@ var engine = {
     renderRatings: function () {
         var target = document.getElementById('userdata');
         target.innerText = "";
-        // console.log('sortin....');
+        console.log('sortin....');
         engine.current_data.sort(function (a, b) {
-            // console.log(a, b);
+            console.log(a, b);
             if (a.key[0] > b.key[0]) {
                 return (1);
             }
@@ -422,7 +405,7 @@ var engine = {
                 return (-1);
             }
         });
-        // console.log("CURRENT DATA: ", engine.current_data);
+        console.log("CURRENT DATA: ", engine.current_data);
         for (var a = 0; a < engine.current_data.length; a++) {
             var row = document.createElement('div');
             row.appendChild(document.createTextNode(engine.data_0[engine.current_data[a].key[0]].title
@@ -433,17 +416,11 @@ var engine = {
                 + ' (' + engine.rating_description_lookup[engine.current_data[a].rating].description + ')'));
             target.appendChild(row);
         }
-        // console.log("RENDER RATINGS COMPLETED")
+        console.log("RENDER RATINGS COMPLETED")
     },
     fish: function () {
         var fish = 1255;
         return (fish);
     }
 };
-
-document.addEventListener("DOMContentLoaded",
-    (evt) => {
-        engine.init();
-    }
-)
-
+engine.init();

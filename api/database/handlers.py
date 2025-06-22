@@ -70,9 +70,9 @@ def add_competency(engine, competency:DB_Competency) -> dict:   # status object
         # here, check whetherthe competency is already applied to user:
         # - if so, UPDATE
         # - if NOT, add new (logic to change!)
-        print(check_competency_is_applied_to_user_already(engine,competency))
+        # print(check_competency_is_applied_to_user_already(engine,competency))
         if not check_competency_is_applied_to_user_already(engine,competency):
-            print("ADDING NEW COMPETENCY")
+            # print("ADDING NEW COMPETENCY")
             with Session(engine) as session:
                 session.add(competency)
                 # does this honour the foreign key?
@@ -83,28 +83,55 @@ def add_competency(engine, competency:DB_Competency) -> dict:   # status object
 
         else:
             # UPDATE competency
-            print("UPDATING COMPETENCY")
+            # print("UPDATING COMPETENCY")
             stmt = (update(DB_Competency)
                     .where(DB_Competency.user_id==competency.user_id)
                     .where(DB_Competency.quadrant==competency.quadrant)
                     .where(DB_Competency.sector == competency.sector)
                     .values(rating=competency.rating)
             )
-            print(stmt)
+            # print(stmt)
             with Session(engine) as session:
-                result = session.execute(stmt)
+                session.execute(stmt)
                 session.commit()
             
                 return {"status":"updated", "message":"user competency updated TODO"}
             return {"status":"update failed","message":"update failed"}
 
     else:
-        print("values OOB %s, %s or User does not exist %s" % (competency.quadrant, competency.sector, competency.user_id))
+        # print("values OOB %s, %s or User does not exist %s" % (competency.quadrant, competency.sector, competency.user_id))
         return {"status":"failed", "message":"Bounds or user check failed."}
+
+
+def get_users(engine) -> list[User]|None:
+    
+    with Session(engine) as session:
+        # https://docs.sqlalchemy.org/en/20/tutorial/data_select.html
+        stmt = select(DB_User)
+        result = []
+        # need to convert the DB_User into a User, so th epydantic validation works
+        for row in session.scalars(stmt):
+            # print(row.id,row.name,row.username,row.email)
+            # print(row.name)
+            # print(row.username)
+            # print(row.email)
+            # _usr = User(id=row.id,name=row.name,username=row.username, email=row.email)
+            # breakpoint()
+            result.append(row)
+
+        if result:
+            # print("FOUND ", result[0])
+
+            return result    # the first found user
+        logging.warning("no users found")
+        # raise UserNotFound("user with id %s not found" % user_id)
+        return None
+
+
 
 def get_user(engine, user_id:int) -> User|None:
     # eventually, this all needs to go in database.py
-    print(engine)
+    # print(engine)
     with Session(engine) as session:
         # https://docs.sqlalchemy.org/en/20/tutorial/data_select.html
         stmt = select(DB_User).where(DB_User.id == user_id)
@@ -112,18 +139,18 @@ def get_user(engine, user_id:int) -> User|None:
         # need to convert the DB_User into a User, so th epydantic validation works
         for row in session.scalars(stmt):
             # print(row.id,row.name,row.username,row.email)
-            print(row.name)
-            print(row.username)
-            print(row.email)
+            # print(row.name)
+            # print(row.username)
+            # print(row.email)
             _usr = User(id=row.id,name=row.name,username=row.username, email=row.email)
             # breakpoint()
             result.append(row)
 
         if result:
-            print("FOUND ", result[0])
+            # print("FOUND ", result[0])
 
             return result[0]    # the first found user
-        print(f"user with id {user_id} not found")
+        logging.warning(f"user with id {user_id} not found")
         # raise UserNotFound("user with id %s not found" % user_id)
         return None
 
