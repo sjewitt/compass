@@ -188,9 +188,15 @@ var engine = {
         console.log(svg_compass[1])
         for(let _x=0;_x<svg_compass.length; _x++){
             if(svg_compass[_x].tagName === "polygon"){
-                console.log(svg_compass[_x].classList);
-                svg_compass[_x].classList.remove('svg_clicked');
-                svg_compass[_x].classList.remove('svg_show');
+                /** ignore outer titles, because removing style from this causes an error */
+                if(!svg_compass[_x].classList.contains("svg_title"))
+                {
+                    // console.log("QUAD TITLE")
+                    // console.log(svg_compass[_x].classList);
+                    svg_compass[_x].classList.remove('svg_clicked');
+                    svg_compass[_x].classList.remove('svg_show');
+                }
+                
             }
         }
 
