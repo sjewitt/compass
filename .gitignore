@@ -1,0 +1,5 @@
+bin/*
+lib/*
+lib64
+api/__pycache__/*
+api/database/__pycache__/*
