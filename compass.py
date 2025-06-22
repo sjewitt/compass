@@ -11,7 +11,7 @@ import sqlalchemy
 from sqlalchemy.orm import sessionmaker, Session 
 
 from api.database import handlers
-from api.exceptions import UserNotFound
+from api.exceptions import UserNotFound, CompetencyNotFound
 
 app = FastAPI()
 
@@ -112,11 +112,21 @@ async def adduser(userdata:User):    #translate this to a DB_User
     handlers.add_user(engine,_user)
     return {"usercreated":True}
 
-@app.post("/users/competency/")
-async def update_or_add_competency(competency:Competency):    #todo: make pydantic model
-    ''' Add a user to database '''
-    print(competency)
-    return {"updated":True}
+@app.get("/competencies/{competency_id}")
+async def competency(competency_id:int) -> Competency:
+    ''' retrieve competency from database '''
+    try:
+        result = handlers.get_competency(engine, competency_id)
+        return result
+    except CompetencyNotFound as ex:
+        return {"An exception ocurred":ex}  # to fix later...    
+
+@app.post("/competencies/add/")
+async def add_competency(competency:Competency):    #todo: make pydantic model
+    ''' Add a usecompetency to database '''
+    _competency = DB_Competency(user_id=competency.user_id,quadrant=competency.quadrant, sector=competency.sector, rating=competency.rating)
+    handlers.add_competency(engine,_competency)
+    return {"competencycreated":True}
 
 
 

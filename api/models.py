@@ -8,6 +8,7 @@ class User(BaseModel):
 
 class Competency(BaseModel):
     ''' this maps to the compass quadrants and sectors, and the current rating for each '''
+    user_id:int = Field()
     quadrant:int = Field(min=0, max=3)
     sector:int = Field(min=0, max=4)
     rating:int = Field(min=0, max=5)
