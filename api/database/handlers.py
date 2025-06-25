@@ -63,6 +63,7 @@ def add_user(engine,user:DB_User):
             session.commit()
             return {"action":"usercreate","message":"created OK"}
         except Exception as ex:
+            print(ex)
             return {f"action":"usercreate","message":"Failed: {ex}"}        
     return {"action":"usercreate","message":"Failed"}
 

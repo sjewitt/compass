@@ -14,7 +14,7 @@ from sqlalchemy.orm import sessionmaker, Session
 
 # from routes import admin_routes
 from api.database import handlers
-# from api.db_models import DB_Competency, DB_User
+from api.db_models import DB_Competency, DB_User, Base
 from api.exceptions import UserNotFound, CompetencyNotFound, CompetenciesForUserNotFound
 
 app = FastAPI()
@@ -36,10 +36,10 @@ app.mount("/static", StaticFiles(directory="static", html=True, ),name="static")
 
 # from typing import List
 # from pydantic import EmailStr
-from sqlalchemy import ForeignKey, Integer
-from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase, relationship
-class Base(DeclarativeBase):
-    pass
+# from sqlalchemy import ForeignKey, Integer
+# from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase, relationship
+# class Base(DeclarativeBase):
+#     pass
 
 # using declarative:
 # https://docs.sqlalchemy.org/en/20/orm/basic_relationships.html
@@ -48,36 +48,27 @@ class Base(DeclarativeBase):
 
 
 # child 1
-class DB_User(Base):
-    __tablename__ = "users"
-    id : Mapped[int] = mapped_column(primary_key=True)
-    name : Mapped[str] = mapped_column(String(50))
-    username : Mapped[str] = mapped_column(String(50), unique=True)
-    email : Mapped[str] = mapped_column(String(50), unique=True)
-    competencies : Mapped[List["DB_Competency"]] = relationship(
-        back_populates= "user",cascade="all, delete-orphan"
-    )
+# class DB_User(Base):
+#     __tablename__ = "users"
+#     id : Mapped[int] = mapped_column(primary_key=True)
+#     name : Mapped[str] = mapped_column(String(50))
+#     username : Mapped[str] = mapped_column(String(50), unique=True)
+#     email : Mapped[str] = mapped_column(String(50), unique=True)
+#     competencies : Mapped[List["DB_Competency"]] = relationship(
+#         back_populates= "user",cascade="all, delete-orphan"
+#     )
 
 
-# child 2
-class DB_Competency(Base):
-    __tablename__ = "competencies"
-    id : Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    quadrant = mapped_column(Integer)
-    sector = mapped_column(Integer)
-    rating = mapped_column(Integer)
-    user:Mapped["DB_User"] = relationship(back_populates="competencies")
-
-
-# # parent
-# class DB_UserCompetencies(Base):
-#     __tablename__ = "user_competencies"
-#     id = mapped_column(Integer, primary_key=True)
+# # child 2
+# class DB_Competency(Base):
+#     __tablename__ = "competencies"
+#     id : Mapped[int] = mapped_column(primary_key=True)
 #     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-#     user: Mapped["User"] = relationship(back_populates=)
-#     competency_id = Mapped[int] = mapped_column(ForeignKey("competencies.id"))
-#     rating = mapped_column(Integer, min=0, max=5)
+#     quadrant = mapped_column(Integer)
+#     sector = mapped_column(Integer)
+#     rating = mapped_column(Integer)
+#     user:Mapped["DB_User"] = relationship(back_populates="competencies")
+
 
 # test DB
 DATABASE_URI = "sqlite:///./database/db.sqlite"
