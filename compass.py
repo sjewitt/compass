@@ -7,13 +7,14 @@ from fastapi import APIRouter
 from api.models import User, Competency, UserCompetencies
 # from api.db_models import get_engine
 
+from typing import List
 from sqlalchemy import create_engine, Column, Integer, String
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker, Session 
 
 # from routes import admin_routes
 from api.database import handlers
-from api.db_models import DB_Competency, DB_User
+# from api.db_models import DB_Competency, DB_User
 from api.exceptions import UserNotFound, CompetencyNotFound, CompetenciesForUserNotFound
 
 app = FastAPI()
@@ -35,7 +36,7 @@ app.mount("/static", StaticFiles(directory="static", html=True, ),name="static")
 
 # from typing import List
 # from pydantic import EmailStr
-# from sqlalchemy import ForeignKey, Integer
+from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase, relationship
 class Base(DeclarativeBase):
     pass
@@ -46,27 +47,27 @@ class Base(DeclarativeBase):
 
 
 
-# # child 1
-# class DB_User(Base):
-#     __tablename__ = "users"
-#     id : Mapped[int] = mapped_column(primary_key=True)
-#     name : Mapped[str] = mapped_column(String(50))
-#     username : Mapped[str] = mapped_column(String(50))
-#     email : Mapped[str] = mapped_column(String(50))
-#     competencies : Mapped[List["DB_Competency"]] = relationship(
-#         back_populates= "user",cascade="all, delete-orphan"
-#     )
+# child 1
+class DB_User(Base):
+    __tablename__ = "users"
+    id : Mapped[int] = mapped_column(primary_key=True)
+    name : Mapped[str] = mapped_column(String(50))
+    username : Mapped[str] = mapped_column(String(50), unique=True)
+    email : Mapped[str] = mapped_column(String(50), unique=True)
+    competencies : Mapped[List["DB_Competency"]] = relationship(
+        back_populates= "user",cascade="all, delete-orphan"
+    )
 
 
-# # child 2
-# class DB_Competency(Base):
-#     __tablename__ = "competencies"
-#     id : Mapped[int] = mapped_column(primary_key=True)
-#     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-#     quadrant = mapped_column(Integer)
-#     sector = mapped_column(Integer)
-#     rating = mapped_column(Integer)
-#     user:Mapped["DB_User"] = relationship(back_populates="competencies")
+# child 2
+class DB_Competency(Base):
+    __tablename__ = "competencies"
+    id : Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    quadrant = mapped_column(Integer)
+    sector = mapped_column(Integer)
+    rating = mapped_column(Integer)
+    user:Mapped["DB_User"] = relationship(back_populates="competencies")
 
 
 # # parent
@@ -81,8 +82,8 @@ class Base(DeclarativeBase):
 # test DB
 DATABASE_URI = "sqlite:///./database/db.sqlite"
 engine = create_engine(DATABASE_URI, echo=True)
-# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-# print(engine, SessionLocal, Base)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+print(engine, SessionLocal, Base)
 
 # and generate teh SQL:
 Base.metadata.create_all(engine)
@@ -134,11 +135,12 @@ async def competencies(user_id:int) -> list[Competency]:
 
 
 @app.post("/users/new/")
-async def adduser(userdata:User):    #translate this to a DB_User
+async def adduser(userdata:User) -> dict:    #translate this to a DB_User
     ''' Add a user to database '''
     # convert from pydantic model to DB model:
     _user = DB_User(name=userdata.name, email=userdata.email, username=userdata.username)
-    handlers.add_user(engine,_user)
+    result = handlers.add_user(engine,_user)
+    print(result)
     return {"usercreated":True}
 
 @app.get("/competencies/{competency_id}")

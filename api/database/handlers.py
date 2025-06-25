@@ -1,6 +1,6 @@
 # up three levels to api:
-from compass import User, Competency    #  DB_User, DB_Competency, C
-from api.db_models import DB_Competency, DB_User
+from compass import User, Competency,   DB_User, DB_Competency
+# from api.db_models import DB_Competency, DB_User
 from api.exceptions import UserNotFound, CompetencyNotFound, CompetenciesForUserNotFound
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
@@ -57,9 +57,14 @@ def check_competency_is_applied_to_user_already(engine,competency:DB_Competency)
 def add_user(engine,user:DB_User):
     # eventually, this all needs to go in database.py
     with Session(engine) as session:
-        # new_user = user
-        session.add(user)
-        session.commit()
+        try:
+            # new_user = user
+            session.add(user)
+            session.commit()
+            return {"action":"usercreate","message":"created OK"}
+        except Exception as ex:
+            return {f"action":"usercreate","message":"Failed: {ex}"}        
+    return {"action":"usercreate","message":"Failed"}
 
 
 def add_competency(engine, competency:DB_Competency) -> dict:   # status object
@@ -138,16 +143,10 @@ def get_user(engine, user_id:int) -> User|None:
         result = []
         # need to convert the DB_User into a User, so th epydantic validation works
         for row in session.scalars(stmt):
-            # print(row.id,row.name,row.username,row.email)
-            # print(row.name)
-            # print(row.username)
-            # print(row.email)
             _usr = User(id=row.id,name=row.name,username=row.username, email=row.email)
-            # breakpoint()
             result.append(row)
 
         if result:
-            # print("FOUND ", result[0])
 
             return result[0]    # the first found user
         logging.warning(f"user with id {user_id} not found")

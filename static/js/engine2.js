@@ -137,6 +137,14 @@ var engine = {
             }
         };
 
+        if(page==="add_user"){
+            // append listener to add button:
+            let btn_add_user = document.getElementById("btn_add_user");
+            if(btn_add_user){
+                btn_add_user.addEventListener("click",this.submitNewUserDataHandler)
+            }
+        }
+
 
         // if (page === 'svg') {
         //     engine.test_load_data();
@@ -162,6 +170,31 @@ var engine = {
             // user_dropdown_btn.addEventListener("click",()=> {console.log("clicked")});
         }
     },
+
+    submitNewUserDataHandler: function(){
+        console.log(this)
+        /**
+         {
+  "name": "string",
+  "username": "string",
+  "email": "user@example.com"
+}
+         */
+        let submit = true;
+        data={}
+        data['login'] = document.getElementById("new_user_login");
+        data['name'] = document.getElementById("new_user_name");
+        data['email'] = document.getElementById("new_user_email");
+        data['password'] = document.getElementById("new_user_pwd");
+        data['password2'] = document.getElementById("new_user_pwd_repeat");
+        if(data["password"] !== data["passwprd2"]){
+            console.log("pasword doesn't match");
+            submit = false;
+        }
+        console.log(data);
+        // TODO: Do blur/change handlers and alert in real-time 
+    },
+
     export_data: function () {
 
         var _out = [['quadrant', 'sector', 'rating']];
