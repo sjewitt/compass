@@ -60,12 +60,17 @@ def add_user(engine,user:DB_User):
         try:
             # new_user = user
             session.add(user)
+            # https://stackoverflow.com/questions/36014700/sqlalchemy-how-do-i-see-a-primary-key-id-for-a-newly-created-record
+            session.flush()
+            # we should have an ID now:
+            print(user.id)
+            new_user_id = user.id
             session.commit()
-            return {"action":"usercreate","message":"created OK"}
+            return {"action":"usercreate","usercreated":True, "id":new_user_id}
         except Exception as ex:
             print(ex)
-            return {f"action":"usercreate","message":"Failed: {ex}"}        
-    return {"action":"usercreate","message":"Failed"}
+            return {f"action":"usercreate","message":"Failed: {ex}", "usercreated":False}        
+    return {"action":"usercreate","message":"Failed", "usercreated":False}
 
 
 def add_competency(engine, competency:DB_Competency) -> dict:   # status object
@@ -131,7 +136,7 @@ def get_users(engine) -> list[User]|None:
             return result    # the first found user
         logging.warning("no users found")
         # raise UserNotFound("user with id %s not found" % user_id)
-        return None
+        return []
 
 
 

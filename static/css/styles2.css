@@ -77,6 +77,10 @@ body{
     color: black;
 }
 
+.button img{
+  height:28px;
+}
+
 .button:hover {
     background-color: lightgray;
 }

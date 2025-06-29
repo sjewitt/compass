@@ -4,7 +4,13 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 from fastapi import APIRouter
 
-from api.models import User, Competency, UserCompetencies
+# https://github.com/fastapi/fastapi/issues/199
+# from starlette.responses import RedirectResponse
+# or, from FastAPI:
+# https://fastapi.tiangolo.com/reference/responses/
+# 
+from fastapi.responses import RedirectResponse
+from api.models import User, Competency, UserCompetencies, CreateUser
 # from api.db_models import get_engine
 
 from typing import List
@@ -85,6 +91,7 @@ Base.metadata.create_all(engine)
 
 @app.get("/")
 async def root():
+    return RedirectResponse("/static/")
     return {"api":"root"}
 
 
@@ -126,22 +133,35 @@ async def competencies(user_id:int) -> list[Competency]:
 
 
 @app.post("/users/new/")
-async def adduser(userdata:User) -> dict:    #translate this to a DB_User
+async def adduser(userdata:CreateUser) -> dict:    #translate this to a DB_User
     ''' Add a user to database '''
     # convert from pydantic model to DB model:
-    _user = DB_User(name=userdata.name, email=userdata.email, username=userdata.username)
-    result = handlers.add_user(engine,_user)
-    print(result)
-    return {"usercreated":True}
+    # if userdata.password == userdata.password_check:
+    # if pwd == pwd_check:
+    if userdata.password == userdata.password_check:
+        # _user = DB_User(name=userdata.name, email=userdata.email, username=userdata.username, password=userdata.password)
+        _user = DB_User(name=userdata.user.name, email=userdata.user.email, username=userdata.user.username, password=userdata.password)
+        result = handlers.add_user(engine,_user)
+        print("CREATE RESULT:")
+        print(result)
+        # _id=result['id']
 
-@app.get("/competencies/{competency_id}")
-async def competency(competency_id:int) -> Competency:
-    ''' retrieve competency from database '''
-    try:
-        result = handlers.get_competency(engine, competency_id)
+        # https://stackoverflow.com/questions/76047310/how-to-redirect-from-a-post-to-a-get-endpoint-in-fastapi-without-changing-the-re
+        headers={"content-type":"text/html"}
+        # return RedirectResponse("/",headers=headers, status_code=200)
+        if result['usercreated']:
+            return {"usercreated":True, "user_id":result["id"]}
         return result
-    except CompetencyNotFound as ex:
-        return {"An exception ocurred":ex}  # to fix later...    
+    return {"usercreated":False, "message":"supplied passwords do not match"}
+
+# @app.get("/competencies/{competency_id}")
+# async def competency(competency_id:int) -> Competency:
+#     ''' retrieve competency from database '''
+#     try:
+#         result = handlers.get_competency(engine, competency_id)
+#         return result
+#     except CompetencyNotFound as ex:
+#         return {"An exception ocurred":ex}  # to fix later...    
     
 
 # # https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
@@ -167,10 +187,10 @@ async def add_competency(competency:Competency):    #todo: make pydantic model
     return result
 
 # TES
-@app.post("/competency/{user_id}") 
-async def competencies(competency:Competency):
-    result = handlers.check_competency_is_applied_to_user_already(engine=engine,competency=competency)
-    return result
+# @app.post("/competency/{user_id}") 
+# async def competencies(competency:Competency):
+#     result = handlers.check_competency_is_applied_to_user_already(engine=engine,competency=competency)
+#     return result
 
 
 

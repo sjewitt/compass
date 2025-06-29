@@ -29,6 +29,7 @@ class DB_User(Base):
     name : Mapped[str] = mapped_column(String(50))
     username : Mapped[str] = mapped_column(String(50),unique=True)
     email : Mapped[str] = mapped_column(String(50),unique=True)
+    password : Mapped[str] = mapped_column(String(50))
     competencies : Mapped[List["DB_Competency"]] = relationship(
         back_populates= "user",cascade="all, delete-orphan"
     )

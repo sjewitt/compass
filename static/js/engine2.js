@@ -146,13 +146,14 @@ var engine = {
         }
 
 
-        // if (page === 'svg') {
+        if (page === 'svg') {
+            this.loadAndBuildUserDropdown();
         //     engine.test_load_data();
         //     var export_data_elem = document.getElementById('flyout').firstChild;
         //     if (export_data_elem) {
         //         export_data_elem.addEventListener('click', this.export_data);
         //     }
-        // }
+        }
         
         /** add event listener for the user dropdown: */
         var user_dropdown_btn = document.getElementById("select_user_button");
@@ -171,6 +172,55 @@ var engine = {
         }
     },
 
+    buildOptionElem: function(header=false,userName, userId){
+        let _elem = document.createElement('option');
+        let _txt, _attr;
+        if(header){
+            _txt = document.createTextNode('-- Select yourself --')
+            _attr = -1;
+        }
+        else{
+                    
+            _txt = document.createTextNode(userName)
+            _attr = userId;
+        }
+        _elem.setAttribute("value",_attr)
+        _elem.appendChild(_txt)
+        return(_elem);
+    },
+
+    loadAndBuildUserDropdown: function(){
+        console.log("load users and build the dropdown:")
+               fetch(`/users/`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        }).then(function (response) {
+             return response.json(); 
+        }).then(function (response) { 
+            console.log(response);
+            let targetElem = document.getElementById("select_user");
+
+            /**  
+             * Now iterate over users, create <option> elements and append to dropdown   
+             * https://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
+             *  - and the argument rages on...
+            */
+            targetElem.innerHTML = "";
+            targetElem.appendChild(engine.buildOptionElem(true,null,null));
+            for(let x=0;x<response.length;x++){
+
+                targetElem.appendChild(engine.buildOptionElem(false,response[x].username,response[x].id));
+            }
+
+        });
+
+        
+    },
+
+
     submitNewUserDataHandler: function(){
         console.log(this)
         /**
@@ -182,17 +232,46 @@ var engine = {
          */
         let submit = true;
         data={}
-        data['login'] = document.getElementById("new_user_login");
-        data['name'] = document.getElementById("new_user_name");
-        data['email'] = document.getElementById("new_user_email");
-        data['password'] = document.getElementById("new_user_pwd");
-        data['password2'] = document.getElementById("new_user_pwd_repeat");
-        if(data["password"] !== data["passwprd2"]){
+        data.user = {}
+        data.user['username'] = document.getElementById("new_user_login").value;
+        data.user['name'] = document.getElementById("new_user_name").value;
+        data.user['email'] = document.getElementById("new_user_email").value;
+        data['password'] = document.getElementById("new_user_pwd").value;
+        data['password_check'] = document.getElementById("new_user_pwd_repeat").value;
+        console.log(data);
+        if(data["password"] !== data["password_check"]){    // also checks on server
             console.log("pasword doesn't match");
             submit = false;
         }
         console.log(data);
+        console.log(JSON.stringify(data));
         // TODO: Do blur/change handlers and alert in real-time 
+        if(submit){
+            /**  with fetch() api...  */
+            fetch('/users/new/', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+            }).then(function (response) {
+                // print(response)
+                return response.json(); 
+                }).then(function (response) { 
+                    console.log(response);
+                    /** the ResponseRedirect from the server is failing, so
+                     * try with JS instead:
+                     */
+                    if(response.usercreated){
+                        document.location.href=`/static/?user_id=${response.user_id}`
+                    }
+            });
+        }
+        
+
+
+
     },
 
     export_data: function () {
