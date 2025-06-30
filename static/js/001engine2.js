@@ -123,14 +123,7 @@ var engine = {
     current_score: -1,
     current_rating: -1,
     current_data: [],
-<<<<<<< HEAD
     init: function () {
-        console.log("TS compiled.");
-=======
-
-
-    init: function () {
->>>>>>> api_build
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
         for (var _i = 0, _a = this.elems; _i < _a.length; _i++) {
             var id = _a[_i];
@@ -140,7 +133,6 @@ var engine = {
                 elem.addEventListener('mouseout', this.test_out);
                 elem.addEventListener('click', this.test_handler);
             }
-<<<<<<< HEAD
         }
         ;
         if (page === 'svg') {
@@ -153,109 +145,17 @@ var engine = {
     },
     export_data: function () {
         console.log("RUNNING TEST FETCH")
-        // old PHP test
-        // fetch('/handler.php', {
-        //     method: 'POST',
+
+        // // test getting fastapi data:
+        // fetch('/users/1/competencies/', {
+        //     method: 'GET',
         //     headers: {
         //         'Accept': 'application/json',
         //         'Content-Type': 'application/json'
         //     },
-        //     body: JSON.stringify(engine.current_data)
         // })
         //     .then(function (response) { return response.json(); })
         //     .then(function (response) { return console.log(response); });
-        // console.log(engine.current_data);
-
-        // test getting dastapi data:
-        fetch('/', {
-=======
-        };
-
-        if(page==="add_user"){
-            // append listener to add button:
-            let btn_add_user = document.getElementById("btn_add_user");
-            if(btn_add_user){
-                btn_add_user.addEventListener("click",this.submitNewUserDataHandler)
-            }
-        }
-
-
-        if (page === 'svg') {
-            this.loadAndBuildUserDropdown();
-        //     engine.test_load_data();
-        //     var export_data_elem = document.getElementById('flyout').firstChild;
-        //     if (export_data_elem) {
-        //         export_data_elem.addEventListener('click', this.export_data);
-        //     }
-        }
-
-        /**  
-         * load the dropdown with selecting and jumping to specific user page
-         * */
-        if(page === "home"){
-            this.loadAndBuildUserDropdown();
-        }
-        
-        if (page === "svg_template"){
-            /**  directly call the user load function:  */
-            console.log("LOADING USER FROM PATH PARAM")
-            engine.loadUser();
-        }
-
-        /** add event listener for the user dropdown: */
-        var user_dropdown_btn = document.getElementById("select_user_button");
-        var user_dropdown = document.getElementById("select_user");
-
-        console.log(user_dropdown_btn)
-        if(user_dropdown_btn){
-            console.log("Adding handler")
-            user_dropdown_btn.addEventListener("click",() => {engine.selectAndLoadUser()});
-            // user_dropdown_btn.addEventListener("click",()=> {console.log("clicked")});
-        }
-        if(user_dropdown){
-            console.log("Adding handler")
-            if(page==="home"){
-                user_dropdown.addEventListener("change",() => {engine.redirectToUserTemplate()});
-            }
-            if(page="svg"){
-                user_dropdown.addEventListener("change",() => {engine.selectAndLoadUser()});
-            }
-            
-            // user_dropdown_btn.addEventListener("click",()=> {console.log("clicked")});
-        }
-    },
-
-    buildOptionElem: function(header, userName, userId){
-        let _elem = document.createElement('option');
-        let _txt, _attr;
-        if(header){
-            _txt = document.createTextNode('-- Select yourself --')
-            _attr = -1;
-        }
-        else{
-                    
-            _txt = document.createTextNode(userName)
-            _attr = userId;
-        }
-        _elem.setAttribute("value",_attr)
-        _elem.appendChild(_txt)
-        return(_elem);
-    },
-
-    loadAndBuildUserDropdown: function(){
-        console.log("load users and build the dropdown:")
-               fetch(`/users/`, {
->>>>>>> api_build
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-<<<<<<< HEAD
-            // body: JSON.stringify(engine.current_data)
-        })
-            .then(function (response) { return response.json(); })
-            .then(function (response) { return console.log(response); });
 
         var _out = [['quadrant', 'sector', 'rating']];
         for (var x = 0; x < engine.current_data.length; x++) {
@@ -266,95 +166,6 @@ var engine = {
         var _return = "data:text/csv;charset=utf-8,";
         _out.forEach(function (arr) {
             console.log("SORTING... ", arr);
-=======
-        }).then(function (response) {
-             return response.json(); 
-        }).then(function (response) { 
-            console.log(response);
-            let targetElem = document.getElementById("select_user");
-
-            /**  
-             * Now iterate over users, create <option> elements and append to dropdown   
-             * https://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
-             *  - and the argument rages on...
-            */
-            targetElem.innerHTML = "";
-            targetElem.appendChild(engine.buildOptionElem(true,null,null));
-            for(let x=0;x<response.length;x++){
-
-                targetElem.appendChild(engine.buildOptionElem(false,response[x].username,response[x].id));
-            }
-
-        });
-    },
-
-    redirectToUserPage: function(){
-
-
-    },
-
-    submitNewUserDataHandler: function(){
-        console.log(this)
-        /**
-         {
-  "name": "string",
-  "username": "string",
-  "email": "user@example.com"
-}
-         */
-        let submit = true;
-        data={}
-        data.user = {}
-        data.user['username'] = document.getElementById("new_user_login").value;
-        data.user['name'] = document.getElementById("new_user_name").value;
-        data.user['email'] = document.getElementById("new_user_email").value;
-        data['password'] = document.getElementById("new_user_pwd").value;
-        data['password_check'] = document.getElementById("new_user_pwd_repeat").value;
-        console.log(data);
-        if(data["password"] !== data["password_check"]){    // also checks on server
-            console.log("pasword doesn't match");
-            submit = false;
-        }
-        console.log(data);
-        console.log(JSON.stringify(data));
-        // TODO: Do blur/change handlers and alert in real-time 
-        if(submit){
-            /**  with fetch() api...  */
-            fetch('/users/new/', {
-                method: 'POST',
-                body: JSON.stringify(data),
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-            }).then(function (response) {
-                // print(response)
-                return response.json(); 
-                }).then(function (response) { 
-                    console.log(response);
-                    /** the ResponseRedirect from the server is failing, so
-                     * try with JS instead:
-                     */
-                    if(response.usercreated){
-                        document.location.href=`/static/?user_id=${response.user_id}`
-                    }
-            });
-        }
-        
-
-
-
-    },
-
-    export_data: function () {
-
-        var _out = [['quadrant', 'sector', 'rating']];
-        for (var x = 0; x < engine.current_data.length; x++) {
-            _out.push([engine.current_data[x].key[0], engine.current_data[x].key[1], engine.current_data[x].rating]);
-        }
-        var _return = "data:text/csv;charset=utf-8,";
-        _out.forEach(function (arr) {
->>>>>>> api_build
             _return += arr.join(",") + "\r\n";
         });
         var encodedUri = encodeURI(_return);
@@ -365,89 +176,75 @@ var engine = {
             link.click();
         }
     },
-<<<<<<< HEAD
-    test_load_data: function () {
-        var currentData = localStorage.getItem('compassData');
-        if (currentData) {
-            var data = JSON.parse(currentData);
-            for (var a = 0; a < data.length; a++) {
-                if (this.isQuadrant(data[a])) {
-                    engine.addToUserdata(data[a].key, data[a].rating);
-                    console.log('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
-                    var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
-                    if (elem) {
-                        elem.click();
-                    }
-                }
-            }
-        }
-    },
-    isQuadrant: function (data) {
-        console.log("checking data: ", data);
-        return data.rating >= 0 && data.rating <= 6;
-    },
-=======
-    test_load_data: function (user_id=0) {
-        console.log(user_id)
-        /** first, clear the current data */
-        // https://developer.mozilla.org/en-US/docs/Web/API/NodeList
-        var svg_compass = Array.from(document.getElementById("svg_compass").childNodes);
-        console.log(svg_compass[1])
-        for(let _x=0;_x<svg_compass.length; _x++){
-            if(svg_compass[_x].tagName === "polygon"){
-                /** ignore outer titles, because removing style from this causes an error */
-                if(!svg_compass[_x].classList.contains("svg_title"))
-                {
-                    // console.log("QUAD TITLE")
-                    // console.log(svg_compass[_x].classList);
-                    svg_compass[_x].classList.remove('svg_clicked');
-                    svg_compass[_x].classList.remove('svg_show');
-                }
-                
-            }
-        }
+    test_load_data: function (user_id) {
 
-        /** 
-         * here, we get the ID of the selected User, and this is re-triggered
-         * by the OK button...
-         */
+        // var currentData = localStorage.getItem('compassData');
 
-        /** get userdata from fastapi backend: */
-        fetch(`/users/${user_id}/competencies/`, {
+        // test getting fastapi data:
+        fetch('/users/1/competencies/', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-        }).then(function (response) {
-             return response.json(); 
-        }).then(function (response) { 
-            currentData = [];
-            for(let a=0;a<response.length;a++){
-                currentData.push({
-                    "key":[response[a].quadrant, response[a].sector,response[a].sector],
-                    "rating":response[a].rating})
-            }
-            if (currentData) {
-                var data = currentData;
-                for (var a = 0; a < data.length; a++) {
-                    if (engine.isQuadrant(data[a])) {
-                        engine.addToUserdata(data[a].key, data[a].rating);
-                        var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
-                        if (elem) {
-                            elem.click();
+        })
+            .then(function (response) { return response.json(); })
+            .then(function (response) { 
+                
+                /** build display data here instead: 
+                 * [
+                 * {
+                 * key:[a,b,b], rating: c
+                 * },
+                 * ]
+                 * 
+                */
+                // data = response.JSON()
+                // console.log(data);
+                currentData = [];
+                for(let a=0;a<response.length;a++){
+                    currentData.push({
+                        "key":[response[a].quadrant, response[a].sector,response[a].sector],
+                        "rating":response[a].rating})
+                }
+                console.log(currentData)
+                // return console.log(response); 
+                if (currentData) {
+                    console.log(currentData)
+                    // var data = JSON.parse(currentData);
+                    data = currentData;
+                    for (var a = 0; a < data.length; a++) {
+                        if (engine.isQuadrant(data[a])) {
+                            engine.addToUserdata(data[a].key, data[a].rating);
+                            console.log('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+                            var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+                            if (elem) {
+                                elem.click();
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+
+        // if (currentData) {
+        //     console.log(currentData)
+        //     var data = JSON.parse(currentData);
+        //     for (var a = 0; a < data.length; a++) {
+        //         if (this.isQuadrant(data[a])) {
+        //             engine.addToUserdata(data[a].key, data[a].rating);
+        //             console.log('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+        //             var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+        //             if (elem) {
+        //                 elem.click();
+        //             }
+        //         }
+        //     }
+        // }
     },
     isQuadrant: function (data) {
-        // console.log("checking data: ", data);
+        console.log("checking data: ", data);
         return data.rating >= 0 && data.rating <= 6;
     },
-    
->>>>>>> api_build
     test_handler: function (event) {
         if (this.current_score > -1) {
             engine.addToUserdata([this.current_quad, this.current_sector, this.current_score], this.current_rating);
@@ -456,10 +253,6 @@ var engine = {
         engine.setSectorSVGClicked(this);
         event.preventDefault();
     },
-<<<<<<< HEAD
-=======
-
->>>>>>> api_build
     test_in: function () {
         var self = document.getElementById(this.getAttribute('id'));
         if (self) {
@@ -524,10 +317,6 @@ var engine = {
             self.setAttribute('title', elem_title.join('\n\n'));
         }
     },
-<<<<<<< HEAD
-=======
-
->>>>>>> api_build
     test_out: function () {
         var self = document.getElementById(this.getAttribute('id'));
         if (self) {
@@ -538,7 +327,6 @@ var engine = {
             }
         }
     },
-<<<<<<< HEAD
     addToUserdata: function (lookup, rating) {
         var append = true;
         for (var a = 0; a < engine.current_data.length; a++) {
@@ -547,91 +335,14 @@ var engine = {
                 engine.current_data[a].rating = rating;
             }
             ;
-=======
-    
-    /** for template, simplify the function */
-    loadUser: function(){
-        let selected_user = document.getElementById("select_user").value;
-        engine.test_load_data(selected_user);
-    },
-    
-    selectAndLoadUser: function(){
-        var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
-        
-        let selected_user = document.getElementById("select_user").value;
-        console.log(selected_user);
-
-        /**  here we can loca the profile for the selected user:  */
-        
-        if (page === 'svg') {
-            engine.test_load_data(selected_user);
-            var export_data_elem = document.getElementById('flyout').firstChild;
-            if (export_data_elem) {
-                export_data_elem.addEventListener('click', this.export_data);
-            }
-        }
-    },
-
-    redirectToUserTemplate: function(){
-        let selected_user = document.getElementById("select_user").value;
-        console.log(selected_user)
-        if(parseInt(selected_user) > 0){
-            document.location.href = `/${selected_user}`;
-        }
-       
-    },
-    
-    addToUserdata: function (lookup, rating) {
-        // console.log(`ADDING DATA: ${lookup}, ${rating}`);
-        /**  here we add the data to the database rather than localstorage. Therefore, this also 
-         * needs to have an async promise handler: */
-        /** get the ID of the user from the dropdown */
-        let user_id = document.getElementById("select_user").value;
-        data = {
-            "user_id": user_id,
-            "quadrant": lookup[0],
-            "sector": lookup[1],
-            "rating": rating,
-        }
-
-        fetch('/competencies/add/', {
-            method: 'POST',
-            body: JSON.stringify(data),
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-        }).then(function (response) {
-             return response.json(); 
-            }).then(function (response) { 
-        
-        });
-
-        var append = true;
-        for (var a = 0; a < engine.current_data.length; a++) {
-            if (engine.current_data[a].key[0] === lookup[0] 
-                    && engine.current_data[a].key[1] === lookup[1] 
-                    && engine.current_data[a].key[2] === lookup[2])
-                {
-                append = false;
-                engine.current_data[a].rating = rating;
-            };
->>>>>>> api_build
         }
         if (append) {
             engine.current_data.push({ 'key': lookup, 'rating': rating });
         }
-<<<<<<< HEAD
         console.log(engine.current_data);
         console.log('setting localStorage:');
         localStorage.removeItem('compassData');
         localStorage.setItem('compassData', JSON.stringify(engine.current_data));
-=======
-        // console.log(engine.current_data);
-        // console.log('setting localStorage:');
-        // localStorage.removeItem('compassData');
-        // localStorage.setItem('compassData', JSON.stringify(engine.current_data));
->>>>>>> api_build
         this.renderRatings();
     },
     setSectorSVGClicked: function (elem) {
@@ -664,15 +375,9 @@ var engine = {
     renderRatings: function () {
         var target = document.getElementById('userdata');
         target.innerText = "";
-<<<<<<< HEAD
         console.log('sortin....');
         engine.current_data.sort(function (a, b) {
             console.log(a, b);
-=======
-        // console.log('sortin....');
-        engine.current_data.sort(function (a, b) {
-            // console.log(a, b);
->>>>>>> api_build
             if (a.key[0] > b.key[0]) {
                 return (1);
             }
@@ -680,11 +385,7 @@ var engine = {
                 return (-1);
             }
         });
-<<<<<<< HEAD
         console.log("CURRENT DATA: ", engine.current_data);
-=======
-        // console.log("CURRENT DATA: ", engine.current_data);
->>>>>>> api_build
         for (var a = 0; a < engine.current_data.length; a++) {
             var row = document.createElement('div');
             row.appendChild(document.createTextNode(engine.data_0[engine.current_data[a].key[0]].title
@@ -695,24 +396,10 @@ var engine = {
                 + ' (' + engine.rating_description_lookup[engine.current_data[a].rating].description + ')'));
             target.appendChild(row);
         }
-<<<<<<< HEAD
-=======
-        // console.log("RENDER RATINGS COMPLETED")
->>>>>>> api_build
     },
     fish: function () {
         var fish = 1255;
         return (fish);
     }
 };
-<<<<<<< HEAD
 engine.init();
-=======
-
-document.addEventListener("DOMContentLoaded",
-    (evt) => {
-        engine.init();
-    }
-)
-
->>>>>>> api_build

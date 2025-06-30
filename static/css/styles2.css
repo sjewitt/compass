@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+=======
+body{
+  font-family:Arial, Helvetica, sans-serif;
+}
+
+>>>>>>> api_build
 #display {
   display: none;
   vertical-align: top;
@@ -7,10 +14,100 @@
   font-style: italic;
 }
 
+<<<<<<< HEAD
+=======
+.panel{
+  display: grid;
+  grid-template-columns: 50% 50%;
+  grid-gap:10px;
+  width:60%;
+}
+
+>>>>>>> api_build
 #flyout {
   display: inline-block;
   position: absolute;
 }
+<<<<<<< HEAD
+=======
+
+#flyout > a{
+  text-decoration: none;
+}
+
+#select_user{
+/* #flyout > select{ */
+    width: 180px;
+    margin-left: 20px;
+    vertical-align: top;
+    padding: 10px;
+    border-radius: 3px;
+}
+
+#select_user:hover{
+   background-color: lightgray;
+}
+
+.abs{
+  position: absolute;
+}
+
+.button{
+    display: inline-block;
+    font-size: x-large;
+    padding-left: 5px;
+    padding-right: 5px;
+    border: 1px solid grey;
+    margin-left: 5px;
+    border-radius: 3px;
+    padding-top: 4px;
+    height:32px;
+    text-align:center;
+}
+
+.text_left{
+  text-align: left;
+}
+
+.left_85{
+  left:85px;
+}
+
+.width_400{
+  width:400px;
+}
+
+
+
+.sml_width{
+    width: 60px;
+    margin-left: 0px;
+    font-size: large;
+    height:25px
+}
+
+.med_width{
+    width: 90px;
+    margin-left: 0px;
+    font-size: large;
+    height:25px;
+}
+
+.button > a {
+    
+    text-decoration: none;
+    color: black;
+}
+
+.button img{
+  height:28px;
+}
+
+.button:hover {
+    background-color: lightgray;
+}
+
+>>>>>>> api_build
 #flyout > a > img {
   width: 40px;
 }

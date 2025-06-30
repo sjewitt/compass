@@ -3,6 +3,7 @@
 # https://www.geeksforgeeks.org/python/fastapi-sqlite-databases/
 # https://plainenglish.io/blog/understanding-sqlalchemys-declarative-base-and-metadata-in-python
 
+<<<<<<< HEAD
 from sqlalchemy import create_engine, Column, Integer, String
 # import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
@@ -10,6 +11,18 @@ from sqlalchemy import create_engine, MetaData
 
 Base = declarative_base()
 
+=======
+# from sqlalchemy import create_engine, Column
+# import sqlalchemy
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
+from typing import List
+
+# Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
+>>>>>>> api_build
 # from sqlalchemy.orm import sessionmaker, Session 
 # # User
 # def get_engine():
@@ -19,5 +32,30 @@ Base = declarative_base()
 
 #     return engine
 
+<<<<<<< HEAD
 class DB_User(Base):
     pass
+=======
+# child 1
+class DB_User(Base):
+    __tablename__ = "users"
+    id : Mapped[int] = mapped_column(primary_key=True)
+    name : Mapped[str] = mapped_column(String(50))
+    username : Mapped[str] = mapped_column(String(50),unique=True)
+    email : Mapped[str] = mapped_column(String(50),unique=True)
+    password : Mapped[str] = mapped_column(String(50))
+    competencies : Mapped[List["DB_Competency"]] = relationship(
+        back_populates= "user",cascade="all, delete-orphan"
+    )
+
+
+# child 2
+class DB_Competency(Base):
+    __tablename__ = "competencies"
+    id : Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    quadrant = mapped_column(Integer)
+    sector = mapped_column(Integer)
+    rating = mapped_column(Integer)
+    user:Mapped["DB_User"] = relationship(back_populates="competencies")
+>>>>>>> api_build
