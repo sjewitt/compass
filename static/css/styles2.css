@@ -57,6 +57,20 @@ body{
     text-align:center;
 }
 
+.text_left{
+  text-align: left;
+}
+
+.left_85{
+  left:85px;
+}
+
+.width_400{
+  width:400px;
+}
+
+
+
 .sml_width{
     width: 60px;
     margin-left: 0px;

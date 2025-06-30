@@ -1,5 +1,7 @@
 # up three levels to api:
-from compass import User, Competency,   DB_User, DB_Competency
+# from compass import User, Competency,   DB_User, DB_Competency
+from api.models import User, Competency
+from api.db_models import DB_Competency, DB_User
 # from api.db_models import DB_Competency, DB_User
 from api.exceptions import UserNotFound, CompetencyNotFound, CompetenciesForUserNotFound
 from sqlalchemy import select, update

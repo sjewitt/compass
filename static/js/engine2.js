@@ -154,7 +154,20 @@ var engine = {
         //         export_data_elem.addEventListener('click', this.export_data);
         //     }
         }
+
+        /**  
+         * load the dropdown with selecting and jumping to specific user page
+         * */
+        if(page === "home"){
+            this.loadAndBuildUserDropdown();
+        }
         
+        if (page === "svg_template"){
+            /**  directly call the user load function:  */
+            console.log("LOADING USER FROM PATH PARAM")
+            engine.loadUser();
+        }
+
         /** add event listener for the user dropdown: */
         var user_dropdown_btn = document.getElementById("select_user_button");
         var user_dropdown = document.getElementById("select_user");
@@ -167,12 +180,18 @@ var engine = {
         }
         if(user_dropdown){
             console.log("Adding handler")
-            user_dropdown.addEventListener("change",() => {engine.selectAndLoadUser()});
+            if(page==="home"){
+                user_dropdown.addEventListener("change",() => {engine.redirectToUserTemplate()});
+            }
+            if(page="svg"){
+                user_dropdown.addEventListener("change",() => {engine.selectAndLoadUser()});
+            }
+            
             // user_dropdown_btn.addEventListener("click",()=> {console.log("clicked")});
         }
     },
 
-    buildOptionElem: function(header=false,userName, userId){
+    buildOptionElem: function(header, userName, userId){
         let _elem = document.createElement('option');
         let _txt, _attr;
         if(header){
@@ -216,10 +235,12 @@ var engine = {
             }
 
         });
-
-        
     },
 
+    redirectToUserPage: function(){
+
+
+    },
 
     submitNewUserDataHandler: function(){
         console.log(this)
@@ -437,6 +458,11 @@ var engine = {
         }
     },
     
+    /** for template, simplify the function */
+    loadUser: function(){
+        let selected_user = document.getElementById("select_user").value;
+        engine.test_load_data(selected_user);
+    },
     
     selectAndLoadUser: function(){
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
@@ -453,6 +479,15 @@ var engine = {
                 export_data_elem.addEventListener('click', this.export_data);
             }
         }
+    },
+
+    redirectToUserTemplate: function(){
+        let selected_user = document.getElementById("select_user").value;
+        console.log(selected_user)
+        if(parseInt(selected_user) > 0){
+            document.location.href = `/${selected_user}`;
+        }
+       
     },
     
     addToUserdata: function (lookup, rating) {
