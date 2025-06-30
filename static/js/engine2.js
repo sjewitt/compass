@@ -123,14 +123,9 @@ var engine = {
     current_score: -1,
     current_rating: -1,
     current_data: [],
-<<<<<<< HEAD
-    init: function () {
-        console.log("TS compiled.");
-=======
 
 
     init: function () {
->>>>>>> api_build
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
         for (var _i = 0, _a = this.elems; _i < _a.length; _i++) {
             var id = _a[_i];
@@ -140,35 +135,6 @@ var engine = {
                 elem.addEventListener('mouseout', this.test_out);
                 elem.addEventListener('click', this.test_handler);
             }
-<<<<<<< HEAD
-        }
-        ;
-        if (page === 'svg') {
-            engine.test_load_data();
-            var export_data_elem = document.getElementById('flyout');
-            if (export_data_elem) {
-                export_data_elem.addEventListener('click', this.export_data);
-            }
-        }
-    },
-    export_data: function () {
-        console.log("RUNNING TEST FETCH")
-        // old PHP test
-        // fetch('/handler.php', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify(engine.current_data)
-        // })
-        //     .then(function (response) { return response.json(); })
-        //     .then(function (response) { return console.log(response); });
-        // console.log(engine.current_data);
-
-        // test getting dastapi data:
-        fetch('/', {
-=======
         };
 
         if(page==="add_user"){
@@ -245,28 +211,11 @@ var engine = {
     loadAndBuildUserDropdown: function(){
         console.log("load users and build the dropdown:")
                fetch(`/users/`, {
->>>>>>> api_build
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-<<<<<<< HEAD
-            // body: JSON.stringify(engine.current_data)
-        })
-            .then(function (response) { return response.json(); })
-            .then(function (response) { return console.log(response); });
-
-        var _out = [['quadrant', 'sector', 'rating']];
-        for (var x = 0; x < engine.current_data.length; x++) {
-            console.log("APPENDING ", engine.current_data[x]);
-            _out.push([engine.current_data[x].key[0], engine.current_data[x].key[1], engine.current_data[x].rating]);
-        }
-        console.log("OUTPUT: ", _out);
-        var _return = "data:text/csv;charset=utf-8,";
-        _out.forEach(function (arr) {
-            console.log("SORTING... ", arr);
-=======
         }).then(function (response) {
              return response.json(); 
         }).then(function (response) { 
@@ -354,7 +303,6 @@ var engine = {
         }
         var _return = "data:text/csv;charset=utf-8,";
         _out.forEach(function (arr) {
->>>>>>> api_build
             _return += arr.join(",") + "\r\n";
         });
         var encodedUri = encodeURI(_return);
@@ -365,28 +313,6 @@ var engine = {
             link.click();
         }
     },
-<<<<<<< HEAD
-    test_load_data: function () {
-        var currentData = localStorage.getItem('compassData');
-        if (currentData) {
-            var data = JSON.parse(currentData);
-            for (var a = 0; a < data.length; a++) {
-                if (this.isQuadrant(data[a])) {
-                    engine.addToUserdata(data[a].key, data[a].rating);
-                    console.log('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
-                    var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
-                    if (elem) {
-                        elem.click();
-                    }
-                }
-            }
-        }
-    },
-    isQuadrant: function (data) {
-        console.log("checking data: ", data);
-        return data.rating >= 0 && data.rating <= 6;
-    },
-=======
     test_load_data: function (user_id=0) {
         console.log(user_id)
         /** first, clear the current data */
@@ -447,7 +373,6 @@ var engine = {
         return data.rating >= 0 && data.rating <= 6;
     },
     
->>>>>>> api_build
     test_handler: function (event) {
         if (this.current_score > -1) {
             engine.addToUserdata([this.current_quad, this.current_sector, this.current_score], this.current_rating);
@@ -456,10 +381,6 @@ var engine = {
         engine.setSectorSVGClicked(this);
         event.preventDefault();
     },
-<<<<<<< HEAD
-=======
-
->>>>>>> api_build
     test_in: function () {
         var self = document.getElementById(this.getAttribute('id'));
         if (self) {
@@ -524,10 +445,6 @@ var engine = {
             self.setAttribute('title', elem_title.join('\n\n'));
         }
     },
-<<<<<<< HEAD
-=======
-
->>>>>>> api_build
     test_out: function () {
         var self = document.getElementById(this.getAttribute('id'));
         if (self) {
@@ -538,16 +455,6 @@ var engine = {
             }
         }
     },
-<<<<<<< HEAD
-    addToUserdata: function (lookup, rating) {
-        var append = true;
-        for (var a = 0; a < engine.current_data.length; a++) {
-            if (engine.current_data[a].key[0] === lookup[0] && engine.current_data[a].key[1] === lookup[1] && engine.current_data[a].key[2] === lookup[2]) {
-                append = false;
-                engine.current_data[a].rating = rating;
-            }
-            ;
-=======
     
     /** for template, simplify the function */
     loadUser: function(){
@@ -616,22 +523,14 @@ var engine = {
                 append = false;
                 engine.current_data[a].rating = rating;
             };
->>>>>>> api_build
         }
         if (append) {
             engine.current_data.push({ 'key': lookup, 'rating': rating });
         }
-<<<<<<< HEAD
-        console.log(engine.current_data);
-        console.log('setting localStorage:');
-        localStorage.removeItem('compassData');
-        localStorage.setItem('compassData', JSON.stringify(engine.current_data));
-=======
         // console.log(engine.current_data);
         // console.log('setting localStorage:');
         // localStorage.removeItem('compassData');
         // localStorage.setItem('compassData', JSON.stringify(engine.current_data));
->>>>>>> api_build
         this.renderRatings();
     },
     setSectorSVGClicked: function (elem) {
@@ -664,15 +563,9 @@ var engine = {
     renderRatings: function () {
         var target = document.getElementById('userdata');
         target.innerText = "";
-<<<<<<< HEAD
-        console.log('sortin....');
-        engine.current_data.sort(function (a, b) {
-            console.log(a, b);
-=======
         // console.log('sortin....');
         engine.current_data.sort(function (a, b) {
             // console.log(a, b);
->>>>>>> api_build
             if (a.key[0] > b.key[0]) {
                 return (1);
             }
@@ -680,11 +573,7 @@ var engine = {
                 return (-1);
             }
         });
-<<<<<<< HEAD
-        console.log("CURRENT DATA: ", engine.current_data);
-=======
         // console.log("CURRENT DATA: ", engine.current_data);
->>>>>>> api_build
         for (var a = 0; a < engine.current_data.length; a++) {
             var row = document.createElement('div');
             row.appendChild(document.createTextNode(engine.data_0[engine.current_data[a].key[0]].title
@@ -695,19 +584,13 @@ var engine = {
                 + ' (' + engine.rating_description_lookup[engine.current_data[a].rating].description + ')'));
             target.appendChild(row);
         }
-<<<<<<< HEAD
-=======
         // console.log("RENDER RATINGS COMPLETED")
->>>>>>> api_build
     },
     fish: function () {
         var fish = 1255;
         return (fish);
     }
 };
-<<<<<<< HEAD
-engine.init();
-=======
 
 document.addEventListener("DOMContentLoaded",
     (evt) => {
@@ -715,4 +598,3 @@ document.addEventListener("DOMContentLoaded",
     }
 )
 
->>>>>>> api_build
