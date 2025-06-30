@@ -3,15 +3,6 @@
 # https://www.geeksforgeeks.org/python/fastapi-sqlite-databases/
 # https://plainenglish.io/blog/understanding-sqlalchemys-declarative-base-and-metadata-in-python
 
-<<<<<<< HEAD
-from sqlalchemy import create_engine, Column, Integer, String
-# import sqlalchemy
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, MetaData
-
-Base = declarative_base()
-
-=======
 # from sqlalchemy import create_engine, Column
 # import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
@@ -22,7 +13,6 @@ from typing import List
 # Base = declarative_base()
 class Base(DeclarativeBase):
     pass
->>>>>>> api_build
 # from sqlalchemy.orm import sessionmaker, Session 
 # # User
 # def get_engine():
@@ -32,10 +22,6 @@ class Base(DeclarativeBase):
 
 #     return engine
 
-<<<<<<< HEAD
-class DB_User(Base):
-    pass
-=======
 # child 1
 class DB_User(Base):
     __tablename__ = "users"
@@ -58,4 +44,3 @@ class DB_Competency(Base):
     sector = mapped_column(Integer)
     rating = mapped_column(Integer)
     user:Mapped["DB_User"] = relationship(back_populates="competencies")
->>>>>>> api_build

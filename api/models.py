@@ -4,12 +4,6 @@ from pydantic import BaseModel, EmailStr, Field
 class User(BaseModel):
     name: str = Field()
     username: str = Field()
-<<<<<<< HEAD
-    email: EmailStr = Field()
-
-class Competency(BaseModel):
-    ''' this maps to the compass quadrants and sectors, and the current rating for each '''
-=======
     # password: str=Field()
     # password_check: str=Field()
     email: EmailStr = Field()
@@ -31,7 +25,6 @@ A User row can map to zero or more Competencies.
 class Competency(BaseModel):
     ''' this maps to the compass quadrants and sectors, and the current rating for each '''
     user_id:int = Field()   # actually a FK to users table
->>>>>>> api_build
     quadrant:int = Field(min=0, max=3)
     sector:int = Field(min=0, max=4)
     rating:int = Field(min=0, max=5)
