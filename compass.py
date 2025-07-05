@@ -98,10 +98,17 @@ async def competencies(user_id:int) -> list[Competency]:        # orig
 
 @app.post("/users/new/")
 async def adduser(userdata:CreateUser) -> dict:    #translate this to a DB_User
+# async def adduser(userdata) -> dict:
+    print("ADD USER API")
     ''' Add a user to database '''
     # convert from pydantic model to DB model:
     if userdata.password == userdata.password_check:
-        _user = DB_User(name=userdata.user.name, email=userdata.user.email, username=userdata.user.username, password=userdata.password)
+        # _user = DB_User(name=userdata.user.name, email=userdata.user.email, username=userdata.user.username, password=userdata.password)
+        _user = DB_User(
+            name=userdata.name, 
+            email=userdata.email, 
+            username=userdata.username, 
+            password=userdata.password)
         result = handlers.add_user(engine,_user)
 
         # https://stackoverflow.com/questions/76047310/how-to-redirect-from-a-post-to-a-get-endpoint-in-fastapi-without-changing-the-re

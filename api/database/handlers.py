@@ -57,6 +57,7 @@ def check_competency_is_applied_to_user_already(engine,competency:DB_Competency)
 
 
 def add_user(engine,user:DB_User):
+    print("IN ADD USER")
     # eventually, this all needs to go in database.py
     with Session(engine) as session:
         try:

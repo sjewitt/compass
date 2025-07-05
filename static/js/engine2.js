@@ -253,10 +253,10 @@ var engine = {
          */
         let submit = true;
         data={}
-        data.user = {}
-        data.user['username'] = document.getElementById("new_user_login").value;
-        data.user['name'] = document.getElementById("new_user_name").value;
-        data.user['email'] = document.getElementById("new_user_email").value;
+        // data.user = {}
+        data['username'] = document.getElementById("new_user_login").value;
+        data['name'] = document.getElementById("new_user_name").value;
+        data['email'] = document.getElementById("new_user_email").value;
         data['password'] = document.getElementById("new_user_pwd").value;
         data['password_check'] = document.getElementById("new_user_pwd_repeat").value;
         console.log(data);
