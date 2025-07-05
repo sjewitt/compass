@@ -42,20 +42,19 @@ async def root():
 @app.get("/{user_id}")
 async def template_test(request: Request,user_id:int):
     _user = handlers.get_user(engine, user_id)
-    print(f"GETTING USER {user_id}")
-    print(_user)
     return templates.TemplateResponse(
         request=request,name="index.html", context={"user":_user}
     )
 
 
 # new method
-# @app.get("/{user_id}/data")
-# async def get_user_data(user_id:int) -> UserCompetencies:
-#     print(f"USER {user_id}")
-#     user_data = handlers.get_user_data(engine, user_id)
-#     print(user_id)
-#     return user_data
+@app.get("/{user_id}/data")
+async def get_user_data(user_id:int) -> UserCompetencies:
+    print(f"USER {user_id}")
+    return {"user":user_id}
+    user_data = handlers.get_user_data(engine, user_id)
+    print(user_id)
+    return user_data
 
 
 @app.get("/users/")
@@ -98,12 +97,9 @@ async def competencies(user_id:int) -> list[Competency]:        # orig
 
 @app.post("/users/new/")
 async def adduser(userdata:CreateUser) -> dict:    #translate this to a DB_User
-# async def adduser(userdata) -> dict:
-    print("ADD USER API")
     ''' Add a user to database '''
     # convert from pydantic model to DB model:
     if userdata.password == userdata.password_check:
-        # _user = DB_User(name=userdata.user.name, email=userdata.user.email, username=userdata.user.username, password=userdata.password)
         _user = DB_User(
             name=userdata.name, 
             email=userdata.email, 

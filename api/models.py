@@ -5,16 +5,11 @@ class User(BaseModel):
     id: int=Field()     # new - from DB ID field
     name: str = Field()
     username: str = Field()
-    # password: str=Field()
-    # password_check: str=Field()
     email: EmailStr = Field()
 
 class CreateUser(BaseModel):
-    # user: User
     name: str = Field()
     username: str = Field()
-    # password: str=Field()
-    # password_check: str=Field()
     email: EmailStr = Field()
     password: str
     password_check: str

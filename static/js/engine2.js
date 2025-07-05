@@ -148,11 +148,6 @@ var engine = {
 
         if (page === 'svg') {
             this.loadAndBuildUserDropdown();
-        //     engine.test_load_data();
-        //     var export_data_elem = document.getElementById('flyout').firstChild;
-        //     if (export_data_elem) {
-        //         export_data_elem.addEventListener('click', this.export_data);
-        //     }
         }
 
         /**  
@@ -176,7 +171,6 @@ var engine = {
         if(user_dropdown_btn){
             console.log("Adding handler")
             user_dropdown_btn.addEventListener("click",() => {engine.selectAndLoadUser()});
-            // user_dropdown_btn.addEventListener("click",()=> {console.log("clicked")});
         }
         if(user_dropdown){
             console.log("Adding handler")
@@ -186,8 +180,6 @@ var engine = {
             if(page="svg"){
                 user_dropdown.addEventListener("change",() => {engine.selectAndLoadUser()});
             }
-            
-            // user_dropdown_btn.addEventListener("click",()=> {console.log("clicked")});
         }
     },
 
@@ -233,27 +225,16 @@ var engine = {
 
                 targetElem.appendChild(engine.buildOptionElem(false,response[x].username,response[x].id));
             }
-
         });
     },
 
     redirectToUserPage: function(){
-
-
+        // TODO:
     },
 
     submitNewUserDataHandler: function(){
-        console.log(this)
-        /**
-         {
-  "name": "string",
-  "username": "string",
-  "email": "user@example.com"
-}
-         */
         let submit = true;
         data={}
-        // data.user = {}
         data['username'] = document.getElementById("new_user_login").value;
         data['name'] = document.getElementById("new_user_name").value;
         data['email'] = document.getElementById("new_user_email").value;
@@ -261,14 +242,10 @@ var engine = {
         data['password_check'] = document.getElementById("new_user_pwd_repeat").value;
         console.log(data);
         if(data["password"] !== data["password_check"]){    // also checks on server
-            console.log("pasword doesn't match");
             submit = false;
         }
-        console.log(data);
-        console.log(JSON.stringify(data));
         // TODO: Do blur/change handlers and alert in real-time 
         if(submit){
-            /**  with fetch() api...  */
             fetch('/users/new/', {
                 method: 'POST',
                 body: JSON.stringify(data),
@@ -277,7 +254,6 @@ var engine = {
                     'Content-Type': 'application/json'
                 },
             }).then(function (response) {
-                // print(response)
                 return response.json(); 
                 }).then(function (response) { 
                     console.log(response);
@@ -289,14 +265,9 @@ var engine = {
                     }
             });
         }
-        
-
-
-
     },
 
     export_data: function () {
-
         var _out = [['quadrant', 'sector', 'rating']];
         for (var x = 0; x < engine.current_data.length; x++) {
             _out.push([engine.current_data[x].key[0], engine.current_data[x].key[1], engine.current_data[x].rating]);
@@ -324,12 +295,9 @@ var engine = {
                 /** ignore outer titles, because removing style from this causes an error */
                 if(!svg_compass[_x].classList.contains("svg_title"))
                 {
-                    // console.log("QUAD TITLE")
-                    // console.log(svg_compass[_x].classList);
                     svg_compass[_x].classList.remove('svg_clicked');
                     svg_compass[_x].classList.remove('svg_show');
                 }
-                
             }
         }
 
@@ -369,7 +337,6 @@ var engine = {
         });
     },
     isQuadrant: function (data) {
-        // console.log("checking data: ", data);
         return data.rating >= 0 && data.rating <= 6;
     },
     
@@ -466,12 +433,9 @@ var engine = {
     
     selectAndLoadUser: function(){
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
-        
         let selected_user = document.getElementById("select_user").value;
-        console.log(selected_user);
 
         /**  here we can loca the profile for the selected user:  */
-        
         if (page === 'svg') {
             engine.test_load_data(selected_user);
             var export_data_elem = document.getElementById('flyout').firstChild;
@@ -487,11 +451,9 @@ var engine = {
         if(parseInt(selected_user) > 0){
             document.location.href = `/${selected_user}`;
         }
-       
     },
     
     addToUserdata: function (lookup, rating) {
-        // console.log(`ADDING DATA: ${lookup}, ${rating}`);
         /**  here we add the data to the database rather than localstorage. Therefore, this also 
          * needs to have an async promise handler: */
         /** get the ID of the user from the dropdown */
@@ -529,10 +491,6 @@ var engine = {
         if (append) {
             engine.current_data.push({ 'key': lookup, 'rating': rating });
         }
-        // console.log(engine.current_data);
-        // console.log('setting localStorage:');
-        // localStorage.removeItem('compassData');
-        // localStorage.setItem('compassData', JSON.stringify(engine.current_data));
         this.renderRatings();
     },
     setSectorSVGClicked: function (elem) {
@@ -565,9 +523,7 @@ var engine = {
     renderRatings: function () {
         var target = document.getElementById('userdata');
         target.innerText = "";
-        // console.log('sortin....');
         engine.current_data.sort(function (a, b) {
-            // console.log(a, b);
             if (a.key[0] > b.key[0]) {
                 return (1);
             }
@@ -575,7 +531,6 @@ var engine = {
                 return (-1);
             }
         });
-        // console.log("CURRENT DATA: ", engine.current_data);
         for (var a = 0; a < engine.current_data.length; a++) {
             var row = document.createElement('div');
             row.appendChild(document.createTextNode(engine.data_0[engine.current_data[a].key[0]].title
@@ -586,7 +541,6 @@ var engine = {
                 + ' (' + engine.rating_description_lookup[engine.current_data[a].rating].description + ')'));
             target.appendChild(row);
         }
-        // console.log("RENDER RATINGS COMPLETED")
     },
     fish: function () {
         var fish = 1255;
@@ -599,4 +553,3 @@ document.addEventListener("DOMContentLoaded",
         engine.init();
     }
 )
-
