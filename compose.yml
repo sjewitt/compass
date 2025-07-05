@@ -3,4 +3,11 @@ services:
     build: .
     ports:
      - "8080:8080"
-      
+
+    volumes:
+     - type: bind
+       source: ./database
+       target: /code/database
+     - type: bind
+       source: .
+       target: /code 

@@ -1,6 +1,6 @@
 # up three levels to api:
 # from compass import User, Competency,   DB_User, DB_Competency
-from api.models import User, Competency
+from api.models import User, Competency, UserCompetencies
 from api.db_models import DB_Competency, DB_User
 # from api.db_models import DB_Competency, DB_User
 from api.exceptions import UserNotFound, CompetencyNotFound, CompetenciesForUserNotFound
@@ -130,8 +130,19 @@ def get_users(engine) -> list[User]|None:
             # print(row.email)
             # _usr = User(id=row.id,name=row.name,username=row.username, email=row.email)
             # breakpoint()
-            result.append(row)
+            print(isinstance(row,User))
+            print(isinstance(row,DB_User))
+            _usr = User(
+                id=row.id,
+                name=row.name,
+                username=row.username,
+                email=row.email,
+            )
+            print(isinstance(_usr,User))
+            # result.append(_usr)
 
+            result.append(row)  # original code (a DB_User)
+            
         if result:
             # print("FOUND ", result[0])
 
@@ -152,14 +163,38 @@ def get_user(engine, user_id:int) -> User|None:
         # need to convert the DB_User into a User, so th epydantic validation works
         for row in session.scalars(stmt):
             _usr = User(id=row.id,name=row.name,username=row.username, email=row.email)
-            result.append(row)
-
+            # result.append(_usr)   # new: A User()
+            result.append(row) # orig a DB_User()
         if result:
 
             return result[0]    # the first found user
         logging.warning(f"user with id {user_id} not found")
         # raise UserNotFound("user with id %s not found" % user_id)
         return None
+    
+# All new
+def get_user_data(engine, user_id:int) -> UserCompetencies: # to type!
+    with Session(engine) as session:
+        print(user_id)
+        result=UserCompetencies(
+            user=get_user(engine,user_id),
+            competencies=[])
+        # result['user']=get_user(engine,user_id)
+        # result['competencies'] = []
+        stmt = select(DB_Competency).where(DB_Competency.user_id == user_id)
+        for row in session.scalars(stmt):
+            _competency = Competency(
+                user_id=user_id,
+                quadrant=row.quadrant,
+                sector=row.sector,
+                rating=row.rating,
+                )
+            print(_competency)
+            # TODO: Map quadrant and sector to static lookups for names
+            result.competencies.append(_competency)
+        print(result)
+        print(isinstance(result,UserCompetencies))
+        return result
 
 
 def get_competency(engine, competency_id:int) -> Competency|None:

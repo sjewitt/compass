@@ -8,28 +8,20 @@
 </head>
 <body data-page="svg_template">
 <div id="flyout">
-	<a href='#' title="Download data">
-		<img src="/static/images/arrow-down.png" alt="Download"/>
-	</a>
-	<!-- <select id="select_user" name="select_user">
-		<option>-- TEMPLATE TEST --</option>
-        <option value="1">User #1</option>
-        <option value="2">User #2</option>
-        <option value="3">User #3</option>
-    </select> -->
-	<input type="hidden" name="select_user" id="select_user" value="{{ user.id }}" />
-	<!-- <div class="button abs">
-		<a href="/static/add_user/" title="Add User">
-			<img src="/static/images/gear-settings-icon_outline.png" alt="Settings gear icon" title="Settings" />
-		</a>
-	</div> -->
-	<div class="button abs width_400 text_left">
-	User: {{ user.name }}
+	<div class="text_left inline_block">
+		User: {{ user.name }}
 	</div>
-	[todo: homelink]
+	<a href='#' title="Download your data as CSV">
+		<img class="inline_icon" src="/static/images/arrow-down.png" alt="Download"/>
+	</a>
+	<input type="hidden" name="select_user" id="select_user" value="{{ user.id }}" />
+	
+	<div>
+		<a href="/" name="Home">Home</a>
+	</div>
 </div>
 
-<img src='/static/compass_trans.png' id='test' alt='test' usemap="#testmap">
+<img src='/static/compass_trans.png' id='test' alt='Craft Compass' title="Craft Compass" usemap="#testmap">
 
 <div style="width:1152px;">
 		<!-- q1 -->

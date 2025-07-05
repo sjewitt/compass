@@ -23,6 +23,10 @@ body{
   position: absolute;
 }
 
+.inline_block{
+  display: inline-block;
+}
+
 #flyout > a{
   text-decoration: none;
 }
@@ -39,6 +43,13 @@ body{
 #select_user:hover{
    background-color: lightgray;
 }
+
+.inline_icon{
+  height: 20px;
+  width: 20px;
+  vertical-align: bottom;
+}
+
 
 .abs{
   position: absolute;
@@ -69,8 +80,6 @@ body{
   width:400px;
 }
 
-
-
 .sml_width{
     width: 60px;
     margin-left: 0px;
@@ -86,7 +95,6 @@ body{
 }
 
 .button > a {
-    
     text-decoration: none;
     color: black;
 }
@@ -98,10 +106,10 @@ body{
 .button:hover {
     background-color: lightgray;
 }
-
+/* 
 #flyout > a > img {
   width: 40px;
-}
+} */
 
 #sector_title_description {
   padding-bottom: 5px;

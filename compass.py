@@ -12,7 +12,7 @@ from sqlalchemy.orm import sessionmaker
 
 import uvicorn
 
-from api.models import Competency, CreateUser
+from api.models import Competency, CreateUser, UserCompetencies  # adde usercompetencies model
 from api.database import handlers
 from api.db_models import DB_Competency, DB_User, Base
 from api.exceptions import UserNotFound, CompetenciesForUserNotFound
@@ -47,7 +47,15 @@ async def template_test(request: Request,user_id:int):
     return templates.TemplateResponse(
         request=request,name="index.html", context={"user":_user}
     )
-    
+
+
+# new method
+# @app.get("/{user_id}/data")
+# async def get_user_data(user_id:int) -> UserCompetencies:
+#     print(f"USER {user_id}")
+#     user_data = handlers.get_user_data(engine, user_id)
+#     print(user_id)
+#     return user_data
 
 
 @app.get("/users/")
@@ -76,11 +84,13 @@ async def check_user_exists(userid:int):
     return result
     
 
-@app.get("/users/{user_id}/competencies/") 
-async def competencies(user_id:int) -> list[Competency]:
+@app.get("/users/{user_id}/competencies/")
+# async def competencies(user_id:int) -> UserCompetencies: #TODO make model
+async def competencies(user_id:int) -> list[Competency]:        # orig
     ''' retrieve user's competencies from database '''
     try:
-        result = handlers.get_competencies_for_user(engine, user_id)
+        result = handlers.get_competencies_for_user(engine, user_id) # orig
+        # result = handlers.get_user_data(engine, user_id)
         return result
     except CompetenciesForUserNotFound as ex:
         return []

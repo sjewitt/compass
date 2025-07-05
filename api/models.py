@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr, Field
 # see https://fastapi.tiangolo.com/it/tutorial/extra-models/#multiple-models
 
 class User(BaseModel):
+    # id: int=Field()     # new
     name: str = Field()
     username: str = Field()
     # password: str=Field()
@@ -31,5 +32,6 @@ class Competency(BaseModel):
 
 # https://fastapi.tiangolo.com/it/tutorial/body-nested-models/#define-a-submodel
 class UserCompetencies(BaseModel):
-    user:int
+    user:int    #orig
+    # user:User  # new
     competencies:list[Competency]
