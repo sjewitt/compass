@@ -48,10 +48,11 @@ async def template_test(request: Request,user_id:int):
 
 
 # new method
-@app.get("/{user_id}/data")
+# This needs to return CSV!
+@app.get("/data/{user_id}/")
 async def get_user_data(user_id:int) -> UserCompetencies:
     print(f"USER {user_id}")
-    return {"user":user_id}
+    # return {"user":user_id}
     user_data = handlers.get_user_data(engine, user_id)
     print(user_id)
     return user_data

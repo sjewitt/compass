@@ -131,8 +131,8 @@ def get_users(engine) -> list[User]|None:
             # print(row.email)
             # _usr = User(id=row.id,name=row.name,username=row.username, email=row.email)
             # breakpoint()
-            print(isinstance(row,User))
-            print(isinstance(row,DB_User))
+            print(f"is a User(): {isinstance(row,User)}")
+            print(f"is a DB_User():{isinstance(row,DB_User)}")
             _usr = User(
                 id=row.id,
                 name=row.name,
@@ -164,8 +164,12 @@ def get_user(engine, user_id:int) -> User|None:
         # need to convert the DB_User into a User, so th epydantic validation works
         for row in session.scalars(stmt):
             _usr = User(id=row.id,name=row.name,username=row.username, email=row.email)
-            # result.append(_usr)   # new: A User()
-            result.append(row) # orig a DB_User()
+            # This very subtle change is waht was causing the issue with
+            # retrieving the user data. Output was barfing because it was
+            # receiving a DB_User not a User. The user create allso works
+            # since reformatting...
+            result.append(_usr)   # new: A User()
+            # result.append(row) # orig a DB_User()
         if result:
 
             return result[0]    # the first found user
@@ -174,9 +178,11 @@ def get_user(engine, user_id:int) -> User|None:
         return None
     
 # All new
-def get_user_data(engine, user_id:int) -> UserCompetencies: # to type!
+def get_user_data(engine, user_id:int): # -> UserCompetencies: # to type!
     with Session(engine) as session:
-        print(user_id)
+        print(f"USER: {user_id}")
+        # user=get_user(engine,user_id)
+        # print(user)
         result=UserCompetencies(
             user=get_user(engine,user_id),
             competencies=[])
@@ -195,6 +201,23 @@ def get_user_data(engine, user_id:int) -> UserCompetencies: # to type!
             result.competencies.append(_competency)
         print(result)
         print(isinstance(result,UserCompetencies))
+        _dummy = {
+            "user": {
+                "id": 0,
+                "name": "DUMMY",
+                "username": "DUMMY",
+                "email": "user@example.com"
+            },
+            "competencies": [
+                {
+                "user_id": 0,
+                "quadrant": 0,
+                "sector": 0,
+                "rating": 0
+                }
+            ]
+        }
+        # return _dummy
         return result
 
 
