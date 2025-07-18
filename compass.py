@@ -10,6 +10,8 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from api.constants import QUADRANT, SECTOR
+
 import uvicorn
 
 from api.models import Competency, CreateUser, UserCompetencies  # adde usercompetencies model
@@ -41,6 +43,7 @@ async def root():
 # template test:
 @app.get("/{user_id}")
 async def template_test(request: Request,user_id:int):
+    print(QUADRANT[0], SECTOR[0][3])
     _user = handlers.get_user(engine, user_id)
     return templates.TemplateResponse(
         request=request,name="index.html", context={"user":_user}

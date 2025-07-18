@@ -16,6 +16,7 @@ body{
   grid-template-columns: 50% 50%;
   grid-gap:10px;
   width:60%;
+  align-self: center;
 }
 
 #flyout {

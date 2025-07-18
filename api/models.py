@@ -14,6 +14,13 @@ class CreateUser(BaseModel):
     password: str
     password_check: str
 
+class Quadrant(BaseModel):
+    id: int = Field()
+    name: str = Field()
+
+class Sector(BaseModel):
+    id: int = Field()
+    name: str = Field()
 
 '''
 A User row can map to zero or more Competencies.
@@ -28,6 +35,8 @@ class Competency(BaseModel):
     user_id:int = Field()   # actually a FK to users table
     quadrant:int = Field(min=0, max=3)
     sector:int = Field(min=0, max=4)
+    # quadrant:Quadrant = Field()
+    # sector:Sector = Field()
     rating:int = Field(min=0, max=5)
 
 # https://fastapi.tiangolo.com/it/tutorial/body-nested-models/#define-a-submodel

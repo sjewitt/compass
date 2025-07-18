@@ -2,6 +2,7 @@
 # from compass import User, Competency,   DB_User, DB_Competency
 from api.models import User, Competency, UserCompetencies
 from api.db_models import DB_Competency, DB_User
+from api.constants import QUADRANT, SECTOR
 # from api.db_models import DB_Competency, DB_User
 from api.exceptions import UserNotFound, CompetencyNotFound, CompetenciesForUserNotFound
 from sqlalchemy import select, update
@@ -178,7 +179,7 @@ def get_user(engine, user_id:int) -> User|None:
         return None
     
 # All new
-def get_user_data(engine, user_id:int): # -> UserCompetencies: # to type!
+def get_user_data(engine, user_id:int) -> UserCompetencies: # to type!
     with Session(engine) as session:
         print(f"USER: {user_id}")
         # user=get_user(engine,user_id)
@@ -194,6 +195,8 @@ def get_user_data(engine, user_id:int): # -> UserCompetencies: # to type!
                 user_id=user_id,
                 quadrant=row.quadrant,
                 sector=row.sector,
+                # quadrant={"id":row.quadrant,"name":QUADRANT[row.quadrant]},
+                # sector={"id":row.sector,"name":SECTOR[row.sector]},
                 rating=row.rating,
                 )
             print(_competency)
@@ -213,6 +216,8 @@ def get_user_data(engine, user_id:int): # -> UserCompetencies: # to type!
                 "user_id": 0,
                 "quadrant": 0,
                 "sector": 0,
+                # "quadrant": {"id":0,"name":"str"},
+                # "sector": {"id":0,"name":"str"},
                 "rating": 0
                 }
             ]
