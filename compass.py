@@ -12,7 +12,7 @@ from sqlalchemy.orm import sessionmaker
 
 import uvicorn
 
-from api.models import Competency, CreateUser, UserCompetencies  # adde usercompetencies model
+from api.models import User, Competency, CreateUser, UserCompetencies  # adde usercompetencies model
 from api.database import handlers
 from api.db_models import DB_Competency, DB_User, Base
 from api.exceptions import UserNotFound, CompetenciesForUserNotFound
@@ -44,6 +44,14 @@ async def template_test(request: Request,user_id:int):
     _user = handlers.get_user(engine, user_id)
     return templates.TemplateResponse(
         request=request,name="index.html", context={"user":_user}
+    )
+
+@app.get("/{user_id}/edit/")
+async def update_user(request: Request,user_id:int) -> User:
+    ''' update user's competencies in database '''
+    _user = handlers.get_user(engine, user_id)
+    return templates.TemplateResponse(
+        request=request,name="user_edit.html", context={"user":_user}
     )
 
 
@@ -95,6 +103,22 @@ async def competencies(user_id:int) -> list[Competency]:        # orig
         return []
 
 
+@app.post("/users/{user_id}/edit/")
+async def update_user(user:User) -> User:
+    ''' update user's competencies in database '''
+    print(user)
+    # _user = handlers.get_user(engine, user_id)
+    # return templates.TemplateResponse(
+    #     request=request,name="user_edit.html", context={"user":_user}
+    # )
+    # try:
+    #     result = handlers.update_user(engine, user)
+    #     return result
+    # except CompetenciesForUserNotFound as ex:
+    #     return []
+    return user
+
+
 @app.post("/users/new/")
 async def adduser(userdata:CreateUser) -> dict:    #translate this to a DB_User
     ''' Add a user to database '''
@@ -112,6 +136,10 @@ async def adduser(userdata:CreateUser) -> dict:    #translate this to a DB_User
             return {"usercreated":True, "user_id":result["id"]}
         return result
     return {"usercreated":False, "message":"supplied passwords do not match"}
+
+
+
+
 
 
 @app.post("/competencies/add/")

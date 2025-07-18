@@ -8,17 +8,26 @@
 </head>
 <body data-page="svg_template">
 <div id="flyout">
-	<div class="text_left inline_block">
-		User: {{ user.name }}
+	<div class="inline_block">
+		<input type="hidden" name="select_user" id="select_user" value="{{ user.id }}" />
+		<input disabled="disabled" class="text_left lg_width" type="text" value="User: {{ user.name }}"  />
 	</div>
-	<a href='#' title="Download your data as CSV">
-		<img class="inline_icon" src="/static/images/arrow-down.png" alt="Download"/>
-	</a>
-	<input type="hidden" name="select_user" id="select_user" value="{{ user.id }}" />
-	
-	<div>
-		<a href="/" name="Home">Home</a>
+
+	<div class="inline_block">
+		<a href='#' title="Download your data as CSV">
+			<img class="inline_icon" src="/static/images/arrow-down.png" alt="Download"/>
+		</a>
 	</div>
+
+	<div class="button abs inline_block">
+		<a href="/{{user.id}}/edit" title="Add User">
+			<img src="/static/images/edit-user-64.png" alt="Edit user icon" title="Edit user" />
+		</a>
+	</div>
+
+	<!-- <div class="inline_block">
+		<a href="/" name="Home">&lt;&lt;</a>
+	</div> -->
 </div>
 
 <img src='/static/compass_trans.png' id='test' alt='Craft Compass' title="Craft Compass" usemap="#testmap">

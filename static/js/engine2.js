@@ -143,7 +143,14 @@ var engine = {
             if(btn_add_user){
                 btn_add_user.addEventListener("click",this.submitNewUserDataHandler)
             }
-        }
+        };
+
+        if(page==="update_user"){
+            let btn_update_user = document.getElementById("btn_update_user");
+            if(btn_update_user){
+                btn_update_user.addEventListener("click",this.submitUpdateUserDataHandler)
+            }
+        };
 
 
         if (page === 'svg') {
@@ -247,6 +254,47 @@ var engine = {
         // TODO: Do blur/change handlers and alert in real-time 
         if(submit){
             fetch('/users/new/', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+            }).then(function (response) {
+                return response.json(); 
+                }).then(function (response) { 
+                    console.log(response);
+                    /** the ResponseRedirect from the server is failing, so
+                     * try with JS instead:
+                     */
+                    if(response.usercreated){
+                        document.location.href=`/static/?user_id=${response.user_id}`
+                    }
+            });
+        }
+    },
+
+    submitUpdateUserDataHandler: function(){
+        let submit = true;
+        data={}
+        data['username'] = document.getElementById("update_user_login").value;
+        data['id'] = parseInt(document.getElementById("update_user_id").value);
+        data['name'] = document.getElementById("update_user_name").value;
+        data['email'] = document.getElementById("update_user_email").value;
+        // data['password'] = document.getElementById("update_user_pwd").value;
+        // data['password_check'] = document.getElementById("update_user_pwd_repeat").value;
+        console.log(data);
+        /** 
+         * check if pwds are present, then are the same, then match existing pwd 
+         * This needs to call a back-end check so we don't have the old pwd on
+         * client...
+        */
+        // if(data["password"] !== data["password_check"]){    // also checks on server
+        //     submit = false;
+        // }
+        // TODO: Do blur/change handlers and alert in real-time 
+        if(submit){
+            fetch(`/users/${data['id']}/edit/`, {
                 method: 'POST',
                 body: JSON.stringify(data),
                 headers: {
