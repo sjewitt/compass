@@ -231,26 +231,35 @@ def get_competencies_for_user(engine, user_id:int) -> list[Competency]:
 def update_user(engine, user:User) -> User|None:
 
     with Session(engine) as session:
-        # https://docs.sqlalchemy.org/en/20/tutorial/data_select.html
-        # extract the incoming User data and construct 
-        stmt = update(DB_User).where(DB_User.id == user.id).values(name=user.name, username=user.username, email=user.email)
-        
-        result = session.execute(stmt)
+        try:
+            # https://docs.sqlalchemy.org/en/20/tutorial/data_select.html
+            # extract the incoming User data and construct 
 
-        # # need to convert the DB_User into a User, so th epydantic validation works
-        # for row in session.scalars(stmt):
-        #     # print(row.id,row.name,row.username,row.email)
-        #     print(row.name)
-        #     print(row.username)
-        #     print(row.email)
-        #     _usr = User(name=row.name,username=row.username, email=row.email)
-        #     # breakpoint()
-        #     result.append(row)
+            if get_user(engine,user.id):
+                stmt = update(DB_User).where(DB_User.id == user.id).values(name=user.name)  #, username=user.username, email=user.email)
+                print(stmt)
+                result = session.execute(stmt)
+                session.commit()
+                print(result)
+                # TODO: make testing for user more robust! i.e. GET the user first!
+                # # need to convert the DB_User into a User, so th epydantic validation works
+                # for row in session.scalars(stmt):
+                #     # print(row.id,row.name,row.username,row.email)
+                #     print(row.name)
+                #     print(row.username)
+                #     print(row.email)
+                #     _usr = User(name=row.name,username=row.username, email=row.email)
+                #     # breakpoint()
+                #     result.append(row)
 
-        # if result:
-        #     # print("FOUND ", result[0])
-        #     # print("FOUND ", result[0]["username"])
+                # if result:
+                #     # print("FOUND ", result[0])
+                #     # print("FOUND ", result[0]["username"])
 
-        #     return result[0]    # the first found user
-        # print(f"user with id {user_id} not found")
-        # raise UserNotFound("user with id %s not found" % user_id)
+                #     return result[0]    # the first found user
+                # print(f"user with id {user_id} not found")
+                # raise UserNotFound("user with id %s not found" % user_id)
+                return user
+            raise UserNotFound
+        except:
+            return None

@@ -283,7 +283,7 @@ var engine = {
         data['email'] = document.getElementById("update_user_email").value;
         // data['password'] = document.getElementById("update_user_pwd").value;
         // data['password_check'] = document.getElementById("update_user_pwd_repeat").value;
-        console.log(data);
+        // console.log(data);
         /** 
          * check if pwds are present, then are the same, then match existing pwd 
          * This needs to call a back-end check so we don't have the old pwd on
@@ -302,15 +302,23 @@ var engine = {
                     'Content-Type': 'application/json'
                 },
             }).then(function (response) {
+                // console.log(response.json());
                 return response.json(); 
-                }).then(function (response) { 
-                    console.log(response);
-                    /** the ResponseRedirect from the server is failing, so
-                     * try with JS instead:
-                     */
-                    if(response.usercreated){
-                        document.location.href=`/static/?user_id=${response.user_id}`
-                    }
+                // return response;
+            }).then(function (response) { 
+                console.log("redirecting...")
+                console.log(response);
+                /** the ResponseRedirect from the server is failing, so
+                 * try with JS instead:
+                 */
+                if(response.username){  // check that it is a User object
+                    document.location.href=`/${response.id}/`
+                }
+                else{
+                    // render a message - wrong user ID etc
+                    elem = document.getElementById("message")
+                    elem.innerHTML = "Error"
+                }
             });
         }
     },
@@ -522,7 +530,7 @@ var engine = {
             },
         }).then(function (response) {
              return response.json(); 
-            }).then(function (response) { 
+        }).then(function (response) { 
         
         });
 

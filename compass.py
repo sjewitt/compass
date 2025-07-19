@@ -50,7 +50,7 @@ async def template_test(request: Request,user_id:int):
 @app.get("/{user_id}/edit/")
 async def update_user(request: Request,user_id:int) -> User:
     ''' update user's competencies in database '''
-    _user = handlers.get_user(engine, user_id)
+    _user = handlers.get_user(engine, user_id)  # get current state of user
     return templates.TemplateResponse(
         request=request,name="user_edit.html", context={"user":_user}
     )
@@ -107,17 +107,10 @@ async def competencies(user_id:int) -> list[Competency]:        # orig
 @app.post("/users/{user_id}/edit/")
 async def update_user(user:User) -> User:
     ''' update user's competencies in database '''
-    # TODO:
-    print(user)
-    # _user = handlers.get_user(engine, user_id)
-    # return templates.TemplateResponse(
-    #     request=request,name="user_edit.html", context={"user":_user}
-    # )
-    # try:
-    #     result = handlers.update_user(engine, user)
-    #     return result
-    # except CompetenciesForUserNotFound as ex:
-    #     return []
+    
+    result = handlers.update_user(engine,user)
+    print(result)
+    # return data to populate the form:
     return user
 
 

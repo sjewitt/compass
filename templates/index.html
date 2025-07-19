@@ -13,15 +13,21 @@
 		<input disabled="disabled" class="text_left lg_width" type="text" value="User: {{ user.name }}"  />
 	</div>
 
-	<div class="inline_block">
+	<div class="button inline_block">
 		<a href='#' title="Download your data as CSV">
-			<img class="inline_icon" src="/static/images/arrow-down.png" alt="Download"/>
+			<img class="inline_icon" src="/static/images/download-2-64.png" alt="Download"/>
 		</a>
 	</div>
 
-	<div class="button abs inline_block">
+	<div class="button inline_block">
 		<a href="/{{user.id}}/edit" title="Add User">
 			<img src="/static/images/edit-user-64.png" alt="Edit user icon" title="Edit user" />
+		</a>
+	</div>
+
+	<div class="button inline_block">
+		<a href="/static/" title="Home">
+			<img src="/static/images/home-2-64.png" alt="Home" title="Home" />
 		</a>
 	</div>
 
