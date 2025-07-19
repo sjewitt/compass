@@ -10,7 +10,7 @@
 <div id="flyout">
 	<div class="inline_block">
 		<input type="hidden" name="select_user" id="select_user" value="{{ user.id }}" />
-		<input disabled="disabled" class="text_left lg_width" type="text" value="User: {{ user.name }}"  />
+		<input disabled="disabled" class="text_left lg_width" type="text" value="{{ user.name }}"  />
 	</div>
 
 	<div class="button inline_block">
@@ -31,9 +31,11 @@
 		</a>
 	</div>
 
-	<!-- <div class="inline_block">
-		<a href="/" name="Home">&lt;&lt;</a>
-	</div> -->
+	<div class="button inline_block">
+		<a href="#" title="Help">
+			<img src="/static/images/help-64.png" alt="Help" title="Help" />
+		</a>
+	</div>
 </div>
 
 <img src='/static/compass_trans.png' id='test' alt='Craft Compass' title="Craft Compass" usemap="#testmap">

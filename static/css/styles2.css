@@ -158,30 +158,38 @@ body{
 
 /* and identify any that have been previously flagged by the user */
 .svg_show.q1 {
-  fill: #d5f9d5;
+  /* fill: #d5f9d5; */
+  fill: lightgreen;
 }
 .svg_show.q2 {
-  fill: #daedf3;
+  /* fill: #daedf3; */
+  fill: lightblue;
 }
 .svg_show.q3 {
-  fill: #ffe1e6;
+  /* fill: #ffe1e6; */
+  fill: lightpink;
 }
 .svg_show.q4 {
-  fill: #ffffe6;
+  /* fill: #ffffe6; */
+  fill: #ffff66;
 }
 
 /* trigger the se (via the javascript) on hover: */
 .svg_hover.q1 {
-  fill: lightgreen;
+  /* fill: lightgreen; */
+  fill: green;
 }
 .svg_hover.q2 {
-  fill: lightblue;
+  /* fill: lightblue; */
+  fill:blue;
 }
 .svg_hover.q3 {
-  fill: lightpink;
+  /* fill: lightpink; */
+  fill: pink;
 }
 .svg_hover.q4 {
-  fill: #ffff66;
+  /* fill: #ffff66; */
+  fill: yellow;
 }
 
 /*# sourceMappingURL=styles2.css.map */
