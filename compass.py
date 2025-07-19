@@ -15,7 +15,8 @@ import uvicorn
 from api.models import User, Competency, CreateUser, UserCompetencies  # adde usercompetencies model
 from api.database import handlers
 from api.db_models import DB_Competency, DB_User, Base
-from api.exceptions import UserNotFound, CompetenciesForUserNotFound
+from api.exceptions import UserNotFound, CompetenciesForUserNotFound, CompetencyOutOfRange
+from api.constants import COMPASS_MAPPER, RATING_MAPPER
 
 app = FastAPI()
 
@@ -106,6 +107,7 @@ async def competencies(user_id:int) -> list[Competency]:        # orig
 @app.post("/users/{user_id}/edit/")
 async def update_user(user:User) -> User:
     ''' update user's competencies in database '''
+    # TODO:
     print(user)
     # _user = handlers.get_user(engine, user_id)
     # return templates.TemplateResponse(
@@ -138,10 +140,6 @@ async def adduser(userdata:CreateUser) -> dict:    #translate this to a DB_User
     return {"usercreated":False, "message":"supplied passwords do not match"}
 
 
-
-
-
-
 @app.post("/competencies/add/")
 async def add_competency(competency:Competency):    #todo: make pydantic model
     ''' Add a user competency to database. Note this includes a user_id, so we end up
@@ -152,6 +150,45 @@ async def add_competency(competency:Competency):    #todo: make pydantic model
     result = handlers.add_competency(engine,_competency)
     return result
 
+
+@app.get("/competencies/{quadrant}/{sector}/")
+async def get_competency(quadrant:int, sector:int):
+    '''return a competency description by index '''
+    # print(COMPASS_MAPPER[quadrant]['quadrant'])
+    try:
+        return {
+            "quadrant":{
+                "id":quadrant,
+                "value":COMPASS_MAPPER[quadrant]['quadrant'],
+            },
+            "sector":{
+                "id":sector,
+                "value":COMPASS_MAPPER[quadrant]['sectors'][sector],
+            }
+        }
+    except IndexError:
+        # TODO: construct more informative return values
+        return {
+            "error":"competency out of range"
+        }
+
+
+@app.get("/rating/{rating}/")
+async def get_rating(rating:int):
+    '''return a competency description by index '''
+    # print(COMPASS_MAPPER[quadrant]['quadrant'])
+    try:
+        return {
+            "rating":{
+                "id":rating,
+                "value":RATING_MAPPER[rating],
+            },
+        }
+    except IndexError:
+        # TODO: construct more informative return values
+        return {
+            "error":"rating out of range"
+        }
 
 # https://www.uvicorn.org/#command-line-options
 if __name__ == "__main__":
