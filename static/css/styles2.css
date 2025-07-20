@@ -185,7 +185,7 @@ body{
 }
 .svg_hover.q3 {
   /* fill: lightpink; */
-  fill: pink;
+  fill: rgb(255, 141, 160);
 }
 .svg_hover.q4 {
   /* fill: #ffff66; */

@@ -177,19 +177,9 @@ def get_user(engine, user_id:int) -> User|None:
 def get_user_data(engine, user_id:int) -> UserCompetencies: # to type!
     with Session(engine) as session:
         try:
-            print(user_id)
-            _usr = get_user(engine,user_id)
-            print("USER:")
-            print(_usr)
-            # result=UserCompetencies(
-            #     user=_usr,
-            # )
             result=UserCompetencies(
                 user=get_user(engine,user_id),
                 competencies=[])
-            # print(result)
-            # result['user']=get_user(engine,user_id)
-            # result['competencies'] = []
             stmt = select(DB_Competency).where(DB_Competency.user_id == user_id)
             for row in session.scalars(stmt):
                 _competency = Competency(
@@ -200,8 +190,6 @@ def get_user_data(engine, user_id:int) -> UserCompetencies: # to type!
                     )
                 # TODO: Map quadrant and sector to static lookups for names
                 result.competencies.append(_competency)
-            print(result)
-            print(isinstance(result,UserCompetencies))
             return result
         except Exception as ex:
             print(ex)

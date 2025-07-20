@@ -351,12 +351,13 @@ var engine = {
         console.log(this.getAttribute('data-user-id').split(":")[1]);
         let user_id = this.getAttribute('data-user-id').split(":")[1];
         /** now call API endpoint: */
-        fetch('/users/new/', {
+        fetch(`/${user_id}/data/`, {
                 method: 'GET',
-                body: JSON.stringify(data),
+                // body: JSON.stringify(data),
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                   // 'Content-Disposition': 'attachment',
                 },
             }).then(function (response) {
                 return response.json(); 

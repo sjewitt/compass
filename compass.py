@@ -56,14 +56,44 @@ async def update_user(request: Request,user_id:int) -> User:
     )
 
 
-# new method
 @app.get("/{user_id}/data")
 async def get_user_data(user_id:int) -> UserCompetencies:
-    # print(f"USER {user_id}")
-    # return {"user":user_id}
     user_data = handlers.get_user_data(engine, user_id)
-    print(user_data)
     return user_data
+
+from io import StringIO
+import datetime
+from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
+@app.get("/{user_id}/data/csv",response_class=StreamingResponse)
+async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
+    user_data = handlers.get_user_data(engine, user_id)
+    csv_data = ""
+    header = ",".join(['Quadrant','Sector','Rating'])
+    header = header+"\n"
+    csv_data = header
+    for comp in user_data.competencies:
+        row = ",".join([COMPASS_MAPPER[comp.quadrant]['quadrant'], COMPASS_MAPPER[comp.quadrant]['sectors'][comp.sector], RATING_MAPPER[comp.rating]['title']])
+        csv_data = csv_data+row+"\n"
+    # response = FileResponse(csv_data)
+    response = StreamingResponse(csv_data)
+    
+    _cd = f"attachment; filename={user_data.user.username}_{datetime.datetime.now()}.csv"
+    response.headers["Content-Disposition"] = _cd
+    print(csv_data)
+    # return user_data
+    return response
+
+
+@app.get("/{user_id}/data/json",response_class=FileResponse)
+async def download_user_data_json(user_id:int):# -> UserCompetencies:
+    user_data = handlers.get_user_data(engine, user_id)
+    response = JSONResponse(user_data.model_dump())
+    _cd = f"attachment; filename={user_data.user.username}_{datetime.datetime.now()}.json"
+    response.headers["Content-Disposition"] = _cd
+    return response
+    # https://www.geeksforgeeks.org/python/stringio-and-bytesio-for-managing-data-as-file-object/
+
+
 
 
 @app.get("/users/")
