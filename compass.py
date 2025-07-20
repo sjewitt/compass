@@ -59,10 +59,10 @@ async def update_user(request: Request,user_id:int) -> User:
 # new method
 @app.get("/{user_id}/data")
 async def get_user_data(user_id:int) -> UserCompetencies:
-    print(f"USER {user_id}")
-    return {"user":user_id}
+    # print(f"USER {user_id}")
+    # return {"user":user_id}
     user_data = handlers.get_user_data(engine, user_id)
-    print(user_id)
+    print(user_data)
     return user_data
 
 

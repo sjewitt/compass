@@ -152,7 +152,6 @@ var engine = {
             }
         };
 
-
         if (page === 'svg') {
             this.loadAndBuildUserDropdown();
         }
@@ -168,6 +167,12 @@ var engine = {
             /**  directly call the user load function:  */
             console.log("LOADING USER FROM PATH PARAM")
             engine.loadUser();
+
+            /** append handler to data download button */
+            let btn_data_download = document.getElementById("data_download");
+            if(btn_data_download){
+                btn_data_download.addEventListener("click",this.retrieveUserData)
+            }
         }
 
         /** add event listener for the user dropdown: */
@@ -323,6 +328,7 @@ var engine = {
         }
     },
 
+    /** this is OLD, and not specific to a user */
     export_data: function () {
         var _out = [['quadrant', 'sector', 'rating']];
         for (var x = 0; x < engine.current_data.length; x++) {
@@ -340,6 +346,31 @@ var engine = {
             link.click();
         }
     },
+
+    retrieveUserData: function(){
+        console.log(this.getAttribute('data-user-id').split(":")[1]);
+        let user_id = this.getAttribute('data-user-id').split(":")[1];
+        /** now call API endpoint: */
+        fetch('/users/new/', {
+                method: 'GET',
+                body: JSON.stringify(data),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+            }).then(function (response) {
+                return response.json(); 
+                }).then(function (response) { 
+                    console.log(response);
+                    /** the ResponseRedirect from the server is failing, so
+                     * try with JS instead:
+                     */
+                    if(response.usercreated){
+                        document.location.href=`/static/?user_id=${response.user_id}`
+                    }
+            });
+    },
+
     test_load_data: function (user_id=0) {
         console.log(user_id)
         /** first, clear the current data */

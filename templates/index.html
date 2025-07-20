@@ -6,7 +6,7 @@
 		<link type="text/css" href="/static/css/styles2.css" rel="stylesheet" />
 		<link href="/static/images/favicon.jpg" rel="icon" />
 </head>
-<body data-page="svg_template">
+<body data-page-x="user-data" data-page="svg_template">
 <div id="flyout">
 	<div class="inline_block">
 		<input type="hidden" name="select_user" id="select_user" value="{{ user.id }}" />
@@ -14,7 +14,7 @@
 	</div>
 
 	<div class="button inline_block">
-		<a href='#' title="Download your data as CSV">
+		<a href='#' title="Download your data as CSV" id="data_download" data-user-id="id:{{user.id}}">
 			<img class="inline_icon" src="/static/images/download-2-64.png" alt="Download"/>
 		</a>
 	</div>

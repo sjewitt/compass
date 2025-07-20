@@ -164,8 +164,8 @@ def get_user(engine, user_id:int) -> User|None:
         # need to convert the DB_User into a User, so th epydantic validation works
         for row in session.scalars(stmt):
             _usr = User(id=row.id,name=row.name,username=row.username, email=row.email)
-            # result.append(_usr)   # new: A User()
-            result.append(row) # orig a DB_User()
+            result.append(_usr)   # new: A User()
+            # result.append(row) # orig a DB_User()
         if result:
 
             return result[0]    # the first found user
@@ -176,26 +176,36 @@ def get_user(engine, user_id:int) -> User|None:
 # All new
 def get_user_data(engine, user_id:int) -> UserCompetencies: # to type!
     with Session(engine) as session:
-        print(user_id)
-        result=UserCompetencies(
-            user=get_user(engine,user_id),
-            competencies=[])
-        # result['user']=get_user(engine,user_id)
-        # result['competencies'] = []
-        stmt = select(DB_Competency).where(DB_Competency.user_id == user_id)
-        for row in session.scalars(stmt):
-            _competency = Competency(
-                user_id=user_id,
-                quadrant=row.quadrant,
-                sector=row.sector,
-                rating=row.rating,
-                )
-            print(_competency)
-            # TODO: Map quadrant and sector to static lookups for names
-            result.competencies.append(_competency)
-        print(result)
-        print(isinstance(result,UserCompetencies))
-        return result
+        try:
+            print(user_id)
+            _usr = get_user(engine,user_id)
+            print("USER:")
+            print(_usr)
+            # result=UserCompetencies(
+            #     user=_usr,
+            # )
+            result=UserCompetencies(
+                user=get_user(engine,user_id),
+                competencies=[])
+            # print(result)
+            # result['user']=get_user(engine,user_id)
+            # result['competencies'] = []
+            stmt = select(DB_Competency).where(DB_Competency.user_id == user_id)
+            for row in session.scalars(stmt):
+                _competency = Competency(
+                    user_id=user_id,
+                    quadrant=row.quadrant,
+                    sector=row.sector,
+                    rating=row.rating,
+                    )
+                # TODO: Map quadrant and sector to static lookups for names
+                result.competencies.append(_competency)
+            print(result)
+            print(isinstance(result,UserCompetencies))
+            return result
+        except Exception as ex:
+            print(ex)
+            return {"status":"error", "message":ex}
 
 
 def get_competency(engine, competency_id:int) -> Competency|None:
