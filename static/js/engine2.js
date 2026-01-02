@@ -18,6 +18,13 @@ var engine = {
         { 'title': 'Advanced', 'description': 'You are adept at a broad range range of skills, knowing what\'s possible and available and appropriate for any given situation. You are able to coach and train others in those skills and approaches. You are able to write briefs for your team to execute. You are able to develop unique positions and approaches for Magnetic.\n\nClient role comparison (you should be able to comfortably guide and challenge) - head of...' },
         { 'title': 'Master', 'description': 'You are seen as the best in your craft on an industry-wide stage and are a thought-leader publicly. You are able to identify when new skills or methods need to be introduced and developed based on the task or customer need. You are comfortable sitting in C-Suite situations and explain, challenge and recruit in this craft.\n\nClient role comparison (you should be able to comfortably guide and challenge) - C-suite, Director' }
     ],
+    /** Jan 2026: Adds configurable main quadrant titles - requires blank compass image */
+    data_quadrant_titles:[
+        {'title_parts':['Product &','service design']},
+        {'title_parts':['Management &','leadership']},
+        {'title_parts':['Capability','building']},
+        {'title_parts':['Transforming','organizations']},
+    ],
     data_0: [
         { 'description': 'Includes Proposition Design, Product Design, Digital and Physical Experience Design', 'title': 'Product & service design' },
         { 'description': 'How we influence people to get stuff done', 'title': 'Management & leadership' },
@@ -153,6 +160,7 @@ var engine = {
         };
 
         if (page === 'svg') {
+            this.renderDisplayedTexts();
             this.loadAndBuildUserDropdown();
         }
 
@@ -160,6 +168,7 @@ var engine = {
          * load the dropdown with selecting and jumping to specific user page
          * */
         if(page === "home"){
+            this.renderDisplayedTexts();
             this.loadAndBuildUserDropdown();
         }
         
@@ -238,6 +247,32 @@ var engine = {
                 targetElem.appendChild(engine.buildOptionElem(false,response[x].username,response[x].id));
             }
         });
+    },
+
+    renderDisplayedTexts: function(){
+        // render texts that show always, rather than having static texts as part
+        // of the image itself. This will probably require extensions to the source
+        // data, and obviously cleaning up the images themselves. [also, find a way]
+        // of using the same image for /static and /templates:
+        console.log("Rendering statically displayed texts");
+        const quadrant_title_refs = [];
+        console.log(this.data_quadrant_titles);
+        for(let x=1;x<=this.data_quadrant_titles.length;x++){
+            // get the array of words for the current title elems:
+            let current_words = this.data_quadrant_titles[x-1];
+            console.log(current_words);
+            // identify the text elements by ID:
+            for(let y=1;y<=current_words.title_parts.length;y++){
+                let elem_id = `svg_title_${x}_${y}`;
+                console.log(current_words.title_parts[y-1]);
+                console.log(elem_id);
+                let elem = document.getElementById(elem_id);
+                console.log(elem);
+                let txt = document.createTextNode(current_words.title_parts[y-1]);
+                elem.appendChild(txt);
+            }
+            
+        }
     },
 
     redirectToUserPage: function(){

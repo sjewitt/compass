@@ -156,6 +156,11 @@ body{
   fill: none;
 }
 
+.svg_quad_title{
+  font-weight: bold;
+  font-size: 24px;
+}
+
 /* and identify any that have been previously flagged by the user */
 .svg_show.q1 {
   /* fill: #d5f9d5; */

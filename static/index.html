@@ -1,7 +1,7 @@
 <html>
 <head>
 	<title>
-		Compass interactive
+		Compass interactive: Home
 	</title>
 	<link type="text/css" href="/static/css/styles2.css" rel="stylesheet" />
 	<link href="/static/images/favicon.jpg" rel="icon" />
@@ -32,19 +32,33 @@
 
 </div>
 
-<img src='/static/compass_trans.png' id='test' alt='Craft Compass' title='Craft Compass' usemap="#testmapxx">
+<img src='/static/compass_trans_blank.png' id='test' alt='Craft Compass' title='Craft Compass' usemap="#testmapxx">
 
 <div style="width:1152px;">
 	<svg viewBox="0 0 1152 900" id="svg_compass">
 		<!-- title borders -->
 		<polygon class="svg_title" points="807,92,806,174,1010,184,1005,68" />
-		<polygon class="svg_title" points="38,85,237,90,242,177,46,195" />
-		<polygon class="svg_title" points="45,663,211,689,207,770,45,783" />
+		<text x="829" y="132" id="svg_title_1_1" class="svg_quad_title" font-size="24" class="svg_title_home"></text>
+		<text x="829" y="160" id="svg_title_1_2" class="svg_quad_title" font-size="24" class="svg_title_home"></text>
+
+
 		<polygon class="svg_title" points="818,693,816,761,1020,771,1022,669" />
+		<text x="835" y="720" id="svg_title_2_1" class="svg_quad_title" font-size="24" class="svg_title_home"></text>
+		<text x="835" y="748" id="svg_title_2_2" class="svg_quad_title" font-size="24" class="svg_title_home"></text>
+
+		<polygon class="svg_title" points="45,663,211,689,207,770,45,783" />
+		<text x="60" y="720" id="svg_title_3_1" class="svg_quad_title" font-size="24" font-weight="bold" class="svg_title_home"></text>
+		<text x="60" y="748" id="svg_title_3_2" class="svg_quad_title" font-size="24" class="svg_title_home"></text>
+		
+		<polygon class="svg_title" points="38,85,237,90,242,177,46,195" />
+		<text x="70" y="132" id="svg_title_4_1" class="svg_quad_title" font-size="24" class="svg_title_home"></text>
+		<text x="70" y="160" id="svg_title_4_2" class="svg_quad_title" font-size="24" class="svg_title_home"></text>
+
 	</svg>	
 </div>
 		
 
 </body>
+<!-- Need to push texts dynamically from data, rather than have static data in image itself -->
 <script src="/static/js/engine2.js"></script>
 </html>
