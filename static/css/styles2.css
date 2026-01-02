@@ -151,14 +151,44 @@ body{
   stroke-width: 2px;
 }
 
+
+
 /* initially hide in markup, these elements */
 .svg_hide {
   fill: none;
 }
 
+.green {
+  stroke: lightgreen;
+}
+
+.blue{
+  stroke: lightblue;
+}
+
+.red{
+  stroke: lightpink
+}
+
+.yellow{
+  stroke: yellow;
+}
+
+
+text.green {
+  fill: lightgreen;
+}
+
+
+
 .svg_quad_title{
   font-weight: bold;
   font-size: 24px;
+  /* wrap:
+  see https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/white-space 
+  */
+  white-space: normal;
+  max-width: 200px;
 }
 
 /* and identify any that have been previously flagged by the user */

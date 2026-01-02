@@ -18,12 +18,38 @@ var engine = {
         { 'title': 'Advanced', 'description': 'You are adept at a broad range range of skills, knowing what\'s possible and available and appropriate for any given situation. You are able to coach and train others in those skills and approaches. You are able to write briefs for your team to execute. You are able to develop unique positions and approaches for Magnetic.\n\nClient role comparison (you should be able to comfortably guide and challenge) - head of...' },
         { 'title': 'Master', 'description': 'You are seen as the best in your craft on an industry-wide stage and are a thought-leader publicly. You are able to identify when new skills or methods need to be introduced and developed based on the task or customer need. You are comfortable sitting in C-Suite situations and explain, challenge and recruit in this craft.\n\nClient role comparison (you should be able to comfortably guide and challenge) - C-suite, Director' }
     ],
-    /** Jan 2026: Adds configurable main quadrant titles - requires blank compass image */
+    /** 
+     * Jan 2026: Adds configurable main quadrant titles - requires blank compass image 
+     *  - each element of the title_parts is pushed to a corresponding SVG text element.
+     *  - the target is worked out by mapping the indexex to eac appropriately structured
+     *    element ID.
+    */
     data_quadrant_titles:[
-        {'title_parts':['Product &','service design']},
-        {'title_parts':['Management &','leadership']},
-        {'title_parts':['Capability','building']},
-        {'title_parts':['Transforming','organizations']},
+        {'title_parts':['Product &','service design'],'sector_parts':[
+            ['Ideas &','concepts'],
+            ['Prototypes &','experiments'],
+            ['UX design',''],
+            ['Visual design',''],
+            ['Service','design'],
+        ]},
+        {'title_parts':['Management &','leadership'],'sector_parts':[
+            ['Client & account','management'],
+            ['Commercials',''],
+            ['Agile PM /','coaching'],
+            ['Facilitation',''],
+        ]},
+        {'title_parts':['Capability','building'],'sector_parts':[
+            ['Innovation','capabilities'],
+            ['Leadership','readiness'],
+            ['Mentoring','& coaching'],
+            ['Innovation','Training'],
+        ]},
+        {'title_parts':['Transforming','organizations'],'sector_parts':[
+            ['Strategy &','vision'],
+            ['Culture &','experience'],
+            ['Business','design &','growth'],
+            ['Customer','insights'],
+        ]},
     ],
     data_0: [
         { 'description': 'Includes Proposition Design, Product Design, Digital and Physical Experience Design', 'title': 'Product & service design' },
@@ -257,6 +283,7 @@ var engine = {
         console.log("Rendering statically displayed texts");
         const quadrant_title_refs = [];
         console.log(this.data_quadrant_titles);
+        // I'm using index 1 because of the way the element IDs are named.
         for(let x=1;x<=this.data_quadrant_titles.length;x++){
             // get the array of words for the current title elems:
             let current_words = this.data_quadrant_titles[x-1];
@@ -264,13 +291,36 @@ var engine = {
             // identify the text elements by ID:
             for(let y=1;y<=current_words.title_parts.length;y++){
                 let elem_id = `svg_title_${x}_${y}`;
-                console.log(current_words.title_parts[y-1]);
-                console.log(elem_id);
+                // console.log(current_words.title_parts[y-1]);
+                // console.log(elem_id);
                 let elem = document.getElementById(elem_id);
-                console.log(elem);
+                // console.log(elem);
                 let txt = document.createTextNode(current_words.title_parts[y-1]);
                 elem.appendChild(txt);
             }
+
+            // now get the segment titles:
+            console.log(current_words.sector_parts.length);
+            // now we do a double loop to get each segment, and the lines array for each:
+            for(let z=1;z<=current_words.sector_parts.length;z++){
+                console.log(current_words.sector_parts[z-1]);
+                for(let xx=1;xx<=current_words.sector_parts[z-1].length;xx++){
+                    console.log(current_words.sector_parts[z-1][xx-1]);
+
+                    let elem_id = `svg_sector_${x}_${z}_${xx}`;
+                    console.log(elem_id);
+                    try{
+                        let elem = document.getElementById(elem_id);
+                        let txt = document.createTextNode(current_words.sector_parts[z-1][xx-1]);
+                        console.log(elem);
+                        elem.appendChild(txt);
+                    }
+                    catch(ex){
+                        console.log(ex);
+                    }
+                }
+            }
+
             
         }
     },

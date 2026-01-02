@@ -178,8 +178,14 @@
 		</svg>
 	</div>
 	
-	
-		<map name="testmap">
+	<!-- 
+	We superimpose an HTML imagemap on the image as well, so the relevant areas - as defined by the SVG above -
+	can be interactive elements (there was an issue with applying handlers directly to the SVG elems, but I can't
+	remember what that was...). This allows the colours to be applied.
+
+	The coord system is identical, so a `shape="rect"` area can be directly translated into an SVG
+	 -->
+	<map name="testmap">
 		
 		<!-- GOING CLOCKWISE FOR ALL, AND CENTER TO PERIMITER! -->
 		<area id="q-1" alt="" title="" href="#" coords="830,113,995,163" shape="rect" data-lookup="[0,-1,-1]">TEST
