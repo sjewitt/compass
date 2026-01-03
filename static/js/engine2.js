@@ -7,7 +7,7 @@ var compass_rating;
     compass_rating[compass_rating["ADVANCED"] = 5] = "ADVANCED";
     compass_rating[compass_rating["MASTER"] = 6] = "MASTER";
 })(compass_rating || (compass_rating = {}));
-;
+
 var engine = {
     rating_description_lookup: [
         { 'title': 'unrated', 'description': 'n/a' },
@@ -21,35 +21,69 @@ var engine = {
     /** 
      * Jan 2026: Adds configurable main quadrant titles - requires blank compass image 
      *  - each element of the title_parts is pushed to a corresponding SVG text element.
-     *  - the target is worked out by mapping the indexex to eac appropriately structured
+     *  - the target is worked out by mapping the indexes to each appropriately structured
      *    element ID.
+     * 
+     * TODO: Generate HTML from this data:
     */
     data_quadrant_titles:[
-        {'title_parts':['Product &','service design'],'sector_parts':[
-            ['Ideas &','concepts'],
-            ['Prototypes &','experiments'],
-            ['UX design',''],
-            ['Visual design',''],
-            ['Service','design'],
-        ]},
-        {'title_parts':['Management &','leadership'],'sector_parts':[
-            ['Client & account','management'],
-            ['Commercials',''],
-            ['Agile PM /','coaching'],
-            ['Facilitation',''],
-        ]},
-        {'title_parts':['Capability','building'],'sector_parts':[
-            ['Innovation','capabilities'],
-            ['Leadership','readiness'],
-            ['Mentoring','& coaching'],
-            ['Innovation','Training'],
-        ]},
-        {'title_parts':['Transforming','organizations'],'sector_parts':[
-            ['Strategy &','vision'],
-            ['Culture &','experience'],
-            ['Business','design &','growth'],
-            ['Customer','insights'],
-        ]},
+        {
+            'title_parts':[
+                {'title':'Product &','coords':[829,132]},
+                {'title':'service design', 'coords':[829,160]},
+            ],
+            'sector_parts':[
+                ['Ideas &','concepts'],
+                ['Prototypes &','experiments'],
+                ['UX design',''],
+                ['Visual design'],
+                ['Service','design'],
+            ],
+            'class': 'green',
+            'points':'807,92,806,174,1010,184,1005,68',
+        },
+        {
+            'title_parts':[
+                {'title':'Management &', 'coords':[835,720]},
+                {'title':'leadership', 'coords':[835,748]},
+            ],
+            'sector_parts':[
+                ['Client & account','management'],
+                ['Commercials'],
+                ['Agile PM /','coaching'],
+                ['Facilitation'],
+            ],
+            'class': 'blue',
+            'points':'818,693,816,761,1020,771,1022,669',     
+        },
+        {
+            'title_parts':[
+                {'title':'Capability', 'coords':[60,720]},
+                {'title':'building', 'coords':[60,748]},
+            ],
+            'sector_parts':[
+                ['Innovation','capabilities'],
+                ['Leadership','readiness'],
+                ['Mentoring','& coaching'],
+                ['Innovation','Training'],
+            ],
+            'class': 'red',
+            'points':'45,663,211,689,207,770,45,783',       
+        },
+        {
+            'title_parts':[
+                {'title':'Transforming', 'coords':[70,132]},
+                {'title':'organizations', 'coords':[70,160]},
+            ],
+            'sector_parts':[
+                ['Strategy &','vision'],
+                ['Culture &','experience'],
+                ['Business','design &','growth'],
+                ['Customer','insights'],
+            ],
+            'class': 'yellow',
+            'points':'38,85,237,90,242,177,46,195',
+        },
     ],
     data_0: [
         { 'description': 'Includes Proposition Design, Product Design, Digital and Physical Experience Design', 'title': 'Product & service design' },
@@ -186,7 +220,7 @@ var engine = {
         };
 
         if (page === 'svg') {
-            this.renderDisplayedTexts();
+            
             this.loadAndBuildUserDropdown();
         }
 
@@ -194,13 +228,20 @@ var engine = {
          * load the dropdown with selecting and jumping to specific user page
          * */
         if(page === "home"){
+            this.getStaticSectorTitles();
+
             this.renderDisplayedTexts();
             this.loadAndBuildUserDropdown();
         }
         
         if (page === "svg_template"){
+            this.getStaticSectorTitles();
+
+            /** render the static quadrant and sector texts */
+            this.renderDisplayedTexts();
+
             /**  directly call the user load function:  */
-            console.log("LOADING USER FROM PATH PARAM")
+            // console.log("LOADING USER FROM PATH PARAM")
             engine.loadUser();
 
             /** append handler to data download button */
@@ -214,13 +255,13 @@ var engine = {
         var user_dropdown_btn = document.getElementById("select_user_button");
         var user_dropdown = document.getElementById("select_user");
 
-        console.log(user_dropdown_btn)
+        // console.log(user_dropdown_btn)
         if(user_dropdown_btn){
-            console.log("Adding handler")
+            // console.log("Adding handler")
             user_dropdown_btn.addEventListener("click",() => {engine.selectAndLoadUser()});
         }
         if(user_dropdown){
-            console.log("Adding handler")
+            // console.log("Adding handler")
             if(page==="home"){
                 user_dropdown.addEventListener("change",() => {engine.redirectToUserTemplate()});
             }
@@ -275,53 +316,102 @@ var engine = {
         });
     },
 
+    /** 
+     * Generate DOM for static quadrant and sector compass titles. We don't want to duplicate hardcoded
+     * HTML in > 1 template
+     */
+    getStaticSectorTitles: function(){
+        // data_quadrant_titles
+        console.log(this.data_quadrant_titles);
+
+        // wrapper
+        let _wrapper = document.createElement('g');
+
+        // iterate over quadrants:
+        for(let qt=0;qt<this.data_quadrant_titles.length;qt++){
+            // generate the polygon:
+            let _polygon = document.createElement('polygon');
+
+            // build attributes for title polygon box thingy:
+            _polygon.setAttribute("class",`svg_title ${this.data_quadrant_titles[qt].class}`);
+            _polygon.setAttribute("points",this.data_quadrant_titles[qt].points);
+
+            // and append to the wrapper:
+            _wrapper.appendChild(_polygon);
+            
+            // iterate over these lines of text, to generate a <text> element
+            for(let qtp=0;qtp<this.data_quadrant_titles[qt].title_parts.length;qtp++){
+                console.log(this.data_quadrant_titles[qt].title_parts[qtp]);
+
+                // create the <text> element
+                let _title = document.createElement('text');
+                _title.setAttribute('id',`svg_title_${qt+1}_${qtp+1}`);
+                _title.setAttribute('class',`svg_quad_title ${this.data_quadrant_titles[qt].class}`);
+                _title.setAttribute('font-size','24');
+                _title.setAttribute('x',this.data_quadrant_titles[qt].title_parts[qtp].coords[0]);
+                _title.setAttribute('y',this.data_quadrant_titles[qt].title_parts[qtp].coords[1]);
+                _title.appendChild(document.createTextNode(this.data_quadrant_titles[qt].title_parts[qtp].title));
+
+                // build attributes for title polygon box thingy:
+
+                // and append to the wrapper:
+                _wrapper.appendChild(_title);
+            }
+
+        }
+        console.log(_wrapper);
+    },
+
     renderDisplayedTexts: function(){
         // render texts that show always, rather than having static texts as part
         // of the image itself. This will probably require extensions to the source
         // data, and obviously cleaning up the images themselves. [also, find a way]
         // of using the same image for /static and /templates:
-        console.log("Rendering statically displayed texts");
+        // console.log("Rendering statically displayed texts");
         const quadrant_title_refs = [];
-        console.log(this.data_quadrant_titles);
+        // console.log(this.data_quadrant_titles);
         // I'm using index 1 because of the way the element IDs are named.
         for(let x=1;x<=this.data_quadrant_titles.length;x++){
             // get the array of words for the current title elems:
             let current_words = this.data_quadrant_titles[x-1];
-            console.log(current_words);
+            // console.log(current_words);
             // identify the text elements by ID:
             for(let y=1;y<=current_words.title_parts.length;y++){
                 let elem_id = `svg_title_${x}_${y}`;
-                // console.log(current_words.title_parts[y-1]);
-                // console.log(elem_id);
-                let elem = document.getElementById(elem_id);
-                // console.log(elem);
-                let txt = document.createTextNode(current_words.title_parts[y-1]);
-                elem.appendChild(txt);
-            }
-
-            // now get the segment titles:
-            console.log(current_words.sector_parts.length);
-            // now we do a double loop to get each segment, and the lines array for each:
-            for(let z=1;z<=current_words.sector_parts.length;z++){
-                console.log(current_words.sector_parts[z-1]);
-                for(let xx=1;xx<=current_words.sector_parts[z-1].length;xx++){
-                    console.log(current_words.sector_parts[z-1][xx-1]);
-
-                    let elem_id = `svg_sector_${x}_${z}_${xx}`;
-                    console.log(elem_id);
-                    try{
-                        let elem = document.getElementById(elem_id);
-                        let txt = document.createTextNode(current_words.sector_parts[z-1][xx-1]);
-                        console.log(elem);
-                        elem.appendChild(txt);
-                    }
-                    catch(ex){
-                        console.log(ex);
-                    }
+                try{
+                    // console.log(current_words.title_parts[y-1]);
+                    // console.log(elem_id);
+                    let elem = document.getElementById(elem_id);
+                    // console.log(elem);
+                    let txt = document.createTextNode(current_words.title_parts[y-1].title);
+                    elem.appendChild(txt);
+                }
+                catch(ex){
+                    console.log(`Cannot process quadrant title parts: ${ex}`);
                 }
             }
 
-            
+            // now get the segment titles:
+            // console.log(current_words.sector_parts.length);
+            // now we do a double loop to get each segment, and the lines array for each:
+            for(let z=1;z<=current_words.sector_parts.length;z++){
+                // console.log(current_words.sector_parts[z-1]);
+                for(let xx=1;xx<=current_words.sector_parts[z-1].length;xx++){
+                    // console.log(current_words.sector_parts[z-1][xx-1]);
+
+                    let elem_id = `svg_sector_${x}_${z}_${xx}`;
+                    // console.log(elem_id);
+                    try{
+                        let elem = document.getElementById(elem_id);
+                        let txt = document.createTextNode(current_words.sector_parts[z-1][xx-1]);
+                        // console.log(elem);
+                        elem.appendChild(txt);
+                    }
+                    catch(ex){
+                        console.log(`Cannot process segment title parts: ${ex}`);
+                    }
+                }
+            }
         }
     },
 
@@ -509,6 +599,7 @@ var engine = {
             }
         });
     },
+    
     isQuadrant: function (data) {
         return data.rating >= 0 && data.rating <= 6;
     },
@@ -666,6 +757,7 @@ var engine = {
         }
         this.renderRatings();
     },
+    
     setSectorSVGClicked: function (elem) {
         var id_prefix = elem.getAttribute('id').split('-')[0];
         var max_id = parseInt(elem.getAttribute('id').split('-')[1]);
@@ -678,6 +770,7 @@ var engine = {
             document.getElementById('svg_' + id_prefix + '-' + x).classList.add('svg_show');
         }
     },
+    
     setSectorSVGDisplay: function (elem, show) {
         var id_prefix = elem.getAttribute('id').split('-')[0];
         var max_id = parseInt(elem.getAttribute('id').split('-')[1]);
@@ -693,6 +786,7 @@ var engine = {
             }
         }
     },
+    
     renderRatings: function () {
         var target = document.getElementById('userdata');
         target.innerText = "";
@@ -715,6 +809,7 @@ var engine = {
             target.appendChild(row);
         }
     },
+    
     fish: function () {
         var fish = 1255;
         return (fish);
