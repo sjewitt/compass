@@ -23,14 +23,12 @@ var engine = {
      *  - each element of the title_parts is pushed to a corresponding SVG text element.
      *  - the target is worked out by mapping the indexes to each appropriately structured
      *    element ID.
-     * 
-     * TODO: Generate HTML from this data:
     */
     data_quadrant_titles:[
         {
             'title_parts':[
-                {'title':'Product &','coords':[829,132]},
-                {'title':'service design', 'coords':[829,160]},
+                {'title':'Product &','coords':[829,125]},
+                {'title':'service design', 'coords':[829,153]},
             ],
             'sector_parts':[
                 [{'title':'Ideas &','coords':[545,110]},{'title':'concepts','coords':[545,125]},],
@@ -50,7 +48,7 @@ var engine = {
             'sector_parts':[
                 [{'title':'Client & account','coords':[837,510]},{'title':'management','coords':[837,525]},],
                 [{'title':'Commercials','coords':[773,632]},],
-                [{'title':'Agile PM /','coords':[685,723]},{'title':'coaching','coords':[685738]},],
+                [{'title':'Agile PM /','coords':[685,723]},{'title':'coaching','coords':[685,738]},],
                 [{'title':'Facilitation','coords':[559,773]}],
             ],
             'class': 'blue',
@@ -62,8 +60,8 @@ var engine = {
                 {'title':'building', 'coords':[60,748]},
             ],
             'sector_parts':[
-                [{'title':'Innovation','coords':[396,770]},{'title':'capabilities','coords':[376,785]},],
-                [{'title':'Leadership','coords':[282,723]},{'title':'readiness','coords':[282,785]},],
+                [{'title':'Innovation','coords':[416,770]},{'title':'capabilities','coords':[416,785]},],
+                [{'title':'Leadership','coords':[282,723]},{'title':'readiness','coords':[282,738]},],
                 [{'title':'Mentoring','coords':[182,630]},{'title':'& coaching','coords':[182,645]},],
                 [{'title':'Innovation','coords':[135,510]},{'title':'Training','coords':[135,525]},],
             ],
@@ -72,8 +70,8 @@ var engine = {
         },
         {
             'title_parts':[
-                {'title':'Transforming', 'coords':[70,132]},
-                {'title':'organizations', 'coords':[70,160]},
+                {'title':'Transforming', 'coords':[60,132]},
+                {'title':'organizations', 'coords':[60,160]},
             ],
             'sector_parts':[
                 [{'title':'Strategy &','coords':[140,382]},{'title':'vision','coords':[140,397]},],
@@ -228,25 +226,13 @@ var engine = {
          * load the dropdown with selecting and jumping to specific user page
          * */
         if(page === "home"){
-            // get the target elem:
-            // let _render_titles = document.getElementById("svg_compass");
-            let _render_titles = document.getElementById("static_titles");
-            _render_titles.innerHTML = "";
-
-            // let _title_data = this.getStaticSectorTitles();
-            // this will append directly in the function
-            this.getStaticSectorTitles();
-            // console.log("1");
-            // let _fragment = document.createDocumentFragment(_title_data)
-            // console.log(_title_data);
-            // _render_titles.append(_title_data);
-
+            this.getStaticSectorTitlesDOM();
             this.renderDisplayedTexts();
             this.loadAndBuildUserDropdown();
         }
         
         if (page === "svg_template"){
-            this.getStaticSectorTitles();
+            this.getStaticSectorTitlesDOM();
 
             /** render the static quadrant and sector texts */
             this.renderDisplayedTexts();
@@ -331,17 +317,12 @@ var engine = {
      * Generate DOM for static quadrant and sector compass titles. We don't want to duplicate hardcoded
      * HTML in > 1 template
      */
-    getStaticSectorTitles: function(){
+    getStaticSectorTitlesDOM: function(){
         // This is why it did not display:
         // https://stackoverflow.com/questions/23588384/dynamically-created-svg-element-not-displaying
 
-        // data_quadrant_titles
-        // console.log(this.data_quadrant_titles);
+        // let _wrapper = document.createElementNS("http://www.w3.org/2000/svg",'g');
 
-        // wrapper
-        let _wrapper = document.createElementNS("http://www.w3.org/2000/svg",'g');
-
-        // render directly:
         let _render_titles = document.getElementById("static_titles");
         _render_titles.innerHTML = "";
 
@@ -352,7 +333,7 @@ var engine = {
             _polygon.setAttribute("points",this.data_quadrant_titles[qt].points);
 
             // and append to the wrapper:
-            _wrapper.appendChild(_polygon);
+            // _wrapper.appendChild(_polygon);
             _render_titles.appendChild(_polygon);
             
             // iterate over these lines of text, to generate a <text> element
@@ -363,59 +344,50 @@ var engine = {
                 _title.setAttribute('font-size','24');
                 _title.setAttribute('x',this.data_quadrant_titles[qt].title_parts[qtp].coords[0]);
                 _title.setAttribute('y',this.data_quadrant_titles[qt].title_parts[qtp].coords[1]);
-                console.log(this.data_quadrant_titles[qt].title_parts[qtp].title);
-                // _title.appendChild(document.createTextNode(this.data_quadrant_titles[qt].title_parts[qtp].title));
+
                 // and append to the wrapper:
-                _wrapper.appendChild(_title);
+                // _wrapper.appendChild(_title);
                 _render_titles.appendChild(_title);
             }
-            
 
             // and for each quadrant, generate the sector titles:
-            // console.log(this.data_quadrant_titles[qt].sector_parts);
             for(let stp=0;stp<this.data_quadrant_titles[qt].sector_parts.length;stp++){
-                // console.log(this.data_quadrant_titles[qt].sector_parts[stp]);
                 let sector_title_array = this.data_quadrant_titles[qt].sector_parts[stp];
-                // console.log(sector_title_array);    // this may change to an array of objects:
+
                 // and for each of these, generate a <text> element:
                 for(let xx=0;xx<sector_title_array.length;xx++){
-                    // console.log(sector_title_array[xx]);
+
                     let _sector_title = document.createElementNS("http://www.w3.org/2000/svg",'text');
                     _sector_title.setAttribute('id',`svg_sector_${qt+1}_${stp+1}_${xx+1}`);
                     _sector_title.setAttribute('font-size','14');
                     _sector_title.setAttribute('font-family','times');
                     _sector_title.setAttribute('x',sector_title_array[xx].coords[0]);
                     _sector_title.setAttribute('y',sector_title_array[xx].coords[1]);
-                    _wrapper.appendChild(_sector_title);
+                    // _wrapper.appendChild(_sector_title);
                     _render_titles.appendChild(_sector_title);
                 }
             }
         }
-        // console.log(_wrapper);
-        // return(_wrapper);
+        console.log(_render_titles);
     },
 
     renderDisplayedTexts: function(){
         // render texts that show always, rather than having static texts as part
-        // of the image itself. This will probably require extensions to the source
-        // data, and obviously cleaning up the images themselves. [also, find a way]
-        // of using the same image for /static and /templates:
-        // console.log("Rendering statically displayed texts");
+        // of the image itself. also, find a way
+        // of using the same image for /static and /templates.
+        // This function assumes presence of DOM generated by above function.
         const quadrant_title_refs = [];
-        // console.log(this.data_quadrant_titles);
+ 
         // I'm using index 1 because of the way the element IDs are named.
         for(let x=1;x<=this.data_quadrant_titles.length;x++){
             // get the array of words for the current title elems:
             let current_words = this.data_quadrant_titles[x-1];
-            // console.log(current_words);
+
             // identify the text elements by ID:
             for(let y=1;y<=current_words.title_parts.length;y++){
                 let elem_id = `svg_title_${x}_${y}`;
                 try{
-                    // console.log(current_words.title_parts[y-1]);
-                    // console.log(elem_id);
                     let elem = document.getElementById(elem_id);
-                    // console.log(elem);
                     let txt = document.createTextNode(current_words.title_parts[y-1].title);
                     elem.appendChild(txt);
                 }
@@ -424,20 +396,13 @@ var engine = {
                 }
             }
 
-            // now get the segment titles:
-            // console.log(current_words.sector_parts.length);
-            // now we do a double loop to get each segment, and the lines array for each:
+            // now get the segment titles: we do a double loop to get each segment, and the lines array for each:
             for(let z=1;z<=current_words.sector_parts.length;z++){
-                // console.log(current_words.sector_parts[z-1]);
                 for(let xx=1;xx<=current_words.sector_parts[z-1].length;xx++){
-                    // console.log(current_words.sector_parts[z-1][xx-1]);
-
                     let elem_id = `svg_sector_${x}_${z}_${xx}`;
-                    // console.log(elem_id);
                     try{
                         let elem = document.getElementById(elem_id);
                         let txt = document.createTextNode(current_words.sector_parts[z-1][xx-1].title);
-                        // console.log(elem);
                         elem.appendChild(txt);
                     }
                     catch(ex){
@@ -581,11 +546,11 @@ var engine = {
     },
 
     test_load_data: function (user_id=0) {
-        console.log(user_id)
+        // console.log(user_id)
         /** first, clear the current data */
         // https://developer.mozilla.org/en-US/docs/Web/API/NodeList
         var svg_compass = Array.from(document.getElementById("svg_compass").childNodes);
-        console.log(svg_compass[1])
+        // console.log(svg_compass[1])
         for(let _x=0;_x<svg_compass.length; _x++){
             if(svg_compass[_x].tagName === "polygon"){
                 /** ignore outer titles, because removing style from this causes an error */
