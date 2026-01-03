@@ -33,11 +33,11 @@ var engine = {
                 {'title':'service design', 'coords':[829,160]},
             ],
             'sector_parts':[
-                ['Ideas &','concepts'],
-                ['Prototypes &','experiments'],
-                ['UX design',''],
-                ['Visual design'],
-                ['Service','design'],
+                [{'title':'Ideas &','coords':[545,110]},{'title':'concepts','coords':[545,125]},],
+                [{'title':'Prototypes &','coords':[646,140]},{'title':'experiments','coords':[646,155]},],
+                [{'title':'UX design','coords':[742,225]}],
+                [{'title':'Visual design','coords':[800,300]}],
+                [{'title':'Service','coords':[828,383]},{'title':'design','coords':[828,398]},],
             ],
             'class': 'green',
             'points':'807,92,806,174,1010,184,1005,68',
@@ -48,10 +48,10 @@ var engine = {
                 {'title':'leadership', 'coords':[835,748]},
             ],
             'sector_parts':[
-                ['Client & account','management'],
-                ['Commercials'],
-                ['Agile PM /','coaching'],
-                ['Facilitation'],
+                [{'title':'Client & account','coords':[837,510]},{'title':'management','coords':[837,525]},],
+                [{'title':'Commercials','coords':[773,632]},],
+                [{'title':'Agile PM /','coords':[685,723]},{'title':'coaching','coords':[685738]},],
+                [{'title':'Facilitation','coords':[559,773]}],
             ],
             'class': 'blue',
             'points':'818,693,816,761,1020,771,1022,669',     
@@ -62,10 +62,10 @@ var engine = {
                 {'title':'building', 'coords':[60,748]},
             ],
             'sector_parts':[
-                ['Innovation','capabilities'],
-                ['Leadership','readiness'],
-                ['Mentoring','& coaching'],
-                ['Innovation','Training'],
+                [{'title':'Innovation','coords':[396,770]},{'title':'capabilities','coords':[376,785]},],
+                [{'title':'Leadership','coords':[282,723]},{'title':'readiness','coords':[282,785]},],
+                [{'title':'Mentoring','coords':[182,630]},{'title':'& coaching','coords':[182,645]},],
+                [{'title':'Innovation','coords':[135,510]},{'title':'Training','coords':[135,525]},],
             ],
             'class': 'red',
             'points':'45,663,211,689,207,770,45,783',       
@@ -76,10 +76,10 @@ var engine = {
                 {'title':'organizations', 'coords':[70,160]},
             ],
             'sector_parts':[
-                ['Strategy &','vision'],
-                ['Culture &','experience'],
-                ['Business','design &','growth'],
-                ['Customer','insights'],
+                [{'title':'Strategy &','coords':[140,382]},{'title':'vision','coords':[140,397]},],
+                [{'title':'Culture &','coords':[177,251]},{'title':'experience','coords':[177,266]},],
+                [{'title':'Business','coords':[298,148]},{'title':'design &','coords':[298,163]},{'title':'growth','coords':[298,178]},],
+                [{'title':'Customer','coords':[427,112]},{'title':'insights','coords':[427,127]},],
             ],
             'class': 'yellow',
             'points':'38,85,237,90,242,177,46,195',
@@ -228,7 +228,18 @@ var engine = {
          * load the dropdown with selecting and jumping to specific user page
          * */
         if(page === "home"){
+            // get the target elem:
+            // let _render_titles = document.getElementById("svg_compass");
+            let _render_titles = document.getElementById("static_titles");
+            _render_titles.innerHTML = "";
+
+            // let _title_data = this.getStaticSectorTitles();
+            // this will append directly in the function
             this.getStaticSectorTitles();
+            // console.log("1");
+            // let _fragment = document.createDocumentFragment(_title_data)
+            // console.log(_title_data);
+            // _render_titles.append(_title_data);
 
             this.renderDisplayedTexts();
             this.loadAndBuildUserDropdown();
@@ -321,45 +332,67 @@ var engine = {
      * HTML in > 1 template
      */
     getStaticSectorTitles: function(){
+        // This is why it did not display:
+        // https://stackoverflow.com/questions/23588384/dynamically-created-svg-element-not-displaying
+
         // data_quadrant_titles
-        console.log(this.data_quadrant_titles);
+        // console.log(this.data_quadrant_titles);
 
         // wrapper
-        let _wrapper = document.createElement('g');
+        let _wrapper = document.createElementNS("http://www.w3.org/2000/svg",'g');
+
+        // render directly:
+        let _render_titles = document.getElementById("static_titles");
+        _render_titles.innerHTML = "";
 
         // iterate over quadrants:
         for(let qt=0;qt<this.data_quadrant_titles.length;qt++){
-            // generate the polygon:
-            let _polygon = document.createElement('polygon');
-
-            // build attributes for title polygon box thingy:
+            let _polygon = document.createElementNS("http://www.w3.org/2000/svg",'polygon');
             _polygon.setAttribute("class",`svg_title ${this.data_quadrant_titles[qt].class}`);
             _polygon.setAttribute("points",this.data_quadrant_titles[qt].points);
 
             // and append to the wrapper:
             _wrapper.appendChild(_polygon);
+            _render_titles.appendChild(_polygon);
             
             // iterate over these lines of text, to generate a <text> element
             for(let qtp=0;qtp<this.data_quadrant_titles[qt].title_parts.length;qtp++){
-                console.log(this.data_quadrant_titles[qt].title_parts[qtp]);
-
-                // create the <text> element
-                let _title = document.createElement('text');
+                let _title = document.createElementNS("http://www.w3.org/2000/svg",'text');
                 _title.setAttribute('id',`svg_title_${qt+1}_${qtp+1}`);
                 _title.setAttribute('class',`svg_quad_title ${this.data_quadrant_titles[qt].class}`);
                 _title.setAttribute('font-size','24');
                 _title.setAttribute('x',this.data_quadrant_titles[qt].title_parts[qtp].coords[0]);
                 _title.setAttribute('y',this.data_quadrant_titles[qt].title_parts[qtp].coords[1]);
-                _title.appendChild(document.createTextNode(this.data_quadrant_titles[qt].title_parts[qtp].title));
-
-                // build attributes for title polygon box thingy:
-
+                console.log(this.data_quadrant_titles[qt].title_parts[qtp].title);
+                // _title.appendChild(document.createTextNode(this.data_quadrant_titles[qt].title_parts[qtp].title));
                 // and append to the wrapper:
                 _wrapper.appendChild(_title);
+                _render_titles.appendChild(_title);
             }
+            
 
+            // and for each quadrant, generate the sector titles:
+            // console.log(this.data_quadrant_titles[qt].sector_parts);
+            for(let stp=0;stp<this.data_quadrant_titles[qt].sector_parts.length;stp++){
+                // console.log(this.data_quadrant_titles[qt].sector_parts[stp]);
+                let sector_title_array = this.data_quadrant_titles[qt].sector_parts[stp];
+                // console.log(sector_title_array);    // this may change to an array of objects:
+                // and for each of these, generate a <text> element:
+                for(let xx=0;xx<sector_title_array.length;xx++){
+                    // console.log(sector_title_array[xx]);
+                    let _sector_title = document.createElementNS("http://www.w3.org/2000/svg",'text');
+                    _sector_title.setAttribute('id',`svg_sector_${qt+1}_${stp+1}_${xx+1}`);
+                    _sector_title.setAttribute('font-size','14');
+                    _sector_title.setAttribute('font-family','times');
+                    _sector_title.setAttribute('x',sector_title_array[xx].coords[0]);
+                    _sector_title.setAttribute('y',sector_title_array[xx].coords[1]);
+                    _wrapper.appendChild(_sector_title);
+                    _render_titles.appendChild(_sector_title);
+                }
+            }
         }
-        console.log(_wrapper);
+        // console.log(_wrapper);
+        // return(_wrapper);
     },
 
     renderDisplayedTexts: function(){
@@ -403,7 +436,7 @@ var engine = {
                     // console.log(elem_id);
                     try{
                         let elem = document.getElementById(elem_id);
-                        let txt = document.createTextNode(current_words.sector_parts[z-1][xx-1]);
+                        let txt = document.createTextNode(current_words.sector_parts[z-1][xx-1].title);
                         // console.log(elem);
                         elem.appendChild(txt);
                     }
