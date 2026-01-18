@@ -1,3 +1,5 @@
+
+import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
@@ -19,6 +21,17 @@ from api.exceptions import UserNotFound, CompetenciesForUserNotFound, Competency
 from api.constants import COMPASS_MAPPER, RATING_MAPPER
 
 app = FastAPI()
+
+# #48:
+# load JSON file as used by the front-end to obtain the static values:
+
+with open(mode="r",file="./static/data/display_data.json") as display_data:
+    # TODO:
+    # print(os.getcwd())
+    # print()
+    display_data.read()
+    print(dict( display_data))
+    display_data.close()
 
 app.mount("/api/",app)
 app.mount("/static", StaticFiles(directory="static", html=True, ),name="static")

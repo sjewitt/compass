@@ -10,12 +10,13 @@ var compass_rating;
 
 var engine = {
     /**
+     * #47
+     * Jan 2026: 
      * These properties are loaded from the fetch just prior to the call
      * to `init();`. The idea is to allow configurable data for both front-
      * and back-end data.
      * 
-     * #47
-     * Jan 2026: Adds configurable displayed texts titles - requires blank compass image 
+     * Adds configurable displayed texts titles - requires blank compass image 
      *  - each element of the title_parts is pushed to a corresponding SVG text element.
      *  - the target is worked out by mapping the indexes to each appropriately structured
      *    element ID.
