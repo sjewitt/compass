@@ -9,140 +9,22 @@ var compass_rating;
 })(compass_rating || (compass_rating = {}));
 
 var engine = {
-    rating_description_lookup: [
-        { 'title': 'unrated', 'description': 'n/a' },
-        { 'title': 'Competely unfamiliar', 'description': 'Little to no understanding of the topic and no experience.' },
-        { 'title': 'Novice', 'description': 'You are open to learning as much as you can about the skill, from all internal and external sources. You share your learning with your peers, who may not be so inquisitive or up-to-date given their more established views and expertise.\n\nClient role comparison (you should be able to comfortably guide and challenge) - graduates, junior' },
-        { 'title': 'Foundation', 'description': 'You are aware of the regularly used skills and have observed them in action. You have a technical understanding of key elements but not a great deal of experience. You can be relied upon to receive a brief, and contribute to its delivery.\n\nClient role comparison (you should be able to comfortably guide and challenge) -  executive' },
-        { 'title': 'Competent', 'description': 'You are adept at the key, common skills - ones that are well known and regularly used at Magnetic (and other organisations). You can be relied upon to receive a brief, respond to and shape it, and then deliver.\n\nClient role comparison (you should be able to comfortably guide and challenge) -  senior executive' },
-        { 'title': 'Advanced', 'description': 'You are adept at a broad range range of skills, knowing what\'s possible and available and appropriate for any given situation. You are able to coach and train others in those skills and approaches. You are able to write briefs for your team to execute. You are able to develop unique positions and approaches for Magnetic.\n\nClient role comparison (you should be able to comfortably guide and challenge) - head of...' },
-        { 'title': 'Master', 'description': 'You are seen as the best in your craft on an industry-wide stage and are a thought-leader publicly. You are able to identify when new skills or methods need to be introduced and developed based on the task or customer need. You are comfortable sitting in C-Suite situations and explain, challenge and recruit in this craft.\n\nClient role comparison (you should be able to comfortably guide and challenge) - C-suite, Director' }
-    ],
-    /** 
-     * Jan 2026: Adds configurable main quadrant titles - requires blank compass image 
+    /**
+     * These properties are loaded from the fetch just prior to the call
+     * to `init();`. The idea is to allow configurable data for both front-
+     * and back-end data.
+     * 
+     * #47
+     * Jan 2026: Adds configurable displayed texts titles - requires blank compass image 
      *  - each element of the title_parts is pushed to a corresponding SVG text element.
      *  - the target is worked out by mapping the indexes to each appropriately structured
      *    element ID.
-    */
-    data_quadrant_titles:[
-        {
-            'title_parts':[
-                {'title':'Product &','coords':[829,125]},
-                {'title':'service design', 'coords':[829,153]},
-            ],
-            'sector_parts':[
-                [{'title':'Ideas &','coords':[545,110]},{'title':'concepts','coords':[545,125]},],
-                [{'title':'Prototypes &','coords':[646,140]},{'title':'experiments','coords':[646,155]},],
-                [{'title':'UX design','coords':[742,225]}],
-                [{'title':'Visual design','coords':[800,300]}],
-                [{'title':'Service','coords':[828,383]},{'title':'design','coords':[828,398]},],
-            ],
-            'class': 'green',
-            'points':'807,92,806,174,1010,184,1005,68',
-        },
-        {
-            'title_parts':[
-                {'title':'Management &', 'coords':[835,720]},
-                {'title':'leadership', 'coords':[835,748]},
-            ],
-            'sector_parts':[
-                [{'title':'Client & account','coords':[837,510]},{'title':'management','coords':[837,525]},],
-                [{'title':'Commercials','coords':[773,632]},],
-                [{'title':'Agile PM /','coords':[685,723]},{'title':'coaching','coords':[685,738]},],
-                [{'title':'Facilitation','coords':[559,773]}],
-            ],
-            'class': 'blue',
-            'points':'818,693,816,761,1020,771,1022,669',     
-        },
-        {
-            'title_parts':[
-                {'title':'Capability', 'coords':[60,720]},
-                {'title':'building', 'coords':[60,748]},
-            ],
-            'sector_parts':[
-                [{'title':'Innovation','coords':[416,770]},{'title':'capabilities','coords':[416,785]},],
-                [{'title':'Leadership','coords':[282,723]},{'title':'readiness','coords':[282,738]},],
-                [{'title':'Mentoring','coords':[182,630]},{'title':'& coaching','coords':[182,645]},],
-                [{'title':'Innovation','coords':[135,510]},{'title':'Training','coords':[135,525]},],
-            ],
-            'class': 'red',
-            'points':'45,663,211,689,207,770,45,783',       
-        },
-        {
-            'title_parts':[
-                {'title':'Transforming', 'coords':[60,132]},
-                {'title':'organizations', 'coords':[60,160]},
-            ],
-            'sector_parts':[
-                [{'title':'Strategy &','coords':[140,382]},{'title':'vision','coords':[140,397]},],
-                [{'title':'Culture &','coords':[177,251]},{'title':'experience','coords':[177,266]},],
-                [{'title':'Business','coords':[298,148]},{'title':'design &','coords':[298,163]},{'title':'growth','coords':[298,178]},],
-                [{'title':'Customer','coords':[427,112]},{'title':'insights','coords':[427,127]},],
-            ],
-            'class': 'yellow',
-            'points':'38,85,237,90,242,177,46,195',
-        },
-    ],
-    data_0: [
-        { 'description': 'Includes Proposition Design, Product Design, Digital and Physical Experience Design', 'title': 'Product & service design' },
-        { 'description': 'How we influence people to get stuff done', 'title': 'Management & leadership' },
-        { 'description': 'Providing clients with the tools they need to achieve their goals.', 'title': 'Capability building' },
-        { 'description': 'What skills do you have that can support our clients in their ambitions to change their business?', 'title': 'Transforming organizations' }
-    ],
-    data_1: [
-        [
-            { 'description': 'Understanding how to originate, encourage and communicate complex ideas and concepts with simplicity and clarity.', 'title': 'Ideas & concepts' },
-            { 'description': 'Ability to use tools that will reduce uncertainty and test hypotheses', 'title': 'Prototypes & experiments' },
-            { 'description': 'Skills in the creation and definition of functional, usable and simplified user experiences', 'title': 'UX design' },
-            { 'description': 'Skills in the creation of beautiful and functional things using the right tools.', 'title': 'Visual design' },
-            { 'description': 'Skills in the creation of interactions over time that make our clients stand out in the minds of their customers', 'title': 'Service design' }
-        ],
-        [
-            { 'description': 'Building effective, successful and long lasting relationships', 'title': 'Client & account management' },
-            { 'description': 'Understanding the impact of decisions we make on the business from a financial, risk and regulatory perspective.', 'title': 'Commerials' },
-            { 'description': 'Effective use of the tools and rituals involved in running lean and agile projects with a focus on people and results', 'title': 'Agile PM/coaching' },
-            { 'description': 'Skills in running virtual and in person workshops to smoothly and simply achieve the stated goals.', 'title': 'Facilitation' }
-        ],
-        [
-            { 'description': 'Know how to enable our clients businesses to become more innovative', 'title': 'Innovation capabilities' },
-            { 'description': 'Understand the skills our client needs to exceed expectations in their next role. Know how to support them to get there.', 'title': 'Leadership readiness' },
-            { 'description': 'Ability to share knowledge and guide people to reach their full potential', 'title': 'Mentoring & coaching' },
-            { 'description': 'Creation and delivery of training in our tools and techniques', 'title': 'Innovation training' }
-        ],
-        [
-            { 'description': 'How you research, define and bring to life the desired future state of our client.', 'title': 'Strategy & vision' },
-            { 'description': 'Using powerful storytelling to influence the behaviours of people who make up the client’s business.', 'title': 'Culture & experience' },
-            { 'description': 'Understanding which tools will accelerate the client’s ability to achieve their future vision and using them to predict the effect on customer behaviour.', 'title': 'Business design & growth' },
-            { 'description': 'Use of varied research skills to understand the needs, wants and desires of customers.', 'title': 'Customer insights' }
-        ],
-    ],
-    data_2: [
-        [
-            'Has experience of using a variety of tools to generate ideas and concepts. Can plan and lead an ideation workshop. Understands how to create \'just enough\' to show the viability / art of the possible in the idea we are communicating.',
-            'Use tools that will reduce uncertainty and test hypotheses. Understand the different types of experiments and their suitability. Communicate the plan, hypothesis and outcomes with clients Analyse results in various formats.',
-            'Independently create and define functional, usable and simplified user experiences. Understand of the importance of designing for accessibility Communicate the thought behind the design and work collaboratively to achieve sign off.',
-            'Shape and drive of visual outcomes throughout the course of a project Communicate the thought behind the design and work collaboratively to achieve sign off. Review the work of junior designers and give feedback to improve',
-            'Own end-to-end user journey Understand the user needs and foresee painpoints to deliver desired organisational needs Ability to communicate the thought behind the design and work collaboratively to achieve sign off.'
-        ],
-        [
-            'build relationships with prospective clients, maintain relationships with existing clients, regularly share interesting insights with their network, spot and qualify opportunities. broker introductions to relevant Magnets and others in the Magnetic network.',
-            'Liasie effectively and in a timely manner with finance, produce high-quality commercial documentation and reports such as SOW and project tracker. Keep track of the numbers week in and week out. Understanding of contracts and procurement. They understand the impact of commercial decisions on the wider business',
-            'Coach others and gain buy-in from clients and teams (client and internal) for Agile ways of working. Deliver medium-sized projects successfully. Manage simultaneous engagements successfully',
-            'Demonstrate the ability to plan lead, facilitate, and deliver a workshop with positive, on-brief outcomes Lead and sign off on the work of others.'
-        ],
-        [
-            'Is able to assess the current innovation capability of a department / group / team and advise on what structural changes and training is needed to enable them to become more innovative.',
-            'Role models soft skills, values and behaviours the clients can emulate (Setting a great example). Receive feedback from clients saying they\'ve learned by doing when they worked with you. Confidently coach others',
-            'Share their skills with colleagues and set a good example as needed. Actively listen to colleagues and asks questions to help guide them to their own solutions. Understands the difference between coaching and mentoring and when to use that approach',
-            'Is able to lead training sessions on our core tools. Is confident in using real life stories in training. Gets the balance right between showing and telling and leads training sessions with a focus on interaction and discussion over lecturing and slideware. Is able to pivot a session to meet the requirements of the trainees.',
-        ],
-        [
-            'Define the strategic change for a project within a well defined scope. Define the strategy for a part of a business or product',
-            'Independently create a plan for influencing cultural change. Use tools like experience mapping to define and plan a new or improved experience. Be able to use storytelling to influence adoption of new behaviours.',
-            'Understands the intersection between viability, desirability, feasibility and integrity (impact). Knows how to bridge the gap between customer desirability and business-model viability. Plans and communicates what the business impact of our projects will be. ',
-            'Independently carry out customer interviews and actively participate in synthesis sessions. Contribute to creation of discussion guides and development of other research/insight techniques. Carry out research on customers within a well understood scope. Research and create insights about an aspect of a service'
-        ]
-    ],
+     */
+    rating_description_lookup:null,
+    data_quadrant_titles: null,
+    data_0:null,
+    data_1:null,
+    data_2: null,
     elems: [
         'q-1',
         's1-t',
@@ -189,8 +71,15 @@ var engine = {
     current_rating: -1,
     current_data: [],
 
-
-    init: function () {
+    // pass in loaded data here 
+    init: function (display_data) {
+        // and set the properties of the object from the loaded data:
+        this.data_quadrant_titles = display_data.data_quadrant_titles;
+        this.rating_description_lookup = display_data.rating_description_lookup;
+        this.data_0 = display_data.data_0;
+        this.data_1 = display_data.data_1;
+        this.data_2 = display_data.data_2;
+        console.log();
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
         for (var _i = 0, _a = this.elems; _i < _a.length; _i++) {
             var id = _a[_i];
@@ -238,7 +127,6 @@ var engine = {
             this.renderDisplayedTexts();
 
             /**  directly call the user load function:  */
-            // console.log("LOADING USER FROM PATH PARAM")
             engine.loadUser();
 
             /** append handler to data download button */
@@ -252,13 +140,10 @@ var engine = {
         var user_dropdown_btn = document.getElementById("select_user_button");
         var user_dropdown = document.getElementById("select_user");
 
-        // console.log(user_dropdown_btn)
         if(user_dropdown_btn){
-            // console.log("Adding handler")
             user_dropdown_btn.addEventListener("click",() => {engine.selectAndLoadUser()});
         }
         if(user_dropdown){
-            // console.log("Adding handler")
             if(page==="home"){
                 user_dropdown.addEventListener("change",() => {engine.redirectToUserTemplate()});
             }
@@ -276,7 +161,6 @@ var engine = {
             _attr = -1;
         }
         else{
-                    
             _txt = document.createTextNode(userName)
             _attr = userId;
         }
@@ -321,8 +205,6 @@ var engine = {
         // This is why it did not display:
         // https://stackoverflow.com/questions/23588384/dynamically-created-svg-element-not-displaying
 
-        // let _wrapper = document.createElementNS("http://www.w3.org/2000/svg",'g');
-
         let _render_titles = document.getElementById("static_titles");
         _render_titles.innerHTML = "";
 
@@ -333,7 +215,6 @@ var engine = {
             _polygon.setAttribute("points",this.data_quadrant_titles[qt].points);
 
             // and append to the wrapper:
-            // _wrapper.appendChild(_polygon);
             _render_titles.appendChild(_polygon);
             
             // iterate over these lines of text, to generate a <text> element
@@ -346,7 +227,6 @@ var engine = {
                 _title.setAttribute('y',this.data_quadrant_titles[qt].title_parts[qtp].coords[1]);
 
                 // and append to the wrapper:
-                // _wrapper.appendChild(_title);
                 _render_titles.appendChild(_title);
             }
 
@@ -363,7 +243,6 @@ var engine = {
                     _sector_title.setAttribute('font-family','times');
                     _sector_title.setAttribute('x',sector_title_array[xx].coords[0]);
                     _sector_title.setAttribute('y',sector_title_array[xx].coords[1]);
-                    // _wrapper.appendChild(_sector_title);
                     _render_titles.appendChild(_sector_title);
                 }
             }
@@ -441,13 +320,12 @@ var engine = {
             }).then(function (response) {
                 return response.json(); 
                 }).then(function (response) { 
-                    console.log(response);
-                    /** the ResponseRedirect from the server is failing, so
-                     * try with JS instead:
-                     */
-                    if(response.usercreated){
-                        document.location.href=`/static/?user_id=${response.user_id}`
-                    }
+                /** the ResponseRedirect from the server is failing, so
+                 * try with JS instead:
+                 */
+                if(response.usercreated){
+                    document.location.href=`/static/?user_id=${response.user_id}`
+                }
             });
         }
     },
@@ -459,9 +337,7 @@ var engine = {
         data['id'] = parseInt(document.getElementById("update_user_id").value);
         data['name'] = document.getElementById("update_user_name").value;
         data['email'] = document.getElementById("update_user_email").value;
-        // data['password'] = document.getElementById("update_user_pwd").value;
-        // data['password_check'] = document.getElementById("update_user_pwd_repeat").value;
-        // console.log(data);
+
         /** 
          * check if pwds are present, then are the same, then match existing pwd 
          * This needs to call a back-end check so we don't have the old pwd on
@@ -480,12 +356,8 @@ var engine = {
                     'Content-Type': 'application/json'
                 },
             }).then(function (response) {
-                // console.log(response.json());
                 return response.json(); 
-                // return response;
             }).then(function (response) { 
-                console.log("redirecting...")
-                console.log(response);
                 /** the ResponseRedirect from the server is failing, so
                  * try with JS instead:
                  */
@@ -535,22 +407,20 @@ var engine = {
             }).then(function (response) {
                 return response.json(); 
                 }).then(function (response) { 
-                    console.log(response);
-                    /** the ResponseRedirect from the server is failing, so
-                     * try with JS instead:
-                     */
-                    if(response.usercreated){
-                        document.location.href=`/static/?user_id=${response.user_id}`
-                    }
+                console.log(response);
+                /** the ResponseRedirect from the server is failing, so
+                 * try with JS instead:
+                 */
+                if(response.usercreated){
+                    document.location.href=`/static/?user_id=${response.user_id}`
+                }
             });
     },
 
     test_load_data: function (user_id=0) {
-        // console.log(user_id)
         /** first, clear the current data */
         // https://developer.mozilla.org/en-US/docs/Web/API/NodeList
         var svg_compass = Array.from(document.getElementById("svg_compass").childNodes);
-        // console.log(svg_compass[1])
         for(let _x=0;_x<svg_compass.length; _x++){
             if(svg_compass[_x].tagName === "polygon"){
                 /** ignore outer titles, because removing style from this causes an error */
@@ -816,6 +686,24 @@ var engine = {
 
 document.addEventListener("DOMContentLoaded",
     (evt) => {
-        engine.init();
+        // load data then call init:
+        // https://www.geeksforgeeks.org/javascript/read-json-file-using-javascript/
+        function fetchJSONData() {
+            console.log('loading data...'); 
+            fetch('../static/data/display_data.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();  
+                })
+                .then(display_data => {
+                    // apply data as required:
+                    engine.init(display_data);  // put this into callback
+                })  
+                .catch(error => console.error('Failed to fetch data:', error)); 
+        }
+        fetchJSONData(); 
+        // 
     }
 )
