@@ -75,12 +75,14 @@ var engine = {
     // pass in loaded data here 
     init: function (display_data) {
         // and set the properties of the object from the loaded data:
+        console.log("in init():");
+        console.log(display_data);
         this.data_quadrant_titles = display_data.data_quadrant_titles;
         this.rating_description_lookup = display_data.rating_description_lookup;
         this.data_0 = display_data.data_0;
         this.data_1 = display_data.data_1;
         this.data_2 = display_data.data_2;
-        console.log();
+        console.log("data added to working vars");
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
         for (var _i = 0, _a = this.elems; _i < _a.length; _i++) {
             var id = _a[_i];
@@ -116,12 +118,14 @@ var engine = {
          * load the dropdown with selecting and jumping to specific user page
          * */
         if(page === "home"){
+            this.populateCompassImageData();
             this.getStaticSectorTitlesDOM();
             this.renderDisplayedTexts();
             this.loadAndBuildUserDropdown();
         }
         
         if (page === "svg_template"){
+            this.populateCompassImageData();
             this.getStaticSectorTitlesDOM();
 
             /** render the static quadrant and sector texts */
@@ -152,6 +156,11 @@ var engine = {
                 user_dropdown.addEventListener("change",() => {engine.selectAndLoadUser()});
             }
         }
+    },
+
+    // populate data for routes that require it from JSON data file:
+    populateCompassImageData: function(){
+
     },
 
     buildOptionElem: function(header, userName, userId){
@@ -192,8 +201,8 @@ var engine = {
             targetElem.innerHTML = "";
             targetElem.appendChild(engine.buildOptionElem(true,null,null));
             for(let x=0;x<response.length;x++){
-
-                targetElem.appendChild(engine.buildOptionElem(false,response[x].username,response[x].id));
+                console.log(response[x].username,response[x].id);
+                targetElem.appendChild(engine.buildOptionElem(false,response[x].name,response[x].id));
             }
         });
     },
@@ -241,7 +250,7 @@ var engine = {
                     let _sector_title = document.createElementNS("http://www.w3.org/2000/svg",'text');
                     _sector_title.setAttribute('id',`svg_sector_${qt+1}_${stp+1}_${xx+1}`);
                     _sector_title.setAttribute('font-size','14');
-                    _sector_title.setAttribute('font-family','times');
+                    // _sector_title.setAttribute('font-family','times');
                     _sector_title.setAttribute('x',sector_title_array[xx].coords[0]);
                     _sector_title.setAttribute('y',sector_title_array[xx].coords[1]);
                     _render_titles.appendChild(_sector_title);
@@ -691,7 +700,7 @@ document.addEventListener("DOMContentLoaded",
         // https://www.geeksforgeeks.org/javascript/read-json-file-using-javascript/
         function fetchJSONData() {
             console.log('loading data...'); 
-            fetch('../static/data/display_data.json')
+            fetch('/static/data/display_data.json')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -700,6 +709,8 @@ document.addEventListener("DOMContentLoaded",
                 })
                 .then(display_data => {
                     // apply data as required:
+                    console.log("data file loaded:");
+                    console.log(display_data);
                     engine.init(display_data);  // put this into callback
                 })  
                 .catch(error => console.error('Failed to fetch data:', error)); 
