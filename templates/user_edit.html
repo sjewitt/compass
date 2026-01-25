@@ -8,7 +8,11 @@
 </head>
 <body data-page="update_user">
 
-<h1>Edit User {{ user.name }}</h1>
+<h1>
+	<div class="button button-static inline_block">
+		<img src="/static/images/edit-user-64.png" alt="Edit user icon" title="Edit user" />
+	</div>
+	Edit User {{ user.name }}</h1>
 
 <div class="panel">
 	<div>Login:</div><input disabled="disabled" value="{{ user.username }}" name="update_user_login" id="update_user_login" placeholder="Update user login"/>
