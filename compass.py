@@ -1,5 +1,6 @@
 
 import os
+import json
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
@@ -14,24 +15,27 @@ from sqlalchemy.orm import sessionmaker
 
 import uvicorn
 
+from utilities.download_utilities import get_sector_title_from_data
 from api.models import User, Competency, CreateUser, UserCompetencies  # adde usercompetencies model
 from api.database import handlers
 from api.db_models import DB_Competency, DB_User, Base
 from api.exceptions import UserNotFound, CompetenciesForUserNotFound, CompetencyOutOfRange
-from api.constants import COMPASS_MAPPER, RATING_MAPPER
+# rather than using these python-specific items, lets use the JSON we use to populate the front-end
+# from api.constants import COMPASS_MAPPER, RATING_MAPPER
+# RATING_MAPPER is configuration.rating_description_lookup
+# COMPASS_MAPPER is configuration.data_quadrant_titles + configuration.data_1 (COMPASS_MAPPER munges 
+# these into a complex object)
 
 app = FastAPI()
 
 # #48:
 # load JSON file as used by the front-end to obtain the static values:
-
-with open(mode="r",file="./static/data/display_data.json") as display_data:
-    # TODO:
-    # print(os.getcwd())
-    # print()
-    display_data.read()
-    print(dict( display_data))
-    display_data.close()
+compass_config_data = {"status":"unset", "configuration":{}}
+def load_config_data():
+    print("init load data")
+    with open(mode="r",file="/code/static/data/display_data.json") as display_data:
+        compass_config_data["configuration"] = json.load(display_data)
+        compass_config_data["status"] = "set"
 
 app.mount("/api/",app)
 app.mount("/static", StaticFiles(directory="static", html=True, ),name="static")
@@ -39,14 +43,16 @@ app.mount("/static", StaticFiles(directory="static", html=True, ),name="static")
 # declare location of template(s)
 templates = Jinja2Templates(directory="templates")
 
-# test DB
+# declare SQLite DB for persistent storage:
 DATABASE_URI = "sqlite:///./database/db.sqlite"
 engine = create_engine(DATABASE_URI, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# and generate teh SQL:
+# and generate the SQL:
 Base.metadata.create_all(engine)
 
+# load on startup:
+load_config_data()
 
 @app.get("/")
 async def root():
@@ -80,20 +86,39 @@ from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
 @app.get("/{user_id}/data/csv",response_class=StreamingResponse)
 async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
     user_data = handlers.get_user_data(engine, user_id)
+    config_data = get_json_config_as_dict()     # this is needed!
+    
     csv_data = ""
-    header = ",".join(['Quadrant','Sector','Rating'])
+    header = ",".join(['Quadrant','Sector','Rating',"Description"])
     header = header+"\n"
     csv_data = header
+    
     for comp in user_data.competencies:
-        row = ",".join([COMPASS_MAPPER[comp.quadrant]['quadrant'], COMPASS_MAPPER[comp.quadrant]['sectors'][comp.sector], RATING_MAPPER[comp.rating]['title']])
+        # print(localdata["configuration"]["data_quadrant_titles"][comp.quadrant]["title_parts"])
+        ti = get_sector_title_from_data(config_data["configuration"]["data_quadrant_titles"][comp.quadrant]["title_parts"])
+        print(config_data["configuration"]["data_1"][comp.quadrant][comp.sector]["title"])
+        # HERE, i replace the disconnected python mapper with the loaded JSON data:
+        # row = ",".join([COMPASS_MAPPER[comp.quadrant]['quadrant'], COMPASS_MAPPER[comp.quadrant]['sectors'][comp.sector], RATING_MAPPER[comp.rating]['title']])
+        print(config_data["configuration"]["rating_description_lookup"][comp.rating]["description"])
+        row = ",".join([
+            get_sector_title_from_data(config_data["configuration"]["data_quadrant_titles"][comp.quadrant]["title_parts"]), 
+                        # config_data["configuration"]["data_1"][comp.quadrant][comp.sector]["title"], 
+                        # // there are TWO refs to the sector title!! - this is used for the hover and for the dislay. Decide upon one...
+                        # TO RATIONALISE
+                        get_sector_title_from_data(config_data["configuration"]["data_quadrant_titles"][comp.quadrant]["sector_parts"][comp.sector]), 
+                        config_data["configuration"]["rating_description_lookup"][comp.rating]["title"],
+                        config_data["configuration"]["rating_description_lookup"][comp.rating]["description"]
+                        ])
         csv_data = csv_data+row+"\n"
     # response = FileResponse(csv_data)
     response = StreamingResponse(csv_data)
     
     _cd = f"attachment; filename={user_data.user.username}_{datetime.datetime.now()}.csv"
     response.headers["Content-Disposition"] = _cd
-    print(csv_data)
+    # print(csv_data)
     # return user_data
+
+    # TODO: use CSV lib to properly generate quoted data
     return response
 
 
@@ -186,20 +211,23 @@ async def add_competency(competency:Competency):    #todo: make pydantic model
     result = handlers.add_competency(engine,_competency)
     return result
 
-
+# TODO: This needs to use the loaded data, not the python mappr
 @app.get("/competencies/{quadrant}/{sector}/")
 async def get_competency(quadrant:int, sector:int):
     '''return a competency description by index '''
     # print(COMPASS_MAPPER[quadrant]['quadrant'])
     try:
         return {
+            # "value":compass_config_data["configuration"]["rating_description_lookup"][rating],
             "quadrant":{
                 "id":quadrant,
-                "value":COMPASS_MAPPER[quadrant]['quadrant'],
+                # "value":COMPASS_MAPPER[quadrant]['quadrant'],
+                "value":"ZZ"+get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["title_parts"]),
             },
             "sector":{
                 "id":sector,
-                "value":COMPASS_MAPPER[quadrant]['sectors'][sector],
+                # "value":COMPASS_MAPPER[quadrant]['sectors'][sector],
+                "value":"XX"+get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["sector_parts"][sector]),
             }
         }
     except IndexError:
@@ -208,7 +236,7 @@ async def get_competency(quadrant:int, sector:int):
             "error":"competency out of range"
         }
 
-
+# only used by API so far
 @app.get("/rating/{rating}/")
 async def get_rating(rating:int):
     '''return a competency description by index '''
@@ -217,7 +245,8 @@ async def get_rating(rating:int):
         return {
             "rating":{
                 "id":rating,
-                "value":RATING_MAPPER[rating],
+                # "value":RATING_MAPPER[rating],
+                "value":compass_config_data["configuration"]["rating_description_lookup"][rating],
             },
         }
     except IndexError:
@@ -225,6 +254,18 @@ async def get_rating(rating:int):
         return {
             "error":"rating out of range"
         }
+    
+# endpoint for settings/json config retrieval
+@app.get("/settings/compass_config/") 
+def get_json_config_as_dict():
+    return compass_config_data
+
+
+# reload config data so we don't need to restart:
+@app.get("/settings/compass_config/reload/") 
+def reload_json_config():
+    load_config_data()
+    return {"message":"loaded config data","status":"ok"}
 
 # https://www.uvicorn.org/#command-line-options
 if __name__ == "__main__":
