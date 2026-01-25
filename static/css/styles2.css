@@ -71,6 +71,12 @@ body{
     text-align:center;
 }
 
+/* https://stackoverflow.com/questions/5069110/remove-hover-css-behavior-from-element */
+.button-static{
+  pointer-events: none;
+  background-color: lightgray;
+}
+
 .button:hover {
     background-color: lightgray;
 }
@@ -208,7 +214,7 @@ body{
 }
 .svg_show.q4 {
   /* fill: #ffffe6; */
-  fill: #ffff66;
+  fill: #ffffc6;
 }
 
 /* trigger the se (via the javascript) on hover: */
