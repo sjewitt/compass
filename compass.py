@@ -1,9 +1,14 @@
 
 import os
+import re
 import json
+
+from io import StringIO
+import datetime
+from fastapi.responses import JSONResponse, FileResponse, StreamingResponse, RedirectResponse
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse
 
 # https://fastapi.tiangolo.com/advanced/templates/
 from fastapi import Request
@@ -32,8 +37,8 @@ app = FastAPI()
 # load JSON file as used by the front-end to obtain the static values:
 compass_config_data = {"status":"unset", "configuration":{}}
 def load_config_data():
-    print("init load data")
-    with open(mode="r",file="/code/static/data/display_data.json") as display_data:
+    # This is the container filesystem path:
+    with open(mode="r",file="/code/static/data/display_data_rationalised.json") as display_data:
         compass_config_data["configuration"] = json.load(display_data)
         compass_config_data["status"] = "set"
 
@@ -51,7 +56,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # and generate the SQL:
 Base.metadata.create_all(engine)
 
-# load on startup:
+# load JSON data on startup:
 load_config_data()
 
 @app.get("/")
@@ -80,9 +85,7 @@ async def get_user_data(user_id:int) -> UserCompetencies:
     user_data = handlers.get_user_data(engine, user_id)
     return user_data
 
-from io import StringIO
-import datetime
-from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
+
 @app.get("/{user_id}/data/csv",response_class=StreamingResponse)
 async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
     user_data = handlers.get_user_data(engine, user_id)
@@ -95,20 +98,25 @@ async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
     
     for comp in user_data.competencies:
         # print(localdata["configuration"]["data_quadrant_titles"][comp.quadrant]["title_parts"])
-        ti = get_sector_title_from_data(config_data["configuration"]["data_quadrant_titles"][comp.quadrant]["title_parts"])
-        print(config_data["configuration"]["data_1"][comp.quadrant][comp.sector]["title"])
+        print(config_data["configuration"]["data_quadrants"][comp.quadrant])
+        ti = get_sector_title_from_data(config_data["configuration"]["data_quadrants"][comp.quadrant]["title_parts"])
+        # print(config_data["configuration"]["data_quadrants"][comp.quadrant][comp.sector]["title"])
         # HERE, i replace the disconnected python mapper with the loaded JSON data:
         # row = ",".join([COMPASS_MAPPER[comp.quadrant]['quadrant'], COMPASS_MAPPER[comp.quadrant]['sectors'][comp.sector], RATING_MAPPER[comp.rating]['title']])
-        print(config_data["configuration"]["rating_description_lookup"][comp.rating]["description"])
+        # print(config_data["configuration"]["rating_description_lookup"][comp.rating]["description"])
         row = ",".join([
-            get_sector_title_from_data(config_data["configuration"]["data_quadrant_titles"][comp.quadrant]["title_parts"]), 
-                        # config_data["configuration"]["data_1"][comp.quadrant][comp.sector]["title"], 
-                        # // there are TWO refs to the sector title!! - this is used for the hover and for the dislay. Decide upon one...
-                        # TO RATIONALISE
-                        get_sector_title_from_data(config_data["configuration"]["data_quadrant_titles"][comp.quadrant]["sector_parts"][comp.sector]), 
-                        config_data["configuration"]["rating_description_lookup"][comp.rating]["title"],
-                        config_data["configuration"]["rating_description_lookup"][comp.rating]["description"]
-                        ])
+            get_sector_title_from_data(config_data["configuration"]["data_quadrants"][comp.quadrant]["title_parts"]), 
+            # config_data["configuration"]["data_1"][comp.quadrant][comp.sector]["title"], 
+            # // there are TWO refs to the sector title!! - this is used for the hover and for the dislay. Decide upon one...
+            # TO RATIONALISE
+            # re.sub(r'[\x00-\x1f]', '', test_str)
+            # see: https://www.geeksforgeeks.org/python/python-program-to-remove-all-control-characters/
+            # and to add quoted strings:
+            # https://stackoverflow.com/questions/47187792/writing-csv-with-quotes-around-strings-python
+            config_data["configuration"]["data_quadrants"][comp.quadrant]["sector_summaries"][comp.sector]["title"], 
+            config_data["configuration"]["rating_description_lookup"][comp.rating]["title"],
+            re.sub(r'[\x00-\x1f]', '', config_data["configuration"]["rating_description_lookup"][comp.rating]["description"])
+        ])
         csv_data = csv_data+row+"\n"
     # response = FileResponse(csv_data)
     response = StreamingResponse(csv_data)

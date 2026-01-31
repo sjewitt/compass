@@ -22,10 +22,7 @@ var engine = {
      *    element ID.
      */
     rating_description_lookup:null,
-    data_quadrant_titles: null,
-    data_0:null,
-    data_1:null,
-    data_2: null,
+    data_quadrant: null,
     elems: [
         'q-1',
         's1-t',
@@ -75,14 +72,8 @@ var engine = {
     // pass in loaded data here 
     init: function (display_data) {
         // and set the properties of the object from the loaded data:
-        console.log("in init():");
-        console.log(display_data);
-        this.data_quadrant_titles = display_data.data_quadrant_titles;
+        this.data_quadrants = display_data.data_quadrants;
         this.rating_description_lookup = display_data.rating_description_lookup;
-        this.data_0 = display_data.data_0;
-        this.data_1 = display_data.data_1;
-        this.data_2 = display_data.data_2;
-        console.log("data added to working vars");
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
         for (var _i = 0, _a = this.elems; _i < _a.length; _i++) {
             var id = _a[_i];
@@ -180,8 +171,7 @@ var engine = {
     },
 
     loadAndBuildUserDropdown: function(){
-        console.log("load users and build the dropdown:")
-               fetch(`/users/`, {
+        fetch(`/users/`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -190,7 +180,6 @@ var engine = {
         }).then(function (response) {
              return response.json(); 
         }).then(function (response) { 
-            console.log(response);
             let targetElem = document.getElementById("select_user");
 
             /**  
@@ -201,7 +190,6 @@ var engine = {
             targetElem.innerHTML = "";
             targetElem.appendChild(engine.buildOptionElem(true,null,null));
             for(let x=0;x<response.length;x++){
-                console.log(response[x].username,response[x].id);
                 targetElem.appendChild(engine.buildOptionElem(false,response[x].name,response[x].id));
             }
         });
@@ -219,30 +207,30 @@ var engine = {
         _render_titles.innerHTML = "";
 
         // iterate over quadrants:
-        for(let qt=0;qt<this.data_quadrant_titles.length;qt++){
+        for(let qt=0;qt<this.data_quadrants.length;qt++){
             let _polygon = document.createElementNS("http://www.w3.org/2000/svg",'polygon');
-            _polygon.setAttribute("class",`svg_title ${this.data_quadrant_titles[qt].class}`);
-            _polygon.setAttribute("points",this.data_quadrant_titles[qt].points);
+            _polygon.setAttribute("class",`svg_title ${this.data_quadrants[qt].class}`);
+            _polygon.setAttribute("points",this.data_quadrants[qt].points);
 
             // and append to the wrapper:
             _render_titles.appendChild(_polygon);
             
             // iterate over these lines of text, to generate a <text> element
-            for(let qtp=0;qtp<this.data_quadrant_titles[qt].title_parts.length;qtp++){
+            for(let qtp=0;qtp<this.data_quadrants[qt].title_parts.length;qtp++){
                 let _title = document.createElementNS("http://www.w3.org/2000/svg",'text');
                 _title.setAttribute('id',`svg_title_${qt+1}_${qtp+1}`);
-                _title.setAttribute('class',`svg_quad_title ${this.data_quadrant_titles[qt].class}`);
+                _title.setAttribute('class',`svg_quad_title ${this.data_quadrants[qt].class}`);
                 _title.setAttribute('font-size','24');
-                _title.setAttribute('x',this.data_quadrant_titles[qt].title_parts[qtp].coords[0]);
-                _title.setAttribute('y',this.data_quadrant_titles[qt].title_parts[qtp].coords[1]);
+                _title.setAttribute('x',this.data_quadrants[qt].title_parts[qtp].coords[0]);
+                _title.setAttribute('y',this.data_quadrants[qt].title_parts[qtp].coords[1]);
 
                 // and append to the wrapper:
                 _render_titles.appendChild(_title);
             }
 
             // and for each quadrant, generate the sector titles:
-            for(let stp=0;stp<this.data_quadrant_titles[qt].sector_parts.length;stp++){
-                let sector_title_array = this.data_quadrant_titles[qt].sector_parts[stp];
+            for(let stp=0;stp<this.data_quadrants[qt].sectors.length;stp++){
+                let sector_title_array = this.data_quadrants[qt].sectors[stp];
 
                 // and for each of these, generate a <text> element:
                 for(let xx=0;xx<sector_title_array.length;xx++){
@@ -250,14 +238,12 @@ var engine = {
                     let _sector_title = document.createElementNS("http://www.w3.org/2000/svg",'text');
                     _sector_title.setAttribute('id',`svg_sector_${qt+1}_${stp+1}_${xx+1}`);
                     _sector_title.setAttribute('font-size','14');
-                    // _sector_title.setAttribute('font-family','times');
                     _sector_title.setAttribute('x',sector_title_array[xx].coords[0]);
                     _sector_title.setAttribute('y',sector_title_array[xx].coords[1]);
                     _render_titles.appendChild(_sector_title);
                 }
             }
         }
-        console.log(_render_titles);
     },
 
     renderDisplayedTexts: function(){
@@ -265,12 +251,11 @@ var engine = {
         // of the image itself. also, find a way
         // of using the same image for /static and /templates.
         // This function assumes presence of DOM generated by above function.
-        const quadrant_title_refs = [];
  
         // I'm using index 1 because of the way the element IDs are named.
-        for(let x=1;x<=this.data_quadrant_titles.length;x++){
+        for(let x=1;x<=this.data_quadrants.length;x++){
             // get the array of words for the current title elems:
-            let current_words = this.data_quadrant_titles[x-1];
+             let current_words = this.data_quadrants[x-1];
 
             // identify the text elements by ID:
             for(let y=1;y<=current_words.title_parts.length;y++){
@@ -286,12 +271,12 @@ var engine = {
             }
 
             // now get the segment titles: we do a double loop to get each segment, and the lines array for each:
-            for(let z=1;z<=current_words.sector_parts.length;z++){
-                for(let xx=1;xx<=current_words.sector_parts[z-1].length;xx++){
+            for(let z=1;z<=current_words.sectors.length;z++){
+                for(let xx=1;xx<=current_words.sectors[z-1].length;xx++){
                     let elem_id = `svg_sector_${x}_${z}_${xx}`;
                     try{
                         let elem = document.getElementById(elem_id);
-                        let txt = document.createTextNode(current_words.sector_parts[z-1][xx-1].title);
+                        let txt = document.createTextNode(current_words.sectors[z-1][xx-1].title);
                         elem.appendChild(txt);
                     }
                     catch(ex){
@@ -314,7 +299,6 @@ var engine = {
         data['email'] = document.getElementById("new_user_email").value;
         data['password'] = document.getElementById("new_user_pwd").value;
         data['password_check'] = document.getElementById("new_user_pwd_repeat").value;
-        console.log(data);
         if(data["password"] !== data["password_check"]){    // also checks on server
             submit = false;
         }
@@ -349,7 +333,7 @@ var engine = {
         data['email'] = document.getElementById("update_user_email").value;
 
         /** 
-         * check if pwds are present, then are the same, then match existing pwd 
+         * TODO: check if pwds are present, then are the same, then match existing pwd 
          * This needs to call a back-end check so we don't have the old pwd on
          * client...
         */
@@ -403,12 +387,10 @@ var engine = {
     },
 
     retrieveUserData: function(){
-        console.log(this.getAttribute('data-user-id').split(":")[1]);
         let user_id = this.getAttribute('data-user-id').split(":")[1];
         /** now call API endpoint: */
         fetch(`/${user_id}/data/`, {
                 method: 'GET',
-                // body: JSON.stringify(data),
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
@@ -417,7 +399,6 @@ var engine = {
             }).then(function (response) {
                 return response.json(); 
                 }).then(function (response) { 
-                console.log(response);
                 /** the ResponseRedirect from the server is failing, so
                  * try with JS instead:
                  */
@@ -467,8 +448,15 @@ var engine = {
                 var data = currentData;
                 for (var a = 0; a < data.length; a++) {
                     if (engine.isQuadrant(data[a])) {
-                        engine.addToUserdata(data[a].key, data[a].rating);
-                        var elem = document.querySelector('[data-lookup="[' + data[a].key + ']"][data-rating="' + data[a].rating + '"]');
+                        engine.addToUserdata(
+                            data[a].key, 
+                            data[a].rating
+                        );
+                        var elem = document.querySelector('[data-lookup="[' 
+                            + data[a].key 
+                            + ']"][data-rating="' 
+                            + data[a].rating 
+                            + '"]');
                         if (elem) {
                             elem.click();
                         }
@@ -491,7 +479,16 @@ var engine = {
         event.preventDefault();
     },
 
+    getQuadrantTitleFromData: function(titleParts){
+        let out = "";
+        for(let a=0;a<titleParts.length;a++){
+            out += titleParts[a].title + " ";
+        }
+        return out;
+    },
+
     test_in: function () {
+        // TODO: Update the use of data_0 title with data_quadrant_titles title_parts
         var self = document.getElementById(this.getAttribute('id'));
         if (self) {
             engine.setSectorSVGDisplay(self, true);
@@ -504,20 +501,30 @@ var engine = {
             var quad_title = "";
             var sector_title = "";
             if (lookup[0] > -1) {
-                quad_description = engine.data_0[lookup[0]].description;
-                quad_title = engine.data_0[lookup[0]].title;
+                quad_description = engine.data_quadrants[lookup[0]].summary;
+                quad_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].title_parts);
             }
             var sector_title_description = '';
             if (lookup[1] > -1) {
-                sector_title_description = engine.data_1[lookup[0]][lookup[1]].description;
-                sector_title = engine.data_1[lookup[0]][lookup[1]].title;
+                sector_title_description = engine.data_quadrants[lookup[0]].sector_summaries[lookup[0]].description;
+                sector_title = engine.data_quadrants[lookup[0]].sector_summaries[lookup[0]].title;
             }
             var sector_block_description = '';
             if (lookup[2] > -1) {
-                sector_title = engine.data_1[lookup[0]][lookup[1]].title;
+                sector_title = engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].title;
                 sector_rating = parseInt(this.getAttribute('data-rating'));
                 this.current_rating = sector_rating;
-                sector_block_description = engine.data_2[lookup[0]][lookup[2]];
+                sector_block_description = engine.data_quadrants[lookup[0]].sector_descriptions[lookup[2]];
+            }
+            // special case for outer titles: TO SORT!
+            if(lookup[1] > -1 && lookup[2]===-1){
+                try{
+                    sector_title =             engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].title;
+                    sector_block_description = engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].description;
+                }
+                catch(e){
+                    console.log(e);
+                }
             }
             var output_rating = '';
             if (sector_rating > -1) {
@@ -543,15 +550,17 @@ var engine = {
                 elem_rating.innerText = output_rating;
             var elem_title = [];
             if (quad_title && lookup[2] === -1)
-                elem_title.push(quad_title);
-            if (quad_description && lookup[2] === -1)
-                elem_title.push(quad_description);
+                elem_title.push(quad_title+"AA");
+            if (quad_description && lookup[2] === -1 && lookup[1] === -1)   //quad hover titles
+                elem_title.push(quad_description+"BB");
+            if (quad_description && lookup[2] === -1 && lookup[1] > -1)   //sector hover titles
+                elem_title.push(sector_block_description+"DD");
             if (sector_title && lookup[2] === -1)
-                elem_title.push(sector_title);
+                elem_title.push(sector_title+"CC");
             if (sector_title_description && lookup[2] !== -1)
                 elem_title.push(sector_title_description);
             if (sector_block_description && lookup[2] !== -1)
-                elem_title.push(sector_block_description);
+                elem_title.push(sector_block_description+"XX");
             self.setAttribute('title', elem_title.join('\n\n'));
         }
     },
@@ -589,7 +598,6 @@ var engine = {
 
     redirectToUserTemplate: function(){
         let selected_user = document.getElementById("select_user").value;
-        console.log(selected_user)
         if(parseInt(selected_user) > 0){
             document.location.href = `/${selected_user}`;
         }
@@ -678,20 +686,18 @@ var engine = {
         });
         for (var a = 0; a < engine.current_data.length; a++) {
             var row = document.createElement('div');
-            row.appendChild(document.createTextNode(engine.data_0[engine.current_data[a].key[0]].title
+            //engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].title_parts);
+            row.appendChild(document.createTextNode(engine.getQuadrantTitleFromData(  engine.data_quadrants[engine.current_data[a].key[0]].title_parts)
+            // row.appendChild(document.createTextNode(engine.data_quadrants[engine.current_data[a].key[0]].summary.title
                 + ', '
-                + engine.data_1[engine.current_data[a].key[0]][engine.current_data[a].key[1]].title
+                + engine.data_quadrants[engine.current_data[a].key[0]].sector_summaries[engine.current_data[a].key[1]].title
                 + ': '
                 + engine.rating_description_lookup[engine.current_data[a].rating].title
                 + ' (' + engine.rating_description_lookup[engine.current_data[a].rating].description + ')'));
+                
             target.appendChild(row);
         }
     },
-    
-    fish: function () {
-        var fish = 1255;
-        return (fish);
-    }
 };
 
 document.addEventListener("DOMContentLoaded",
@@ -699,8 +705,7 @@ document.addEventListener("DOMContentLoaded",
         // load data then call init:
         // https://www.geeksforgeeks.org/javascript/read-json-file-using-javascript/
         function fetchJSONData() {
-            console.log('loading data...'); 
-            fetch('/static/data/display_data.json')
+            fetch('/static/data/display_data_rationalised.json')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -709,13 +714,10 @@ document.addEventListener("DOMContentLoaded",
                 })
                 .then(display_data => {
                     // apply data as required:
-                    console.log("data file loaded:");
-                    console.log(display_data);
                     engine.init(display_data);  // put this into callback
                 })  
                 .catch(error => console.error('Failed to fetch data:', error)); 
         }
         fetchJSONData(); 
-        // 
     }
 )
