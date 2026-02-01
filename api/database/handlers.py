@@ -159,11 +159,9 @@ def get_user(engine, user_id:int) -> User|None:
             result.append(_usr)   # new: A User()
             # result.append(row) # orig a DB_User()
         if result:
-
             return result[0]    # the first found user
         logging.warning(f"user with id {user_id} not found")
-        # raise UserNotFound("user with id %s not found" % user_id)
-        return None
+        raise UserNotFound(404, "user with id %s not found" % user_id)
     
 # All new
 def get_user_data(engine, user_id:int) -> UserCompetencies: # to type!

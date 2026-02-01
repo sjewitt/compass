@@ -4,19 +4,24 @@ import re
 import json
 
 from io import StringIO
+from typing import Generator
+
 import datetime
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse, RedirectResponse
 
-from fastapi import FastAPI
+# see https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-with-yield/
+from fastapi import FastAPI, Request, Depends
 from fastapi.staticfiles import StaticFiles
 
 # https://fastapi.tiangolo.com/advanced/templates/
-from fastapi import Request
+# from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from api.database.engine import get_engine
 
 import uvicorn
 
@@ -31,11 +36,34 @@ from api.exceptions import UserNotFound, CompetenciesForUserNotFound, Competency
 # COMPASS_MAPPER is configuration.data_quadrant_titles + configuration.data_1 (COMPASS_MAPPER munges 
 # these into a complex object)
 
+# declare SQLite DB for persistent storage:
+# DATABASE_URI = "sqlite:///./database/db.sqlite"
+# engine = create_engine(DATABASE_URI, echo=True)
+# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# # https://fastapitutorial.com/blog/dependencies-in-fastapi-coursefor-book/
+# def get_engine():
+#     try:
+#         yield engine
+#     finally:
+#         pass
+
+# https://github.com/fastapi/fastapi/discussions/12254
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     await db.open_conn()
+#     yield
+#     await db.close_conn()
+
+engine = get_engine()
+
 app = FastAPI()
 
-from routes import test_router
+from routes import test_router, user_routes
 
 app.include_router(test_router.router)
+app.include_router(user_routes.router)
+
 
 # #48:
 # load JSON file as used by the front-end to obtain the static values:
@@ -52,10 +80,7 @@ app.mount("/static", StaticFiles(directory="static", html=True, ),name="static")
 # declare location of template(s)
 templates = Jinja2Templates(directory="templates")
 
-# declare SQLite DB for persistent storage:
-DATABASE_URI = "sqlite:///./database/db.sqlite"
-engine = create_engine(DATABASE_URI, echo=True)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 # and generate the SQL:
 Base.metadata.create_all(engine)
@@ -138,71 +163,71 @@ async def download_user_data_json(user_id:int):# -> UserCompetencies:
     # https://www.geeksforgeeks.org/python/stringio-and-bytesio-for-managing-data-as-file-object/
 
 
-@app.get("/users/")
-async def users():
-    ''' retrieve all users from database '''
-    try:
-        result = handlers.get_users(engine)
-        return result
-    except UserNotFound as ex:
-        return {"An exception ocurred":ex}  # to fix later...
+# @app.get("/users/")
+# async def users():
+#     ''' retrieve all users from database '''
+#     try:
+#         result = handlers.get_users(engine)
+#         return result
+#     except UserNotFound as ex:
+#         return {"An exception ocurred":ex}  # to fix later...
 
 
-@app.get("/users/{userid}/")
-async def user(userid:int):
-    ''' retrieve user from database '''
-    try:
-        result = handlers.get_user(engine, userid)
-        return result
-    except UserNotFound as ex:
-        return {"An exception ocurred":ex}  # to fix later...
+# @app.get("/users/{userid}/")
+# async def user(userid:int):
+#     ''' retrieve user from database '''
+#     try:
+#         result = handlers.get_user(engine, userid)
+#         return result
+#     except UserNotFound as ex:
+#         return {"An exception ocurred":ex}  # to fix later...
 
 
-@app.get("/users/{userid}/exists/")
-async def check_user_exists(userid:int):
-    result = handlers.check_user_exists(engine, userid)
-    return result
+# @app.get("/users/{userid}/exists/")
+# async def check_user_exists(userid:int):
+#     result = handlers.check_user_exists(engine, userid)
+#     return result
     
 
-@app.get("/users/{user_id}/competencies/")
-# async def competencies(user_id:int) -> UserCompetencies: #TODO make model
-async def competencies(user_id:int) -> list[Competency]:        # orig
-    ''' retrieve user's competencies from database '''
-    try:
-        result = handlers.get_competencies_for_user(engine, user_id) # orig
-        # result = handlers.get_user_data(engine, user_id)
-        return result
-    except CompetenciesForUserNotFound as ex:
-        return []
+# @app.get("/users/{user_id}/competencies/")
+# # async def competencies(user_id:int) -> UserCompetencies: #TODO make model
+# async def competencies(user_id:int) -> list[Competency]:        # orig
+#     ''' retrieve user's competencies from database '''
+#     try:
+#         result = handlers.get_competencies_for_user(engine, user_id) # orig
+#         # result = handlers.get_user_data(engine, user_id)
+#         return result
+#     except CompetenciesForUserNotFound as ex:
+#         return []
 
 
-@app.post("/users/{user_id}/edit/")
-async def update_user(user:User) -> User:
-    ''' update user's competencies in database '''
+# @app.post("/users/{user_id}/edit/")
+# async def update_user(user:User) -> User:
+#     ''' update user's competencies in database '''
     
-    result = handlers.update_user(engine,user)
-    print(result)
-    # return data to populate the form:
-    return user
+#     result = handlers.update_user(engine,user)
+#     print(result)
+#     # return data to populate the form:
+#     return user
 
 
-@app.post("/users/new/")
-async def adduser(userdata:CreateUser) -> dict:    #translate this to a DB_User
-    ''' Add a user to database '''
-    # convert from pydantic model to DB model:
-    if userdata.password == userdata.password_check:
-        _user = DB_User(
-            name=userdata.name, 
-            email=userdata.email, 
-            username=userdata.username, 
-            password=userdata.password)
-        result = handlers.add_user(engine,_user)
+# @app.post("/users/new/")
+# async def adduser(userdata:CreateUser) -> dict:    #translate this to a DB_User
+#     ''' Add a user to database '''
+#     # convert from pydantic model to DB model:
+#     if userdata.password == userdata.password_check:
+#         _user = DB_User(
+#             name=userdata.name, 
+#             email=userdata.email, 
+#             username=userdata.username, 
+#             password=userdata.password)
+#         result = handlers.add_user(engine,_user)
 
-        # https://stackoverflow.com/questions/76047310/how-to-redirect-from-a-post-to-a-get-endpoint-in-fastapi-without-changing-the-re
-        if result['usercreated']:
-            return {"usercreated":True, "user_id":result["id"]}
-        return result
-    return {"usercreated":False, "message":"supplied passwords do not match"}
+#         # https://stackoverflow.com/questions/76047310/how-to-redirect-from-a-post-to-a-get-endpoint-in-fastapi-without-changing-the-re
+#         if result['usercreated']:
+#             return {"usercreated":True, "user_id":result["id"]}
+#         return result
+#     return {"usercreated":False, "message":"supplied passwords do not match"}
 
 
 @app.post("/competencies/add/")

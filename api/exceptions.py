@@ -1,12 +1,14 @@
-class UserNotFound(Exception):
+from fastapi import HTTPException
+
+class UserNotFound(HTTPException):
     pass
 
 
-class CompetencyNotFound(Exception):
+class CompetencyNotFound(HTTPException):
     pass
 
-class CompetencyOutOfRange(Exception):
+class CompetencyOutOfRange(HTTPException):
     pass
 
-class CompetenciesForUserNotFound(Exception):
+class CompetenciesForUserNotFound(HTTPException):
     pass
