@@ -115,6 +115,7 @@ async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
             # https://stackoverflow.com/questions/47187792/writing-csv-with-quotes-around-strings-python
             config_data["configuration"]["data_quadrants"][comp.quadrant]["sector_summaries"][comp.sector]["title"], 
             config_data["configuration"]["rating_description_lookup"][comp.rating]["title"],
+            # remove control chars (TODO: quote the fields - probably use the CSV module...)
             re.sub(r'[\x00-\x1f]', '', config_data["configuration"]["rating_description_lookup"][comp.rating]["description"])
         ])
         csv_data = csv_data+row+"\n"

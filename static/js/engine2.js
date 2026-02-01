@@ -489,6 +489,10 @@ var engine = {
 
     test_in: function () {
         // TODO: Update the use of data_0 title with data_quadrant_titles title_parts
+        /**
+         * This is scrappy AF. It's confusing and needs rationalising and making clearer!
+         * i.e. split into branching out to explicit sub-functions. 
+         */
         var self = document.getElementById(this.getAttribute('id'));
         if (self) {
             engine.setSectorSVGDisplay(self, true);
