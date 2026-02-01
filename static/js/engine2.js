@@ -554,17 +554,17 @@ var engine = {
                 elem_rating.innerText = output_rating;
             var elem_title = [];
             if (quad_title && lookup[2] === -1)
-                elem_title.push(quad_title+"AA");
+                elem_title.push(quad_title);
             if (quad_description && lookup[2] === -1 && lookup[1] === -1)   //quad hover titles
-                elem_title.push(quad_description+"BB");
+                elem_title.push(quad_description);
             if (quad_description && lookup[2] === -1 && lookup[1] > -1)   //sector hover titles
-                elem_title.push(sector_block_description+"DD");
+                elem_title.push(sector_block_description);
             if (sector_title && lookup[2] === -1)
-                elem_title.push(sector_title+"CC");
+                elem_title.push(sector_title);
             if (sector_title_description && lookup[2] !== -1)
                 elem_title.push(sector_title_description);
             if (sector_block_description && lookup[2] !== -1)
-                elem_title.push(sector_block_description+"XX");
+                elem_title.push(sector_block_description);
             self.setAttribute('title', elem_title.join('\n\n'));
         }
     },
