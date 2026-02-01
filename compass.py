@@ -224,44 +224,53 @@ async def add_competency(competency:Competency):    #todo: make pydantic model
 @app.get("/competencies/{quadrant}/{sector}/")
 async def get_competency(quadrant:int, sector:int):
     '''return a competency description by index '''
-    # print(COMPASS_MAPPER[quadrant]['quadrant'])
     try:
         return {
-            # "value":compass_config_data["configuration"]["rating_description_lookup"][rating],
             "quadrant":{
                 "id":quadrant,
-                # "value":COMPASS_MAPPER[quadrant]['quadrant'],
-                "value":"ZZ"+get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["title_parts"]),
+                "value":get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["title_parts"]),
             },
             "sector":{
                 "id":sector,
-                # "value":COMPASS_MAPPER[quadrant]['sectors'][sector],
-                "value":"XX"+get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["sector_parts"][sector]),
+                "value":get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["sector_parts"][sector]),
             }
         }
-    except IndexError:
+    except IndexError as ex:
         # TODO: construct more informative return values
         return {
-            "error":"competency out of range"
+            "error":f"out of range got quadrant:{quadrant}, sector:{sector}. IndexError Exception was {ex}."
         }
+    except KeyError as ex:
+        # TODO: construct more informative return values
+        return {
+            "error":f"No match for competency at quadrant:{quadrant}, sector:{sector}. KeyError Exception was {ex}. "
+        }
+    except Exception as ex:
+        return {
+            "error":f"An unexpected error occurred: {ex}"
+        }
+
 
 # only used by API so far
 @app.get("/rating/{rating}/")
 async def get_rating(rating:int):
     '''return a competency description by index '''
-    # print(COMPASS_MAPPER[quadrant]['quadrant'])
     try:
         return {
             "rating":{
                 "id":rating,
-                # "value":RATING_MAPPER[rating],
                 "value":compass_config_data["configuration"]["rating_description_lookup"][rating],
             },
         }
-    except IndexError:
+    except IndexError as ex:
         # TODO: construct more informative return values
         return {
-            "error":"rating out of range"
+            "error":f"rating out of range. {ex}"
+        }
+    
+    except Exception as ex:
+        return {
+            "error":f"An unexpected error occurred: {ex}"
         }
     
 # endpoint for settings/json config retrieval
