@@ -33,6 +33,10 @@ from api.exceptions import UserNotFound, CompetenciesForUserNotFound, Competency
 
 app = FastAPI()
 
+from routes import test_router
+
+app.include_router(test_router.router)
+
 # #48:
 # load JSON file as used by the front-end to obtain the static values:
 compass_config_data = {"status":"unset", "configuration":{}}
@@ -97,16 +101,11 @@ async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
     csv_data = header
     
     for comp in user_data.competencies:
-        # print(localdata["configuration"]["data_quadrant_titles"][comp.quadrant]["title_parts"])
         print(config_data["configuration"]["data_quadrants"][comp.quadrant])
         ti = get_sector_title_from_data(config_data["configuration"]["data_quadrants"][comp.quadrant]["title_parts"])
-        # print(config_data["configuration"]["data_quadrants"][comp.quadrant][comp.sector]["title"])
         # HERE, i replace the disconnected python mapper with the loaded JSON data:
-        # row = ",".join([COMPASS_MAPPER[comp.quadrant]['quadrant'], COMPASS_MAPPER[comp.quadrant]['sectors'][comp.sector], RATING_MAPPER[comp.rating]['title']])
-        # print(config_data["configuration"]["rating_description_lookup"][comp.rating]["description"])
         row = ",".join([
             get_sector_title_from_data(config_data["configuration"]["data_quadrants"][comp.quadrant]["title_parts"]), 
-            # config_data["configuration"]["data_1"][comp.quadrant][comp.sector]["title"], 
             # // there are TWO refs to the sector title!! - this is used for the hover and for the dislay. Decide upon one...
             # TO RATIONALISE
             # re.sub(r'[\x00-\x1f]', '', test_str)
@@ -124,8 +123,6 @@ async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
     
     _cd = f"attachment; filename={user_data.user.username}_{datetime.datetime.now()}.csv"
     response.headers["Content-Disposition"] = _cd
-    # print(csv_data)
-    # return user_data
 
     # TODO: use CSV lib to properly generate quoted data
     return response
@@ -139,8 +136,6 @@ async def download_user_data_json(user_id:int):# -> UserCompetencies:
     response.headers["Content-Disposition"] = _cd
     return response
     # https://www.geeksforgeeks.org/python/stringio-and-bytesio-for-managing-data-as-file-object/
-
-
 
 
 @app.get("/users/")

@@ -1,8 +1,6 @@
 # up three levels to api:
-# from compass import User, Competency,   DB_User, DB_Competency
 from api.models import User, Competency, UserCompetencies
 from api.db_models import DB_Competency, DB_User
-# from api.db_models import DB_Competency, DB_User
 from api.exceptions import UserNotFound, CompetencyNotFound, CompetenciesForUserNotFound
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
@@ -46,18 +44,13 @@ def check_competency_is_applied_to_user_already(engine,competency:DB_Competency)
                 DB_Competency.user_id == competency.user_id).where(
                 DB_Competency.quadrant == competency.quadrant).where(
                 DB_Competency.sector == competency.sector)
-        # print(stmt)
         result = session.execute(stmt).first()
-        # print(result)
         if result:
             return True
         return False
-        # session.add(user)
-        # session.commit()
 
 
 def add_user(engine,user:DB_User):
-    print("IN ADD USER")
     # eventually, this all needs to go in database.py
     with Session(engine) as session:
         try:
