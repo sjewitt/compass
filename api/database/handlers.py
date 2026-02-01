@@ -113,7 +113,6 @@ def add_competency(engine, competency:DB_Competency) -> dict:   # status object
             return {"status":"update failed","message":"update failed"}
 
     else:
-        # print("values OOB %s, %s or User does not exist %s" % (competency.quadrant, competency.sector, competency.user_id))
         return {"status":"failed", "message":"Bounds or user check failed."}
 
 

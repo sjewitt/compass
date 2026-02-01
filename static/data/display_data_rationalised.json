@@ -1,28 +1,27 @@
 {
     "data_quadrants":[
         {
-            "summary_XX":{ "description": "XXIncludes Proposition Design, Product Design, Digital and Physical Experience Design", "title": "Product & service designYY" },
-            "summary":"XXIncludes Proposition Design, Product Design, Digital and Physical Experience Design",
+            "summary":"Includes Proposition Design, Product Design, Digital and Physical Experience Design",
             "title_parts":[
-                {"title":"XXZProduct &","coords":[829,125]},
+                {"title":"Product &","coords":[829,125]},
                 {"title":"service design", "coords":[829,153]}
             ],
             "sectors":[
                 [{"title":"Ideas &","coords":[545,110]},{"title":"concepts","coords":[545,125]}],
                 [{"title":"Prototypes &","coords":[646,140]},{"title":"experiments","coords":[646,155]}],
-                [{"title":"Jim's UX design","coords":[742,225]}],
+                [{"title":"UX design","coords":[742,225]}],
                 [{"title":"Visual design","coords":[800,300]}],
                 [{"title":"Service","coords":[828,383]},{"title":"design","coords":[828,398]}]
             ],
             "sector_summaries":        [
-                { "description": "XXUnderstanding how to originate, encourage and communicate complex ideas and concepts with simplicity and clarity.", "title": "XXIdeas & concepts" },
+                { "description": "Understanding how to originate, encourage and communicate complex ideas and concepts with simplicity and clarity.", "title": "XXIdeas & concepts" },
                 { "description": "Ability to use tools that will reduce uncertainty and test hypotheses", "title": "Prototypes & experiments" },
-                { "description": "Skills in the creation and definition of functional, usable and simplified user experiences", "title": "BOBS UX design" },
+                { "description": "Skills in the creation and definition of functional, usable and simplified user experiences", "title": "UX design" },
                 { "description": "Skills in the creation of beautiful and functional things using the right tools.", "title": "Visual design" },
                 { "description": "Skills in the creation of interactions over time that make our clients stand out in the minds of their customers", "title": "Service design" }
             ],
             "sector_descriptions":        [
-                "XXHas experience of using a variety of tools to generate ideas and concepts. Can plan and lead an ideation workshop. Understands how to create \"just enough\" to show the viability / art of the possible in the idea we are communicating.",
+                "Has experience of using a variety of tools to generate ideas and concepts. Can plan and lead an ideation workshop. Understands how to create \"just enough\" to show the viability / art of the possible in the idea we are communicating.",
                 "Use tools that will reduce uncertainty and test hypotheses. Understand the different types of experiments and their suitability. Communicate the plan, hypothesis and outcomes with clients Analyse results in various formats.",
                 "Independently create and define functional, usable and simplified user experiences. Understand of the importance of designing for accessibility Communicate the thought behind the design and work collaboratively to achieve sign off.",
                 "Shape and drive of visual outcomes throughout the course of a project Communicate the thought behind the design and work collaboratively to achieve sign off. Review the work of junior designers and give feedback to improve",
@@ -32,7 +31,6 @@
             "points":"807,92,806,174,1010,184,1005,68"
         },
         {
-            "summary_XX":{ "description": "How we influence people to get stuff done", "title": "Management & leadership" },
             "summary":"How we influence people to get stuff done",            
             "title_parts":[
                 {"title":"Management &", "coords":[835,720]},
@@ -60,7 +58,6 @@
             "points":"818,693,816,761,1020,771,1022,669"   
         },
         {
-            "summary_XX":{ "description": "Providing clients with the tools they need to achieve their goals.", "title": "Capability building" },
             "summary": "Providing clients with the tools they need to achieve their goals.",
             
             "title_parts":[
@@ -89,7 +86,6 @@
             "points":"45,663,211,689,207,770,45,783"
         },
         {
-            "summary_XX":{ "description": "What skills do you have that can support our clients in their ambitions to change their business?", "title": "Transforming organizations" },
             "summary": "What skills do you have that can support our clients in their ambitions to change their business?",            
             "title_parts":[
                 {"title":"Transforming", "coords":[60,132]},
@@ -123,7 +119,7 @@
         { "title": "Novice", "description": "You are open to learning as much as you can about the skill, from all internal and external sources. You share your learning with your peers, who may not be so inquisitive or up-to-date given their more established views and expertise.\n\nClient role comparison (you should be able to comfortably guide and challenge) - graduates, junior" },
         { "title": "Foundation", "description": "You are aware of the regularly used skills and have observed them in action. You have a technical understanding of key elements but not a great deal of experience. You can be relied upon to receive a brief, and contribute to its delivery.\n\nClient role comparison (you should be able to comfortably guide and challenge) -  executive" },
         { "title": "Competent", "description": "You are adept at the key, common skills - ones that are well known and regularly used at Magnetic (and other organisations). You can be relied upon to receive a brief, respond to and shape it, and then deliver.\n\nClient role comparison (you should be able to comfortably guide and challenge) -  senior executive" },
-        { "title": "XXAdvanced", "description": "You are adept at a broad range range of skills, knowing what's possible and available and appropriate for any given situation. You are able to coach and train others in those skills and approaches. You are able to write briefs for your team to execute. You are able to develop unique positions and approaches for Magnetic.\n\nClient role comparison (you should be able to comfortably guide and challenge) - head of..." },
+        { "title": "Advanced", "description": "You are adept at a broad range range of skills, knowing what's possible and available and appropriate for any given situation. You are able to coach and train others in those skills and approaches. You are able to write briefs for your team to execute. You are able to develop unique positions and approaches for Magnetic.\n\nClient role comparison (you should be able to comfortably guide and challenge) - head of..." },
         { "title": "Master", "description": "You are seen as the best in your craft on an industry-wide stage and are a thought-leader publicly. You are able to identify when new skills or methods need to be introduced and developed based on the task or customer need. You are comfortable sitting in C-Suite situations and explain, challenge and recruit in this craft.\n\nClient role comparison (you should be able to comfortably guide and challenge) - C-suite, Director" }
     ]
 }
