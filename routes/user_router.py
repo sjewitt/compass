@@ -53,6 +53,7 @@ async def competencies(user_id:int) -> list[Competency]:        # orig
         # result = handlers.get_user_data(engine, user_id)
         return result
     except CompetenciesForUserNotFound as ex:
+        raise CompetenciesForUserNotFound
         return []
 
 

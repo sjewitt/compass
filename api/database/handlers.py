@@ -212,7 +212,8 @@ def get_competencies_for_user(engine, user_id:int) -> list[Competency]:
         if result:
             return result
         print(f"No competencies found for user with id {user_id}")
-        raise CompetenciesForUserNotFound("Competencies for user_id %s not found" % (user_id,))
+        return []
+        # raise CompetenciesForUserNotFound("Competencies for user_id %s not found" % (user_id,))
 
 
 # https://docs.sqlalchemy.org/en/20/tutorial/data_update.html

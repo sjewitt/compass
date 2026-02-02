@@ -1,10 +1,10 @@
 
-import os
+# import os
 import re
 import json
 
-from io import StringIO
-from typing import Generator
+# from io import StringIO
+# from typing import Generator
 
 import datetime
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse, RedirectResponse
@@ -15,21 +15,22 @@ from fastapi.staticfiles import StaticFiles
 
 # https://fastapi.tiangolo.com/advanced/templates/
 # from fastapi import Request
-from fastapi.responses import HTMLResponse
+# from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+# from sqlalchemy import create_engine
+# from sqlalchemy.orm import sessionmaker
 
 from api.database.engine import get_engine
 
 import uvicorn
 
 from utilities.download_utilities import get_sector_title_from_data
-from api.models import User, Competency, CreateUser, UserCompetencies  # adde usercompetencies model
+from utilities.data_utilities import load_config_data 
+from api.models import User, Competency,  UserCompetencies  # CreateUser, adde usercompetencies model
 from api.database import handlers
 from api.db_models import DB_Competency, DB_User, Base
-from api.exceptions import UserNotFound, CompetenciesForUserNotFound, CompetencyOutOfRange
+# from api.exceptions import UserNotFound, CompetenciesForUserNotFound, CompetencyOutOfRange
 # rather than using these python-specific items, lets use the JSON we use to populate the front-end
 # from api.constants import COMPASS_MAPPER, RATING_MAPPER
 # RATING_MAPPER is configuration.rating_description_lookup
@@ -55,24 +56,30 @@ from api.exceptions import UserNotFound, CompetenciesForUserNotFound, Competency
 #     yield
 #     await db.close_conn()
 
+# This doesn't quite feel right...
 engine = get_engine()
 
 app = FastAPI()
 
-from routes import test_router, user_routes
+from routes import competency_router, ratings_router, user_router, settings_router
 
-app.include_router(test_router.router)
-app.include_router(user_routes.router)
+app.include_router(user_router.router)
+app.include_router(settings_router.router)
+app.include_router(competency_router.router)
+app.include_router(ratings_router.router)
 
 
 # #48:
 # load JSON file as used by the front-end to obtain the static values:
-compass_config_data = {"status":"unset", "configuration":{}}
-def load_config_data():
-    # This is the container filesystem path:
-    with open(mode="r",file="/code/static/data/display_data_rationalised.json") as display_data:
-        compass_config_data["configuration"] = json.load(display_data)
-        compass_config_data["status"] = "set"
+# compass_config_data = {"status":"unset", "configuration":{}}
+# def load_config_data():
+#     # This is the container filesystem path:
+#     with open(mode="r",file="/code/static/data/display_data_rationalised.json") as display_data:
+#         compass_config_data["configuration"] = json.load(display_data)
+#         compass_config_data["status"] = "set"
+print("getting data from file")
+compass_config_data = load_config_data()
+print(compass_config_data)
 
 app.mount("/api/",app)
 app.mount("/static", StaticFiles(directory="static", html=True, ),name="static")
@@ -118,15 +125,18 @@ async def get_user_data(user_id:int) -> UserCompetencies:
 @app.get("/{user_id}/data/csv",response_class=StreamingResponse)
 async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
     user_data = handlers.get_user_data(engine, user_id)
+    print("getting config data...")
     config_data = get_json_config_as_dict()     # this is needed!
-    
+    print("got config data:")
+    print(config_data)
     csv_data = ""
     header = ",".join(['Quadrant','Sector','Rating',"Description"])
     header = header+"\n"
     csv_data = header
     
     for comp in user_data.competencies:
-        print(config_data["configuration"]["data_quadrants"][comp.quadrant])
+        print(config_data)
+        # print(config_data["configuration"]["data_quadrants"][comp.quadrant])
         ti = get_sector_title_from_data(config_data["configuration"]["data_quadrants"][comp.quadrant]["title_parts"])
         # HERE, i replace the disconnected python mapper with the loaded JSON data:
         row = ",".join([
@@ -230,80 +240,80 @@ async def download_user_data_json(user_id:int):# -> UserCompetencies:
 #     return {"usercreated":False, "message":"supplied passwords do not match"}
 
 
-@app.post("/competencies/add/")
-async def add_competency(competency:Competency):    #todo: make pydantic model
-    ''' Add a user competency to database. Note this includes a user_id, so we end up
-     with a 1:many relationship. This should fail if an unknown user_id is passed, and if the various
-      indices for the values are out of bounds or if this competency is already applied
-      to specified user. '''
-    _competency = DB_Competency(user_id=competency.user_id,quadrant=competency.quadrant, sector=competency.sector, rating=competency.rating)
-    result = handlers.add_competency(engine,_competency)
-    return result
+# @app.post("/competencies/add/")
+# async def add_competency(competency:Competency):    #todo: make pydantic model
+#     ''' Add a user competency to database. Note this includes a user_id, so we end up
+#      with a 1:many relationship. This should fail if an unknown user_id is passed, and if the various
+#       indices for the values are out of bounds or if this competency is already applied
+#       to specified user. '''
+#     _competency = DB_Competency(user_id=competency.user_id,quadrant=competency.quadrant, sector=competency.sector, rating=competency.rating)
+#     result = handlers.add_competency(engine,_competency)
+#     return result
 
-# TODO: This needs to use the loaded data, not the python mappr
-@app.get("/competencies/{quadrant}/{sector}/")
-async def get_competency(quadrant:int, sector:int):
-    '''return a competency description by index '''
-    try:
-        return {
-            "quadrant":{
-                "id":quadrant,
-                "value":get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["title_parts"]),
-            },
-            "sector":{
-                "id":sector,
-                "value":get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["sector_parts"][sector]),
-            }
-        }
-    except IndexError as ex:
-        # TODO: construct more informative return values
-        return {
-            "error":f"out of range got quadrant:{quadrant}, sector:{sector}. IndexError Exception was {ex}."
-        }
-    except KeyError as ex:
-        # TODO: construct more informative return values
-        return {
-            "error":f"No match for competency at quadrant:{quadrant}, sector:{sector}. KeyError Exception was {ex}. "
-        }
-    except Exception as ex:
-        return {
-            "error":f"An unexpected error occurred: {ex}"
-        }
+# # TODO: This needs to use the loaded data, not the python mappr
+# @app.get("/competencies/{quadrant}/{sector}/")
+# async def get_competency(quadrant:int, sector:int):
+#     '''return a competency description by index '''
+#     try:
+#         return {
+#             "quadrant":{
+#                 "id":quadrant,
+#                 "value":get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["title_parts"]),
+#             },
+#             "sector":{
+#                 "id":sector,
+#                 "value":get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["sector_parts"][sector]),
+#             }
+#         }
+#     except IndexError as ex:
+#         # TODO: construct more informative return values
+#         return {
+#             "error":f"out of range got quadrant:{quadrant}, sector:{sector}. IndexError Exception was {ex}."
+#         }
+#     except KeyError as ex:
+#         # TODO: construct more informative return values
+#         return {
+#             "error":f"No match for competency at quadrant:{quadrant}, sector:{sector}. KeyError Exception was {ex}. "
+#         }
+#     except Exception as ex:
+#         return {
+#             "error":f"An unexpected error occurred: {ex}"
+#         }
 
 
-# only used by API so far
-@app.get("/rating/{rating}/")
-async def get_rating(rating:int):
-    '''return a competency description by index '''
-    try:
-        return {
-            "rating":{
-                "id":rating,
-                "value":compass_config_data["configuration"]["rating_description_lookup"][rating],
-            },
-        }
-    except IndexError as ex:
-        # TODO: construct more informative return values
-        return {
-            "error":f"rating out of range. {ex}"
-        }
+# # only used by API so far
+# @app.get("/rating/{rating}/")
+# async def get_rating(rating:int):
+#     '''return a competency description by index '''
+#     try:
+#         return {
+#             "rating":{
+#                 "id":rating,
+#                 "value":compass_config_data["configuration"]["rating_description_lookup"][rating],
+#             },
+#         }
+#     except IndexError as ex:
+#         # TODO: construct more informative return values
+#         return {
+#             "error":f"rating out of range. {ex}"
+#         }
     
-    except Exception as ex:
-        return {
-            "error":f"An unexpected error occurred: {ex}"
-        }
+#     except Exception as ex:
+#         return {
+#             "error":f"An unexpected error occurred: {ex}"
+#         }
     
-# endpoint for settings/json config retrieval
-@app.get("/settings/compass_config/") 
-def get_json_config_as_dict():
-    return compass_config_data
+# # endpoint for settings/json config retrieval
+# @app.get("/settings/compass_config/") 
+# def get_json_config_as_dict():
+#     return compass_config_data
 
 
-# reload config data so we don't need to restart:
-@app.get("/settings/compass_config/reload/") 
-def reload_json_config():
-    load_config_data()
-    return {"message":"loaded config data","status":"ok"}
+# # reload config data so we don't need to restart:
+# @app.get("/settings/compass_config/reload/") 
+# def reload_json_config():
+#     load_config_data()
+#     return {"message":"loaded config data","status":"ok"}
 
 # https://www.uvicorn.org/#command-line-options
 if __name__ == "__main__":
