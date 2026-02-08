@@ -62,7 +62,7 @@ engine = get_engine()
 app = FastAPI()
 
 from routes import competency_router, ratings_router, user_router, settings_router
-
+# from routes.settings_router import get_json_config_as_dict
 app.include_router(user_router.router)
 app.include_router(settings_router.router)
 app.include_router(competency_router.router)
@@ -126,7 +126,7 @@ async def get_user_data(user_id:int) -> UserCompetencies:
 async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
     user_data = handlers.get_user_data(engine, user_id)
     print("getting config data...")
-    config_data = get_json_config_as_dict()     # this is needed!
+    config_data = settings_router.get_json_config_as_dict()     # this is needed!
     print("got config data:")
     print(config_data)
     csv_data = ""
