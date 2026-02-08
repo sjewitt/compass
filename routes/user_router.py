@@ -45,12 +45,10 @@ async def check_user_exists(userid:int):
     
 
 @router.get("/{user_id}/competencies/")
-# async def competencies(user_id:int) -> UserCompetencies: #TODO make model
-async def competencies(user_id:int) -> list[Competency]:        # orig
+async def competencies(user_id:int) -> list[Competency]:
     ''' retrieve user's competencies from database '''
     try:
-        result = handlers.get_competencies_for_user(engine, user_id) # orig
-        # result = handlers.get_user_data(engine, user_id)
+        result = handlers.get_competencies_for_user(engine, user_id)
         return result
     except CompetenciesForUserNotFound as ex:
         raise CompetenciesForUserNotFound

@@ -1,60 +1,24 @@
-
-# import os
 import re
-import json
-
-# from io import StringIO
-# from typing import Generator
-
 import datetime
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse, RedirectResponse
 
 # see https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-with-yield/
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
+import uvicorn
 
 # https://fastapi.tiangolo.com/advanced/templates/
-# from fastapi import Request
-# from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-
-# from sqlalchemy import create_engine
-# from sqlalchemy.orm import sessionmaker
-
-from api.database.engine import get_engine
-
-import uvicorn
 
 from utilities.download_utilities import get_sector_title_from_data
 from utilities.data_utilities import load_config_data 
-from api.models import User, Competency,  UserCompetencies  # CreateUser, adde usercompetencies model
+from api.models import User,  UserCompetencies
 from api.database import handlers
-from api.db_models import DB_Competency, DB_User, Base
-# from api.exceptions import UserNotFound, CompetenciesForUserNotFound, CompetencyOutOfRange
-# rather than using these python-specific items, lets use the JSON we use to populate the front-end
-# from api.constants import COMPASS_MAPPER, RATING_MAPPER
-# RATING_MAPPER is configuration.rating_description_lookup
-# COMPASS_MAPPER is configuration.data_quadrant_titles + configuration.data_1 (COMPASS_MAPPER munges 
-# these into a complex object)
-
-# declare SQLite DB for persistent storage:
-# DATABASE_URI = "sqlite:///./database/db.sqlite"
-# engine = create_engine(DATABASE_URI, echo=True)
-# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+from api.database.engine import get_engine
+from api.db_models import  Base
 
 # # https://fastapitutorial.com/blog/dependencies-in-fastapi-coursefor-book/
-# def get_engine():
-#     try:
-#         yield engine
-#     finally:
-#         pass
-
 # https://github.com/fastapi/fastapi/discussions/12254
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     await db.open_conn()
-#     yield
-#     await db.close_conn()
 
 # This doesn't quite feel right...
 engine = get_engine()
@@ -62,32 +26,17 @@ engine = get_engine()
 app = FastAPI()
 
 from routes import competency_router, ratings_router, user_router, settings_router
-# from routes.settings_router import get_json_config_as_dict
 app.include_router(user_router.router)
 app.include_router(settings_router.router)
 app.include_router(competency_router.router)
 app.include_router(ratings_router.router)
 
-
-# #48:
-# load JSON file as used by the front-end to obtain the static values:
-# compass_config_data = {"status":"unset", "configuration":{}}
-# def load_config_data():
-#     # This is the container filesystem path:
-#     with open(mode="r",file="/code/static/data/display_data_rationalised.json") as display_data:
-#         compass_config_data["configuration"] = json.load(display_data)
-#         compass_config_data["status"] = "set"
-print("getting data from file")
 compass_config_data = load_config_data()
-print(compass_config_data)
-
 app.mount("/api/",app)
 app.mount("/static", StaticFiles(directory="static", html=True, ),name="static")
 
 # declare location of template(s)
 templates = Jinja2Templates(directory="templates")
-
-
 
 # and generate the SQL:
 Base.metadata.create_all(engine)
@@ -125,27 +74,17 @@ async def get_user_data(user_id:int) -> UserCompetencies:
 @app.get("/{user_id}/data/csv",response_class=StreamingResponse)
 async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
     user_data = handlers.get_user_data(engine, user_id)
-    print("getting config data...")
     config_data = settings_router.get_json_config_as_dict()     # this is needed!
-    print("got config data:")
-    print(config_data)
     csv_data = ""
     header = ",".join(['Quadrant','Sector','Rating',"Description"])
     header = header+"\n"
     csv_data = header
     
     for comp in user_data.competencies:
-        print(config_data)
-        # print(config_data["configuration"]["data_quadrants"][comp.quadrant])
-        ti = get_sector_title_from_data(config_data["configuration"]["data_quadrants"][comp.quadrant]["title_parts"])
-        # HERE, i replace the disconnected python mapper with the loaded JSON data:
         row = ",".join([
-            get_sector_title_from_data(config_data["configuration"]["data_quadrants"][comp.quadrant]["title_parts"]), 
-            # // there are TWO refs to the sector title!! - this is used for the hover and for the dislay. Decide upon one...
-            # TO RATIONALISE
-            # re.sub(r'[\x00-\x1f]', '', test_str)
+            get_sector_title_from_data(config_data["configuration"]["data_quadrants"][comp.quadrant]["title_parts"]),
+
             # see: https://www.geeksforgeeks.org/python/python-program-to-remove-all-control-characters/
-            # and to add quoted strings:
             # https://stackoverflow.com/questions/47187792/writing-csv-with-quotes-around-strings-python
             config_data["configuration"]["data_quadrants"][comp.quadrant]["sector_summaries"][comp.sector]["title"], 
             config_data["configuration"]["rating_description_lookup"][comp.rating]["title"],
@@ -153,7 +92,6 @@ async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
             re.sub(r'[\x00-\x1f]', '', config_data["configuration"]["rating_description_lookup"][comp.rating]["description"])
         ])
         csv_data = csv_data+row+"\n"
-    # response = FileResponse(csv_data)
     response = StreamingResponse(csv_data)
     
     _cd = f"attachment; filename={user_data.user.username}_{datetime.datetime.now()}.csv"
@@ -171,149 +109,7 @@ async def download_user_data_json(user_id:int):# -> UserCompetencies:
     response.headers["Content-Disposition"] = _cd
     return response
     # https://www.geeksforgeeks.org/python/stringio-and-bytesio-for-managing-data-as-file-object/
-
-
-# @app.get("/users/")
-# async def users():
-#     ''' retrieve all users from database '''
-#     try:
-#         result = handlers.get_users(engine)
-#         return result
-#     except UserNotFound as ex:
-#         return {"An exception ocurred":ex}  # to fix later...
-
-
-# @app.get("/users/{userid}/")
-# async def user(userid:int):
-#     ''' retrieve user from database '''
-#     try:
-#         result = handlers.get_user(engine, userid)
-#         return result
-#     except UserNotFound as ex:
-#         return {"An exception ocurred":ex}  # to fix later...
-
-
-# @app.get("/users/{userid}/exists/")
-# async def check_user_exists(userid:int):
-#     result = handlers.check_user_exists(engine, userid)
-#     return result
-    
-
-# @app.get("/users/{user_id}/competencies/")
-# # async def competencies(user_id:int) -> UserCompetencies: #TODO make model
-# async def competencies(user_id:int) -> list[Competency]:        # orig
-#     ''' retrieve user's competencies from database '''
-#     try:
-#         result = handlers.get_competencies_for_user(engine, user_id) # orig
-#         # result = handlers.get_user_data(engine, user_id)
-#         return result
-#     except CompetenciesForUserNotFound as ex:
-#         return []
-
-
-# @app.post("/users/{user_id}/edit/")
-# async def update_user(user:User) -> User:
-#     ''' update user's competencies in database '''
-    
-#     result = handlers.update_user(engine,user)
-#     print(result)
-#     # return data to populate the form:
-#     return user
-
-
-# @app.post("/users/new/")
-# async def adduser(userdata:CreateUser) -> dict:    #translate this to a DB_User
-#     ''' Add a user to database '''
-#     # convert from pydantic model to DB model:
-#     if userdata.password == userdata.password_check:
-#         _user = DB_User(
-#             name=userdata.name, 
-#             email=userdata.email, 
-#             username=userdata.username, 
-#             password=userdata.password)
-#         result = handlers.add_user(engine,_user)
-
-#         # https://stackoverflow.com/questions/76047310/how-to-redirect-from-a-post-to-a-get-endpoint-in-fastapi-without-changing-the-re
-#         if result['usercreated']:
-#             return {"usercreated":True, "user_id":result["id"]}
-#         return result
-#     return {"usercreated":False, "message":"supplied passwords do not match"}
-
-
-# @app.post("/competencies/add/")
-# async def add_competency(competency:Competency):    #todo: make pydantic model
-#     ''' Add a user competency to database. Note this includes a user_id, so we end up
-#      with a 1:many relationship. This should fail if an unknown user_id is passed, and if the various
-#       indices for the values are out of bounds or if this competency is already applied
-#       to specified user. '''
-#     _competency = DB_Competency(user_id=competency.user_id,quadrant=competency.quadrant, sector=competency.sector, rating=competency.rating)
-#     result = handlers.add_competency(engine,_competency)
-#     return result
-
-# # TODO: This needs to use the loaded data, not the python mappr
-# @app.get("/competencies/{quadrant}/{sector}/")
-# async def get_competency(quadrant:int, sector:int):
-#     '''return a competency description by index '''
-#     try:
-#         return {
-#             "quadrant":{
-#                 "id":quadrant,
-#                 "value":get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["title_parts"]),
-#             },
-#             "sector":{
-#                 "id":sector,
-#                 "value":get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["sector_parts"][sector]),
-#             }
-#         }
-#     except IndexError as ex:
-#         # TODO: construct more informative return values
-#         return {
-#             "error":f"out of range got quadrant:{quadrant}, sector:{sector}. IndexError Exception was {ex}."
-#         }
-#     except KeyError as ex:
-#         # TODO: construct more informative return values
-#         return {
-#             "error":f"No match for competency at quadrant:{quadrant}, sector:{sector}. KeyError Exception was {ex}. "
-#         }
-#     except Exception as ex:
-#         return {
-#             "error":f"An unexpected error occurred: {ex}"
-#         }
-
-
-# # only used by API so far
-# @app.get("/rating/{rating}/")
-# async def get_rating(rating:int):
-#     '''return a competency description by index '''
-#     try:
-#         return {
-#             "rating":{
-#                 "id":rating,
-#                 "value":compass_config_data["configuration"]["rating_description_lookup"][rating],
-#             },
-#         }
-#     except IndexError as ex:
-#         # TODO: construct more informative return values
-#         return {
-#             "error":f"rating out of range. {ex}"
-#         }
-    
-#     except Exception as ex:
-#         return {
-#             "error":f"An unexpected error occurred: {ex}"
-#         }
-    
-# # endpoint for settings/json config retrieval
-# @app.get("/settings/compass_config/") 
-# def get_json_config_as_dict():
-#     return compass_config_data
-
-
-# # reload config data so we don't need to restart:
-# @app.get("/settings/compass_config/reload/") 
-# def reload_json_config():
-#     load_config_data()
-#     return {"message":"loaded config data","status":"ok"}
+    # https://stackoverflow.com/questions/76047310/how-to-redirect-from-a-post-to-a-get-endpoint-in-fastapi-without-changing-the-re
 
 # https://www.uvicorn.org/#command-line-options
 if __name__ == "__main__":
