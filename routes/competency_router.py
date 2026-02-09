@@ -16,7 +16,7 @@ engine = get_engine()
 compass_config_data = load_config_data()
 
 @router.post("/add/")
-async def add_competency(competency:Competency):    #todo: make pydantic model
+async def add_competency(competency:Competency):
     ''' Add a user competency to database. Note this includes a user_id, so we end up
      with a 1:many relationship. This should fail if an unknown user_id is passed, and if the various
       indices for the values are out of bounds or if this competency is already applied
@@ -54,3 +54,9 @@ async def get_competency(quadrant:int, sector:int):
         return {
             "error":f"An unexpected error occurred: {ex}"
         }
+
+# hmm
+@router.delete("/{quadrant}/{sector}/")
+async def delete_competency(quadrant:int, sector:int) -> dict:  # to add type
+    handlers.delete_competency()
+    return {}

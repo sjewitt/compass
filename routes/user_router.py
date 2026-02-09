@@ -49,10 +49,16 @@ async def competencies(user_id:int) -> list[Competency]:
     ''' retrieve user's competencies from database '''
     try:
         result = handlers.get_competencies_for_user(engine, user_id)
+        print(result)
         return result
     except CompetenciesForUserNotFound as ex:
+        print(ex)
         raise CompetenciesForUserNotFound
-        return []
+
+    except Exception as ex:
+        print(ex)
+        raise Exception
+
 
 
 @router.post("/{user_id}/edit/")

@@ -45,6 +45,7 @@ body{
    background-color: lightgray;
 }
 
+
 .inline_icon{
   height: 35px;
   width: 35px;
@@ -142,6 +143,10 @@ body{
 }
 
 /* svg */
+#svg_delete-rating{
+ fill: red;
+}
+
 #svg_compass {
   position: absolute;
   top: 9px;

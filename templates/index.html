@@ -173,6 +173,11 @@
 			    <polygon class="svg_hide q4" id="svg_s17-5" points="419,209,517,188,517,228,434,246" />
 			    <polygon class="svg_hide q4" id="svg_s17-6" points="402,168,517,144,517,188,418,209" />  
 
+				<!-- SVG circle for central boss display, because imagemaps cannot have colour etc.,
+				 but they can have event handles, unlike SVG elements... --> 
+				<!-- <area id="delete-rating" target="" alt="Delete rating" title="" href="#" coords="517,446,50" shape="circle"> 
+				 <circle cx="50" cy="50" r="50" />-->
+				<circle class="svg_hide" cx="516" cy="446" r="52" id="svg_delete-rating">
 		</svg>
 	</div>
 	
@@ -327,17 +332,20 @@
 			    <area id="s17-3" target="" alt="" title="" href="#" coords="450,284,517,270,515,310,465,323" shape="poly" data-rating="3" data-lookup="[3,3,3]">
 			    <area id="s17-4" target="" alt="" title="" href="#" coords="434,245,515,229,517,268,450,281" shape="poly" data-rating="4" data-lookup="[3,3,3]">
 			    <area id="s17-5" target="" alt="" title="" href="#" coords="419,209,517,188,517,228,434,246" shape="poly" data-rating="5" data-lookup="[3,3,3]">
-			    <area id="s17-6" target="" alt="" title="" href="#" coords="402,168,517,144,517,188,418,209" shape="poly" data-rating="6" data-lookup="[3,3,3]">   
+			    <area id="s17-6" target="" alt="" title="" href="#" coords="402,168,517,144,517,188,418,209" shape="poly" data-rating="6" data-lookup="[3,3,3]"> 
+				
+			<!-- central circle -->
+			<area id="delete-rating" target="" alt="Delete rating" title="" href="#" coords="516,446,53" shape="circle" >
 	</map>
 	
 	
 	<!-- quadrant backgrounds -->
 	<map name="image-map">
-    <area target="" alt="" title="" href="" coords="807,92,806,174,1010,184,1005,68" shape="poly">
-    <area target="" alt="" title="" href="" coords="38,85,237,90,242,177,46,195" shape="poly">
-    <area target="" alt="" title="" href="" coords="45,663,211,689,207,770,45,783" shape="poly">
-    <area target="" alt="" title="" href="" coords="818,693,816,761,1020,771,1022,669" shape="poly">
-</map>
+		<area target="" alt="" title="" href="" coords="807,92,806,174,1010,184,1005,68" shape="poly">
+		<area target="" alt="" title="" href="" coords="38,85,237,90,242,177,46,195" shape="poly">
+		<area target="" alt="" title="" href="" coords="45,663,211,689,207,770,45,783" shape="poly">
+		<area target="" alt="" title="" href="" coords="818,693,816,761,1020,771,1022,669" shape="poly">
+	</map>
 
 <div id="display">
 	<div>

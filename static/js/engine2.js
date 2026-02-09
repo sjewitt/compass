@@ -63,6 +63,9 @@ var engine = {
         's17-t',
         's17-1', 's17-2', 's17-3', 's17-4', 's17-5', 's17-6'
     ],
+    deletemap_current_competency: -1,
+    deletemap_current_quad: -1,
+    current_competency: -1,
     current_quad: -1,
     current_sector: -1,
     current_score: -1,
@@ -84,6 +87,13 @@ var engine = {
                 elem.addEventListener('click', this.test_handler);
             }
         };
+
+        let boss = document.getElementById("delete-rating");    // get the imagemap (not SVG...)
+        // apply listeners for the central delete circle
+        boss.addEventListener('mouseover', this.test_in);
+        boss.addEventListener('mouseout', this.test_out);
+        boss.addEventListener('mouseover', this.enableDeleteCompetencyForUser);
+        boss.addEventListener('mouseout', this.disableDeleteCompetencyForUser);
 
         if(page==="add_user"){
             // append listener to add button:
@@ -147,6 +157,19 @@ var engine = {
                 user_dropdown.addEventListener("change",() => {engine.selectAndLoadUser()});
             }
         }
+    },
+
+    enableDeleteCompetencyForUser: function(){
+        console.log("in");
+        console.log(engine.deletemap_current_quad);
+        console.log(engine.deletemap_current_sector);
+
+    },
+
+    disableDeleteCompetencyForUser: function(){
+        console.log("out");
+        console.log(engine.deletemap_current_quad);
+        console.log(engine.deletemap_current_sector);
     },
 
     // populate data for routes that require it from JSON data file:
@@ -442,9 +465,12 @@ var engine = {
             for(let a=0;a<response.length;a++){
                 currentData.push({
                     "key":[response[a].quadrant, response[a].sector,response[a].sector],
-                    "rating":response[a].rating})
+                    "rating":response[a].rating,
+                    "competency_id":response[a].id,     // competency ID, So I can implement a delete hotspot
+                })
             }
             if (currentData) {
+                console.log(currentData);
                 var data = currentData;
                 for (var a = 0; a < data.length; a++) {
                     if (engine.isQuadrant(data[a])) {
@@ -498,78 +524,93 @@ var engine = {
             engine.setSectorSVGDisplay(self, true);
             var sector_rating = -1;
             var lookup = JSON.parse(this.getAttribute('data-lookup'));
-            this.current_quad = lookup[0];
-            this.current_sector = lookup[1];
-            this.current_score = lookup[2];
-            var quad_description = "";
-            var quad_title = "";
-            var sector_title = "";
-            if (lookup[0] > -1) {
-                quad_description = engine.data_quadrants[lookup[0]].summary;
-                quad_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].title_parts);
-            }
-            var sector_title_description = '';
-            if (lookup[1] > -1) {
-                sector_title_description = engine.data_quadrants[lookup[0]].sector_summaries[lookup[0]].description;
-                sector_title = engine.data_quadrants[lookup[0]].sector_summaries[lookup[0]].title;
-            }
-            var sector_block_description = '';
-            if (lookup[2] > -1) {
-                sector_title = engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].title;
-                sector_rating = parseInt(this.getAttribute('data-rating'));
-                this.current_rating = sector_rating;
-                sector_block_description = engine.data_quadrants[lookup[0]].sector_descriptions[lookup[2]];
-            }
-            // special case for outer titles: TO SORT!
-            if(lookup[1] > -1 && lookup[2]===-1){
-                try{
-                    sector_title =             engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].title;
-                    sector_block_description = engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].description;
+
+            // special case: if we go into the centre, we keep the current sector etc.:
+            if(lookup){
+                this.current_quad = lookup[0];
+                this.current_sector = lookup[1];
+                this.current_score = lookup[2];
+
+                // set flags for central delete:
+                engine.deletemap_current_quad = this.current_quad;
+                engine.deletemap_current_sector = this.current_sector;
+
+                var quad_description = "";
+                var quad_title = "";
+                var sector_title = "";
+
+
+                if (lookup[0] > -1) {
+                    quad_description = engine.data_quadrants[lookup[0]].summary;
+                    quad_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].title_parts);
                 }
-                catch(e){
-                    console.log(e);
+                var sector_title_description = '';
+                if (lookup[1] > -1) {
+                    sector_title_description = engine.data_quadrants[lookup[0]].sector_summaries[lookup[0]].description;
+                    sector_title = engine.data_quadrants[lookup[0]].sector_summaries[lookup[0]].title;
                 }
+                var sector_block_description = '';
+                if (lookup[2] > -1) {
+                    sector_title = engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].title;
+                    sector_rating = parseInt(this.getAttribute('data-rating'));
+                    this.current_rating = sector_rating;
+                    sector_block_description = engine.data_quadrants[lookup[0]].sector_descriptions[lookup[2]];
+                }
+                // special case for outer titles: TO SORT!
+                if(lookup[1] > -1 && lookup[2]===-1){
+                    try{
+                        sector_title =             engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].title;
+                        sector_block_description = engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].description;
+                    }
+                    catch(e){
+                        console.log(e);
+                    }
+                }
+                var output_rating = '';
+                if (sector_rating > -1) {
+                    output_rating = engine.rating_description_lookup[sector_rating].title;
+                }
+                var elem_quad_title = document.getElementById('quad_title');
+                var elem_quad_description = document.getElementById('quad_description');
+                var elem_sector_title = document.getElementById('sector_title');
+                var elem_sector_title_description = document.getElementById('sector_title_description');
+                var elem_block_description = document.getElementById('sector_block_description');
+                var elem_rating = document.getElementById('rating');
+                if (elem_quad_title)
+                    elem_quad_title.innerText = quad_title;
+                if (elem_quad_description)
+                    elem_quad_description.innerText = quad_description;
+                if (elem_sector_title)
+                    elem_sector_title.innerText = sector_title;
+                if (elem_sector_title_description)
+                    elem_sector_title_description.innerText = sector_title_description;
+                if (elem_block_description)
+                    elem_block_description.innerText = sector_block_description;
+                if (elem_rating)
+                    elem_rating.innerText = output_rating;
+                var elem_title = [];
+                if (quad_title && lookup[2] === -1)
+                    elem_title.push(quad_title);
+                if (quad_description && lookup[2] === -1 && lookup[1] === -1)   //quad hover titles
+                    elem_title.push(quad_description);
+                if (quad_description && lookup[2] === -1 && lookup[1] > -1)   //sector hover titles
+                    elem_title.push(sector_block_description);
+                if (sector_title && lookup[2] === -1)
+                    elem_title.push(sector_title);
+                if (sector_title_description && lookup[2] !== -1)
+                    elem_title.push(sector_title_description);
+                if (sector_block_description && lookup[2] !== -1)
+                    elem_title.push(sector_block_description);
+                self.setAttribute('title', elem_title.join('\n\n'));
             }
-            var output_rating = '';
-            if (sector_rating > -1) {
-                output_rating = engine.rating_description_lookup[sector_rating].title;
-            }
-            var elem_quad_title = document.getElementById('quad_title');
-            var elem_quad_description = document.getElementById('quad_description');
-            var elem_sector_title = document.getElementById('sector_title');
-            var elem_sector_title_description = document.getElementById('sector_title_description');
-            var elem_block_description = document.getElementById('sector_block_description');
-            var elem_rating = document.getElementById('rating');
-            if (elem_quad_title)
-                elem_quad_title.innerText = quad_title;
-            if (elem_quad_description)
-                elem_quad_description.innerText = quad_description;
-            if (elem_sector_title)
-                elem_sector_title.innerText = sector_title;
-            if (elem_sector_title_description)
-                elem_sector_title_description.innerText = sector_title_description;
-            if (elem_block_description)
-                elem_block_description.innerText = sector_block_description;
-            if (elem_rating)
-                elem_rating.innerText = output_rating;
-            var elem_title = [];
-            if (quad_title && lookup[2] === -1)
-                elem_title.push(quad_title);
-            if (quad_description && lookup[2] === -1 && lookup[1] === -1)   //quad hover titles
-                elem_title.push(quad_description);
-            if (quad_description && lookup[2] === -1 && lookup[1] > -1)   //sector hover titles
-                elem_title.push(sector_block_description);
-            if (sector_title && lookup[2] === -1)
-                elem_title.push(sector_title);
-            if (sector_title_description && lookup[2] !== -1)
-                elem_title.push(sector_title_description);
-            if (sector_block_description && lookup[2] !== -1)
-                elem_title.push(sector_block_description);
-            self.setAttribute('title', elem_title.join('\n\n'));
         }
     },
 
     test_out: function () {
+        //    current_competency: -1,
+   // current_quad: -1,
+        // console.log(this.current_competency);
+        // console.log(this.current_quad);
         var self = document.getElementById(this.getAttribute('id'));
         if (self) {
             engine.setSectorSVGDisplay(self, false);
@@ -613,6 +654,7 @@ var engine = {
         /** get the ID of the user from the dropdown */
         let user_id = document.getElementById("select_user").value;
         data = {
+            "id":0,             // required so the model doesn't break
             "user_id": user_id,
             "quadrant": lookup[0],
             "sector": lookup[1],

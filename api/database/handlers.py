@@ -194,12 +194,26 @@ def get_competency(engine, competency_id:int) -> Competency|None:
         # need to convert the DB_User into a User, so th epydantic validation works
         for row in session.scalars(stmt):
             result.append(row)
-
         if result:
             return result[0]    # the first found user
         print(f"competency with id {competency_id} not found")
         raise CompetencyNotFound("Competency with id %s not found" % competency_id)
-    
+
+# hmm...
+def delete_competency(engine, competency_id:int) -> Competency|None:
+    with Session(engine) as session:
+        # https://docs.sqlalchemy.org/en/20/tutorial/data_select.html
+        stmt = select(DB_Competency).where(DB_Competency.id == competency_id)
+        result = []
+        # need to convert the DB_User into a User, so th epydantic validation works
+        for row in session.scalars(stmt):
+            result.append(row)
+        if result:
+            return result[0]    # the first found user
+        print(f"competency with id {competency_id} not found")
+        raise CompetencyNotFound("Competency with id %s not found" % competency_id)
+
+
 def get_competencies_for_user(engine, user_id:int) -> list[Competency]:
     with Session(engine) as session:
         # https://docs.sqlalchemy.org/en/20/tutorial/data_select.html
@@ -208,7 +222,6 @@ def get_competencies_for_user(engine, user_id:int) -> list[Competency]:
         # need to convert the DB_User into a User, so th epydantic validation works
         for row in session.scalars(stmt):
             result.append(row)
-
         if result:
             return result
         print(f"No competencies found for user with id {user_id}")
