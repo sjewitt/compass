@@ -25,11 +25,12 @@ engine = get_engine()
 
 app = FastAPI()
 
-from routes import competency_router, ratings_router, user_router, settings_router
+from routes import competency_router, ratings_router, user_router, settings_router,compass_data_router
 app.include_router(user_router.router)
 app.include_router(settings_router.router)
 app.include_router(competency_router.router)
 app.include_router(ratings_router.router)
+app.include_router(compass_data_router.router)
 
 compass_config_data = load_config_data()
 app.mount("/api/",app)
