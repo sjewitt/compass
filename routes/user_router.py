@@ -17,7 +17,7 @@ router = APIRouter(
 engine = get_engine()
 
 @router.get("/")
-async def users():
+async def users()->list[User]:
     ''' retrieve all users from database '''
     try:
         result = handlers.get_users(engine)
@@ -39,7 +39,7 @@ async def user(userid:int) -> User:
 
 # TODO: emulate above.
 @router.get("/{userid}/exists/")
-async def check_user_exists(userid:int):
+async def check_user_exists(userid:int)->bool:
     result = handlers.check_user_exists(engine, userid)
     return result
     
