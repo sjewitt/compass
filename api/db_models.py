@@ -19,10 +19,8 @@ class Base(DeclarativeBase):
 #     DATABASE_URI = "sqlite:///../database/db.sqlite"
 #     engine = create_engine(DATABASE_URI)
 #     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 #     return engine
 
-# child 1
 class DB_User(Base):
     __tablename__ = "users"
     id : Mapped[int] = mapped_column(primary_key=True)
@@ -34,8 +32,6 @@ class DB_User(Base):
         back_populates= "user",cascade="all, delete-orphan"
     )
 
-
-# child 2
 class DB_Competency(Base):
     __tablename__ = "competencies"
     id : Mapped[int] = mapped_column(primary_key=True)
@@ -44,3 +40,39 @@ class DB_Competency(Base):
     sector = mapped_column(Integer)
     rating = mapped_column(Integer)
     user:Mapped["DB_User"] = relationship(back_populates="competencies")
+
+class DB_Quadrant(Base):
+    __tablename__ = "quandrants"
+    id : Mapped[int] = mapped_column(primary_key=True)
+    children: Mapped[List["DB_QuadrantTitles"]] = relationship(back_populates='parent')
+    quadrant_summary: Mapped[str] = mapped_column(String)
+    quadrant_css_class: Mapped[str] = mapped_column(String)
+    quadrant_elem_coords: Mapped[str] = mapped_column(String)
+
+# titles may be > 1 line, so we need lookup option
+class DB_QuadrantTitles(Base):
+    __tablename__ = "quandrant_titles"
+    id : Mapped[int] = mapped_column(primary_key=True)
+    quadrant_id : Mapped[int] = mapped_column(ForeignKey("quandrants.id"))
+    title_part : Mapped[str] = mapped_column(String)
+    parent: Mapped["DB_Quadrant"] = relationship(back_populates="children")
+
+class DB_Sector(Base):
+    __tablename__ = "sectors"
+    id : Mapped[int] = mapped_column(primary_key=True)
+    children: Mapped[List["DB_SectorTitles"]] = relationship(back_populates='parent')
+    # each sector belongs to a quadrant:
+    quadrant_id : Mapped[int] = mapped_column(ForeignKey("quandrants.id"))
+    summary: Mapped[str] = mapped_column(String)
+    description: Mapped[str] = mapped_column(String)
+
+class DB_SectorTitles(Base):
+    __tablename__ = "sector_titles"
+    id : Mapped[int] = mapped_column(primary_key=True)
+    sector_id : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
+    title_part : Mapped[str] = mapped_column(String)
+    coord_x :  Mapped[int] = mapped_column(Integer)
+    coord_y :  Mapped[int] = mapped_column(Integer)
+    parent: Mapped["DB_Sector"] = relationship(back_populates="children")
+
+

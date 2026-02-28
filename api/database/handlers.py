@@ -1,6 +1,6 @@
 # up three levels to api:
-from api.models import User, Competency, UserCompetencies
-from api.db_models import DB_Competency, DB_User
+from api.models import User, Competency, UserCompetencies, Quadrant
+from api.db_models import DB_Competency, DB_User, DB_Quadrant
 from api.exceptions import UserNotFound, CompetencyNotFound, CompetenciesForUserNotFound
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
@@ -68,7 +68,6 @@ def add_user(engine,user:DB_User):
             return {f"action":"usercreate","message":"Failed: {ex}", "usercreated":False}        
     return {"action":"usercreate","message":"Failed", "usercreated":False}
 
-
 def add_competency(engine, competency:DB_Competency) -> dict:   # status object
     if check_user_exists(engine,competency.user_id)                                 \
                 and check_quadrant_bounds(competency.quadrant)                      \
@@ -108,7 +107,6 @@ def add_competency(engine, competency:DB_Competency) -> dict:   # status object
     else:
         return {"status":"failed", "message":"Bounds or user check failed."}
 
-
 def get_users(engine) -> list[User]|None:
     
     with Session(engine) as session:
@@ -143,8 +141,6 @@ def get_users(engine) -> list[User]|None:
         logging.warning("no users found")
         # raise UserNotFound("user with id %s not found" % user_id)
         return []
-
-
 
 def get_user(engine, user_id:int) -> User|None:
     # eventually, this all needs to go in database.py
@@ -185,7 +181,6 @@ def get_user_data(engine, user_id:int) -> UserCompetencies: # to type!
             print(ex)
             return {"status":"error", "message":ex}
 
-
 def get_competency(engine, competency_id:int) -> Competency|None:
     with Session(engine) as session:
         # https://docs.sqlalchemy.org/en/20/tutorial/data_select.html
@@ -214,7 +209,6 @@ def get_competencies_for_user(engine, user_id:int) -> list[Competency]:
         print(f"No competencies found for user with id {user_id}")
         return []
         # raise CompetenciesForUserNotFound("Competencies for user_id %s not found" % (user_id,))
-
 
 # https://docs.sqlalchemy.org/en/20/tutorial/data_update.html
 def update_user(engine, user:User) -> User|None:
@@ -252,3 +246,23 @@ def update_user(engine, user:User) -> User|None:
             raise UserNotFound
         except:
             return None
+
+def add_quadrant(engine,quadrant:DB_Quadrant) -> Quadrant:
+    # eventually, this all needs to go in database.py
+    # breakpoint()
+    with Session(engine) as session:
+        try:
+            # new_user = user
+            # breakpoint()
+            session.add(quadrant)
+            # https://stackoverflow.com/questions/36014700/sqlalchemy-how-do-i-see-a-primary-key-id-for-a-newly-created-record
+            session.flush()
+            # we should have an ID now:
+            print(quadrant)
+            new_quadrant_id = quadrant.id
+            session.commit()
+            return {"action":"quadrantcreate","quadrantcreated":True, "id":new_quadrant_id}
+        except Exception as ex:
+            print(ex)
+            return {f"action":"quadrantcreate","message":"Failed: {ex}", "quadrantcreated":False}        
+    return {"action":"quadrantcreate","message":"Failed", "quadrantcreated":False}

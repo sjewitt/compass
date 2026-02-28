@@ -35,3 +35,34 @@ class UserCompetencies(BaseModel):
     # user:int    #orig
     user:User  # new
     competencies:list[Competency]
+
+
+'''
+Model the compass lookup data
+'''
+
+class QuadrantTitles(BaseModel):
+    # id:int=Field()
+    # quadrant_id:int=Field()
+    title_part:str=Field()
+
+class Quadrant(BaseModel):
+    # id: int = Field()
+    title : list[QuadrantTitles] = Field()
+    quadrant_summary: str = Field()
+    quadrant_css_class:str = Field()
+    quadrant_elem_coords:str = Field()
+    
+class SectorTitles(BaseModel):
+    # id: int = Field()
+    sector_id:int = Field()
+    title_part:str = Field()
+    coord_x:int=Field()
+    coord_y:int=Field()
+
+class Sector(BaseModel):
+    # id:int = Field()
+    title : list[SectorTitles] = Field()
+    # quadrant_id:int=Field()
+    summary:str=Field()
+    description:str=Field()
