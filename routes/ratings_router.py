@@ -14,13 +14,13 @@ compass_config_data = load_config_data()
 
 # only used by API so far
 @router.get("/{rating}/")
-async def get_rating(rating:int):
+async def get_rating(rating_id:int):
     '''return a competency description by index '''
     try:
         return {
             "rating":{
-                "id":rating,
-                "value":compass_config_data["configuration"]["rating_description_lookup"][rating],
+                "id":rating_id,
+                "value":compass_config_data["configuration"]["rating_description_lookup"][rating_id],
             },
         }
     except IndexError as ex:
