@@ -88,12 +88,17 @@ var engine = {
             }
         };
 
+        // This only applies to a loaded user page, it breaks on the homepage becaue the element
+        // doesn't exist on the static template. So check for it...
         let boss = document.getElementById("delete-rating");    // get the imagemap (not SVG...)
         // apply listeners for the central delete circle
-        boss.addEventListener('mouseover', this.test_in);
-        boss.addEventListener('mouseout', this.test_out);
-        boss.addEventListener('mouseover', this.enableDeleteCompetencyForUser);
-        boss.addEventListener('mouseout', this.disableDeleteCompetencyForUser);
+        if(boss){
+            boss.addEventListener('mouseover', this.test_in);
+            boss.addEventListener('mouseout', this.test_out);
+            boss.addEventListener('mouseover', this.enableDeleteCompetencyForUser);
+            boss.addEventListener('mouseout', this.disableDeleteCompetencyForUser);
+        }
+
 
         if(page==="add_user"){
             // append listener to add button:
