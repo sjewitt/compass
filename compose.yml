@@ -3,6 +3,11 @@ services:
     build: .
     ports:
      - "8080:8080"
+     - "5678:5678"
+
+    # pass in user:group from startup arg:
+    # - $uid(id -u ${USER}) $gid(id -g ${USER}) docker compose up
+    user: ${uid}:${gid}
 
     volumes:
      - type: bind
