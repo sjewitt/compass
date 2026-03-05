@@ -1,6 +1,6 @@
 # up three levels to api:
-from api.models import User, Competency, UserCompetencies, Quadrant
-from api.db_models import DB_Competency, DB_User, DB_Quadrant
+from api.models import User, Competency, UserCompetencies, Quadrant, QuadrantTitles, Sector, SectorTitles, CompassData, CompassDefinition, CompassSummary
+from api.db_models import DB_Competency, DB_User, DB_Quadrant, DB_QuadrantTitles,DB_Sector, DB_SectorTitles, DB_CompassDefinition
 from api.exceptions import UserNotFound, CompetencyNotFound, CompetenciesForUserNotFound
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
@@ -14,7 +14,7 @@ def check_quadrant_bounds(index:int) -> bool:
     return True
 
 
-# NOTE: Quadrant 0 has 5 sectors, all other s have 4
+# NOTE: Quadrant 0 has 5 sectors, all others have 4
 def check_sector_bounds(quadrant_index:int, sector_index) -> bool:
     upper_bound = 3
     if quadrant_index == 0:
@@ -247,22 +247,361 @@ def update_user(engine, user:User) -> User|None:
         except:
             return None
 
-def add_quadrant(engine,quadrant:DB_Quadrant) -> Quadrant:
-    # eventually, this all needs to go in database.py
-    # breakpoint()
+def add_quadrant(engine,quadrant:Quadrant) -> dict:
     with Session(engine) as session:
         try:
-            # new_user = user
-            # breakpoint()
-            session.add(quadrant)
+            _q = DB_Quadrant(
+                children=[],
+                quadrant_summary=quadrant.quadrant_summary,
+                quadrant_css_class=quadrant.quadrant_css_class,
+                quadrant_elem_coords=quadrant.quadrant_elem_coords, # these will be constants?
+            )
+            session.add(_q)
             # https://stackoverflow.com/questions/36014700/sqlalchemy-how-do-i-see-a-primary-key-id-for-a-newly-created-record
             session.flush()
             # we should have an ID now:
-            print(quadrant)
-            new_quadrant_id = quadrant.id
+            new_quadrant_id = _q.id
+            # and add title parts:
+            for quad_title_part in quadrant.title:
+                _t = DB_QuadrantTitles(
+                    title_part=quad_title_part.title_part,
+                    quadrant_id=_q.id,
+                )
+                session.add(_t)
             session.commit()
             return {"action":"quadrantcreate","quadrantcreated":True, "id":new_quadrant_id}
         except Exception as ex:
             print(ex)
             return {f"action":"quadrantcreate","message":"Failed: {ex}", "quadrantcreated":False}        
     return {"action":"quadrantcreate","message":"Failed", "quadrantcreated":False}
+
+def get_quadrants(engine) -> list[Quadrant]:
+    with Session(engine) as session:
+        print("getting quads")
+        result = []
+        _quads = session.query(DB_Quadrant)
+        print(_quads)
+        # get each quad's title parts:
+        for _quad in _quads:
+            try:
+                _db_quad_titles = session.query(DB_QuadrantTitles).where(DB_QuadrantTitles.quadrant_id==_quad.id).all()
+                _titleparts=[]
+                for _title_part in _db_quad_titles:
+                    _x = QuadrantTitles(id=_title_part.id, title_part = _title_part.title_part)
+                    _titleparts.append(_x)
+
+                # build the final output as fully populated Quadrant:
+                _res = Quadrant(
+                    id=_quad.id,
+                    title=_titleparts,
+                    quadrant_summary=_quad.quadrant_summary,
+                    quadrant_css_class=_quad.quadrant_css_class,
+                    quadrant_elem_coords=_quad.quadrant_elem_coords,
+                    )
+                result.append(_res)
+            except Exception as ex:
+                print(ex)
+        return result
+            
+
+        # stmt = select(DB_Quadrant)
+        # result = []
+        # for row in session.scalars(stmt):
+        #     result.append(Quadrant(
+        #         id=row.id,
+        #         title=[],#do as sub-query?
+        #         quadrant_summary=row.quadrant_summary,
+        #         quadrant_css_class=row.quadrant_css_class,
+        #         quadrant_elem_coords=row.quadrant_elem_coords)
+        #     )
+        # if result:
+        #     return result
+        # logging.warning("no quadrants found")
+        # return []
+
+def get_quadrant(engine, id:int) -> Quadrant:
+    with Session(engine) as session:
+        db_quad = session.query(DB_Quadrant).where(DB_Quadrant.id == id).first()
+        db_quad_titles = session.query(DB_QuadrantTitles).where(DB_QuadrantTitles.quadrant_id==id).all()
+        _titleparts=[]
+        for title_part in db_quad_titles:
+            _x = QuadrantTitles(title_part = title_part.title_part)
+            # cannot do this in one step!:
+            # _titleparts.append(QuadrantTitles(title_part.title_part))
+            # need to do this:
+            _titleparts.append(_x)
+
+        # build the final output as fully populated Quadrant:
+        res = Quadrant(
+            id=db_quad.id,
+            title=_titleparts,
+            quadrant_summary=db_quad.quadrant_summary,
+            quadrant_css_class=db_quad.quadrant_css_class,
+            quadrant_elem_coords=db_quad.quadrant_elem_coords,
+        )
+        # now we can return a fully populated object:
+        return res
+    
+# (test) this is fine...
+def get_quadrant_titles(engine):
+    with Session(engine) as session:
+        _x = session.query(DB_QuadrantTitles).all()
+        _z = []
+        for _y in _x:
+            print(_y) # db model
+            _z.append(QuadrantTitles(id=_y.id, title_part = _y.title_part)) # model
+        return(_z)
+
+
+def add_sector(engine,sector:Sector) -> dict:
+    with Session(engine) as session:
+        try:
+            _s = DB_Sector(
+                quadrant_id = sector.quadrant_id,
+                summary = sector.summary,
+                description = sector.description,
+            )
+            session.add(_s) 
+            session.flush() # this gives us the ID, which we need to append the title parts:
+            new_sector_id = _s.id
+            for sector_title_part in sector.title:
+                _t = DB_SectorTitles(
+                    sector_id = new_sector_id,
+                    title_part = sector_title_part.title_part,
+                    coord_x = sector_title_part.coord_x,
+                    coord_y = sector_title_part.coord_y,
+                )
+                session.add(_t)
+            session.commit()
+            return {"action":"sectorcreate","sectorcreated":True, "id":new_sector_id}
+        except Exception as ex:
+            print(f"ERROR: {ex}")
+            return {f"action":"sectorcreate","message":"Failed: {ex}", "sectorcreated":False}
+    return {"action":"sectorcreate","message":"Failed", "sectorcreated":False} 
+
+def get_sectors(engine) -> list[Sector]:
+    with Session(engine) as session:
+        db_sectors = session.query(DB_Sector).all()
+        return None # TODO
+
+def get_sector(engine,id:int) -> Sector:
+    with Session(engine) as session:
+        db_sector = session.query(DB_Sector).where(DB_Sector.id == id).first()
+        result = Sector(
+            quadrant_id = db_sector.quadrant_id,
+            title = [],
+            summary = db_sector.summary,
+            description = db_sector.description,
+        )
+        return result
+
+# retrieve all compases (summary)
+def get_all_compasses(engine) -> list[CompassSummary]:
+    with Session(engine) as session:
+        # stmt = select(DB_CompassDefinition())
+        result = session.query(DB_CompassDefinition.id, DB_CompassDefinition.name)
+        returnval = []
+        for compass_summary in result:
+            _cs = CompassSummary(
+                id = compass_summary.id,
+                name = compass_summary.name,
+            )
+            returnval.append(_cs)
+        print(returnval)
+        return returnval
+        # for compass_summary in result:
+        #     print(compass_summary)
+    print("error")
+    return []
+
+
+# retrieve current compass data
+def get_compass(engine, id:int) -> CompassData:
+    with Session(engine) as session:
+        
+        # THIS is where we really need a join query!
+        # OK - THIS syntax works as a compound query:
+        # result = session.query(DB_CompassDefinition,DB_Quadrant).where(DB_CompassDefinition.id==id).where(DB_Quadrant.id==DB_CompassDefinition.quadrant_1).first()
+        
+
+        # tests
+        _db_compass_def = session.query(DB_CompassDefinition).where(DB_CompassDefinition.id==id).first()
+        if _db_compass_def:
+            print(_db_compass_def.quadrant_1)
+            print(_db_compass_def.quadrant_2)
+            print(_db_compass_def.quadrant_3)
+            print(_db_compass_def.quadrant_4)
+            
+            # However, what I REALLY want to do is return a complex CompassData object... Someting like:
+            # _quadrants = session.query(DB_Quadrant).where(DB_Quadrant.id in [_compass_def.quadrant_1,_compass_def.quadrant_2,_compass_def.quadrant_3,_compass_def.quadrant_4,])
+            # it's actually this:
+            # https://stackoverflow.com/questions/8603088/sqlalchemy-in-clause
+            # geeksforgeeks.org/python/how-to-use-the-in-operator-in-sqlalchemy-in-python/
+            _db_quadrants = session.query(DB_Quadrant).where(
+                DB_Quadrant.id.in_((
+                _db_compass_def.quadrant_1,
+                _db_compass_def.quadrant_2,
+                _db_compass_def.quadrant_3,
+                _db_compass_def.quadrant_4,))
+            ).all()
+            
+            print(_db_quadrants)
+
+            # and now I can iterate over the DB_Quadrants and obtain the Sectors belonging to each:
+            # for _db_quadrant in _db_quadrants:
+            #     _current_db_sectors = session.query(DB_Sector).where(DB_Sector.id == _db_quadrant.id).all()
+            #     print(_current_db_sectors)
+
+            # it's a flat, unlinked data structure...
+            # Therefore we don't do clever stuff :-)
+            _db_q1_sectors = [
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_1_sector_1).first(),
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_1_sector_2).first(),
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_1_sector_3).first(),
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_1_sector_4).first(),
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_1_sector_5).first(),
+            ]
+
+            _db_q2_sectors = [
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_2_sector_1).first(),
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_2_sector_2).first(),
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_2_sector_3).first(),
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_2_sector_4).first(),
+            ]
+
+            _db_q3_sectors = [
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_3_sector_1).first(),
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_3_sector_2).first(),
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_3_sector_3).first(),
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_3_sector_4).first(),
+            ]
+
+            _db_q4_sectors = [
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_4_sector_1).first(),
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_4_sector_2).first(),
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_4_sector_3).first(),
+                session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_4_sector_4).first(),
+            ]
+
+            print(_db_q1_sectors)
+            print(_db_q2_sectors)
+            print(_db_q3_sectors)
+            print(_db_q4_sectors)
+
+            _q1_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_1,_db_q1_sectors)
+            _q2_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_2,_db_q2_sectors)
+            _q3_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_3,_db_q3_sectors)
+            _q4_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_4,_db_q4_sectors)
+
+            print("STOP!")
+            # # retrieve the compass data by ID, then use the FK IDs to reconstruct the actual data
+            # # from the stored data (TODO: UI to create...)
+            # # get the definition:
+            # # now, I SHOULD be able to make a complex query here to do this...
+            ############################################################################
+            # see https://stackoverflow.com/questions/55053618/sqlalchemy-return-filtered-table-and-corresponding-foreign-table-values
+            ############################################################################
+            # stmt = select(DB_CompassDefinition).where(DB_CompassDefinition.id == id)
+            # result = []
+            # counter = 0
+            # for row in session.scalars(stmt):
+            #     # get the data for each ID
+            #     stmt = select(DB_Quadrant).where(DB_Quadrant.id==row.)
+            #     result.append()
+            #     if counter > 0:
+            #         break
+            #     counter+=1
+            # pass
+        else:
+            print(f"No compass matching ID {id}")
+            raise IndexError(f"No compass matching ID {id}")
+
+def _get_sector_models_from_db_models(quadrant_id, db_sector_model_list):
+    _out = []
+    for db_sector_model in db_sector_model_list:
+        print(db_sector_model)
+        
+        _titles = []
+        for title_part in db_sector_model.children:  # the sector titles
+            _titles.append(
+                SectorTitles(
+                    title_part=title_part.title_part,
+                    coord_x=title_part.coord_x,
+                    coord_y=title_part.coord_y,
+                )
+
+            )
+        _out.append(
+            Sector(
+                quadrant_id=quadrant_id,
+                title=_titles,
+                summary=db_sector_model.summary,
+                description=db_sector_model.description,
+            )
+        )
+
+    return _out
+
+
+# TODO: Split handlers into modules mirroring the routers:
+
+# generate compass data using extisting quadrants and sectors:
+def set_compass(engine, definition:CompassDefinition,id:int = 0) -> int:
+    # if int, update, else add new
+    with Session(engine) as session:
+        if id:
+            # update:
+            return -1
+        else:
+            # add new compass definition:
+            # construct a DB model for the compass:
+            _compass = DB_CompassDefinition(
+                name = definition.name,
+                quadrant_1 = definition.quadrants[0].quadrant,
+                quadrant_2 = definition.quadrants[1].quadrant,
+                quadrant_3 = definition.quadrants[2].quadrant,
+                quadrant_4 = definition.quadrants[3].quadrant,
+                # Q1
+                quadrant_1_sector_1 = definition.quadrants[0].sectors[0],
+                quadrant_1_sector_2 = definition.quadrants[0].sectors[1],
+                quadrant_1_sector_3 = definition.quadrants[0].sectors[2],
+                quadrant_1_sector_4 = definition.quadrants[0].sectors[3],
+                quadrant_1_sector_5 = definition.quadrants[0].sectors[4],
+
+                # Q2
+                quadrant_2_sector_1 = definition.quadrants[1].sectors[0],
+                quadrant_2_sector_2 = definition.quadrants[1].sectors[1],            
+                quadrant_2_sector_3 = definition.quadrants[1].sectors[2],
+                quadrant_2_sector_4 = definition.quadrants[1].sectors[3],
+
+                # Q3
+                quadrant_3_sector_1 = definition.quadrants[2].sectors[0],
+                quadrant_3_sector_2 = definition.quadrants[2].sectors[1],            
+                quadrant_3_sector_3 = definition.quadrants[2].sectors[2],
+                quadrant_3_sector_4 = definition.quadrants[2].sectors[3],
+
+                # Q4
+                quadrant_4_sector_1 = definition.quadrants[3].sectors[0],
+                quadrant_4_sector_2 = definition.quadrants[3].sectors[1],            
+                quadrant_4_sector_3 = definition.quadrants[3].sectors[2],
+                quadrant_4_sector_4 = definition.quadrants[3].sectors[3],
+            )
+            try:
+                session.add(_compass)
+                session.flush()
+                # get ID:
+                new_compass_id = _compass.id
+                session.commit()
+                return new_compass_id
+            except Exception as ex:
+                print(f"Exception attempting to insert new compass definition: {ex}")
+        
+    # if fails:
+    return -2
+
+
+
+
+
+
+
