@@ -133,3 +133,66 @@ TO UPDATE!!
 -----------
 
  - imagemap generator: https://www.image-map.net/
+
+
+# Update 05/04/26
+
+## local user
+
+added compose features to allow passing in a local user as per JB.  CLI startup is:
+
+```
+uid=$(id -u ${USER}) gid=$(id -g ${USER}) docker compose up
+```
+
+And this is handled by the following in compose file:
+
+```
+    # pass in user:group from startup arg:
+    # - $uid(id -u ${USER}) $gid(id -g ${USER}) docker compose up
+    user: ${uid}:${gid}
+```
+
+## Container debug
+
+Also in Compose:
+
+```
+    ports:
+     - "8080:8080"
+     - "5678:5678"  <-- HERE
+```
+Which is read/used by the debugpy in the container Dockerfile...
+
+```
+RUN pip install --no-cache-dir debugpy
+...
+CMD ["python", "-m", "debugpy", "--listen", "0.0.0.0:5678",  "compass.py"]
+```
+and is managed by a launch.json in VS Code:
+
+```
+{
+    "version":"0.2.0",
+    "configurations":[
+        {
+            "name":"python: docker debug",
+            "type":"python",
+            "request":"attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/",
+// This bit is key, it maps the relevant local to container path of the code...
+                    "remoteRoot": "/code"
+                }
+            ]
+        }
+    ]
+}
+```
+
+Thanks Chris N
