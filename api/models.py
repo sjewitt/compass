@@ -40,29 +40,108 @@ class UserCompetencies(BaseModel):
 '''
 Model the compass lookup data
 '''
-
-class QuadrantTitles(BaseModel):
-    # id:int=Field()
-    # quadrant_id:int=Field()
-    title_part:str=Field()
-
-class Quadrant(BaseModel):
+class SectorTitles(BaseModel):  # RENAME!!
     # id: int = Field()
-    title : list[QuadrantTitles] = Field()
-    quadrant_summary: str = Field()
-    quadrant_css_class:str = Field()
-    quadrant_elem_coords:str = Field()
-    
-class SectorTitles(BaseModel):
-    # id: int = Field()
-    sector_id:int = Field()
+    # sector_id:int = Field()
     title_part:str = Field()
     coord_x:int=Field()
     coord_y:int=Field()
 
 class Sector(BaseModel):
     # id:int = Field()
-    title : list[SectorTitles] = Field()
-    # quadrant_id:int=Field()
+    quadrant_id:int=Field()
+    title : list[SectorTitles] = Field(max_length=2)
     summary:str=Field()
     description:str=Field()
+
+# TO REVISIT
+# class _QuadrantTitlesId(BaseModel):
+#     id: int = Field()
+
+# class _QuadrantTitlesBase(BaseModel):
+#     title_part:str=Field()    
+
+# class QuadrantTitles(_QuadrantTitlesId,_QuadrantTitlesBase):
+#     def __repr__(self):
+#         return "<QuadrantTitles(ID='%s', title_part='%s')>" % (
+#             self.id,
+#             self.title_part
+#         )
+
+# class QuadrantTitlesIn(_QuadrantTitlesBase):
+#     def __repr__(self):
+#         return "<QuadrantTitles(title_part='%s')>" % (
+#             self.title_part
+#         )
+
+class QuadrantTitles(BaseModel):
+    id: int = Field()
+    # quadrant_id:int=Field() # WTF?
+    title_part:str=Field()
+    # override the built-in dunder method so we get a better print:
+    def __repr__(self):
+        return "<QuadrantTitles(ID='%s', title_part='%s')>" % (
+            self.id,
+            self.title_part
+        )
+
+# https://stackoverflow.com/questions/76398690/how-can-i-prevent-an-unknown-id-field-from-showing-in-fastapi-documentation-when
+# class _QuadrantId(BaseModel):
+#     id: int = Field()
+
+# class _QuadrantBase(BaseModel):
+#     # title : list[QuadrantTitles] = Field(max_length=2)
+#     quadrant_summary: str = Field()
+#     quadrant_css_class:str = Field()
+#     quadrant_elem_coords:str = Field()
+
+# class QuadrantIn(_QuadrantBase):
+#     title : list[QuadrantTitlesIn] = Field(max_length=2)
+#     # pass
+
+# class Quadrant(_QuadrantBase, _QuadrantId):
+#     title : list[QuadrantTitles] = Field(max_length=2)
+#     # pass
+
+class Quadrant(BaseModel):
+    id: int = Field()
+    title : list[QuadrantTitles] = Field(max_length=2)
+    quadrant_summary: str = Field()
+    quadrant_css_class:str = Field()
+    quadrant_elem_coords:str = Field()
+    # sectors:list[Sector] = Field()
+
+class CompassSummary(BaseModel):
+    id:int = Field()
+    name:str = Field(min_length=4, max_length=128)
+
+
+class Q0(Quadrant):
+    sectors:list[Sector]=Field(min_length=5, max_length=5)
+class Q1(Quadrant):
+    sectors:list[Sector]=Field(min_length=4, max_length=4)
+class Q2(Quadrant):
+    sectors:list[Sector]=Field(min_length=4, max_length=4)
+class Q3(Quadrant):
+    sectors:list[Sector]=Field(min_length=4, max_length=4)
+
+class CompassData(BaseModel):
+    # name:str = Field(min_length=4, max_length=128)
+    # quad_0:Quadrant = Q0
+    # quad_1:Quadrant = Q1
+    # quad_2:Quadrant = Q2
+    # quad_3:Quadrant = Q3
+    quad_0:Q0 = Field()
+    quad_1:Q1 = Field()
+    quad_2:Q2 = Field()
+    quad_3:Q3 = Field()
+
+class QuadrantDefinition(BaseModel):
+    quadrant:int=Field()
+    # This needs front-end logic to account for the first quadrant having 5...
+    sectors:list[int] = Field(min_length=4, max_length=5)
+
+class CompassDefinition(BaseModel):
+    name:str = Field(min_length=4, max_length=128)
+    # these are all ints (IDs of the relevant quadrants and sectors)
+    quadrants:list[QuadrantDefinition] = Field(min_length=4, max_length=4)
