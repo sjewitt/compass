@@ -55,6 +55,9 @@ class Sector(BaseModel):
     description:str=Field()
 
 # TO REVISIT
+# This is exactly what the oreilly course described as the method for not showing the ID
+# on te response model when a DB is used
+
 # class _QuadrantTitlesId(BaseModel):
 #     id: int = Field()
 
@@ -75,17 +78,18 @@ class Sector(BaseModel):
 #         )
 
 class QuadrantTitles(BaseModel):
-    id: int = Field()
+    # id: int = Field()   # I DO NOT NEED THIS!!
     # quadrant_id:int=Field() # WTF?
     title_part:str=Field()
     # override the built-in dunder method so we get a better print:
     def __repr__(self):
-        return "<QuadrantTitles(ID='%s', title_part='%s')>" % (
-            self.id,
+        return "<QuadrantTitles(title_part='%s')>" % (
+            # self.id,
             self.title_part
         )
 
 # https://stackoverflow.com/questions/76398690/how-can-i-prevent-an-unknown-id-field-from-showing-in-fastapi-documentation-when
+# HAH!! Also, see the oreilly course I am doing. He does exactly this!
 # class _QuadrantId(BaseModel):
 #     id: int = Field()
 
@@ -109,32 +113,33 @@ class Quadrant(BaseModel):
     quadrant_summary: str = Field()
     quadrant_css_class:str = Field()
     quadrant_elem_coords:str = Field()
-    # sectors:list[Sector] = Field()
+    sectors:list[Sector] = Field(min_length=4, max_length=5)
 
 class CompassSummary(BaseModel):
     id:int = Field()
     name:str = Field(min_length=4, max_length=128)
 
 
-class Q0(Quadrant):
-    sectors:list[Sector]=Field(min_length=5, max_length=5)
-class Q1(Quadrant):
-    sectors:list[Sector]=Field(min_length=4, max_length=4)
-class Q2(Quadrant):
-    sectors:list[Sector]=Field(min_length=4, max_length=4)
-class Q3(Quadrant):
-    sectors:list[Sector]=Field(min_length=4, max_length=4)
+# class Q0(Quadrant):
+#     sectors:list[Sector]=Field(min_length=5, max_length=5)
+# class Q1(Quadrant):
+#     sectors:list[Sector]=Field(min_length=4, max_length=4)
+# class Q2(Quadrant):
+#     sectors:list[Sector]=Field(min_length=4, max_length=4)
+# class Q3(Quadrant):
+#     sectors:list[Sector]=Field(min_length=4, max_length=4)
 
 class CompassData(BaseModel):
+    data_quadrants: list[Quadrant] = Field(min_length=4, max_length=4)
     # name:str = Field(min_length=4, max_length=128)
     # quad_0:Quadrant = Q0
     # quad_1:Quadrant = Q1
     # quad_2:Quadrant = Q2
     # quad_3:Quadrant = Q3
-    quad_0:Q0 = Field()
-    quad_1:Q1 = Field()
-    quad_2:Q2 = Field()
-    quad_3:Q3 = Field()
+    # quad_0:Q0 = Field()
+    # quad_1:Q1 = Field()
+    # quad_2:Q2 = Field()
+    # quad_3:Q3 = Field()
 
 class QuadrantDefinition(BaseModel):
     quadrant:int=Field()
