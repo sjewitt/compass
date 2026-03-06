@@ -5,7 +5,7 @@ from api.exceptions import UserNotFound, CompetencyNotFound, CompetenciesForUser
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 import logging
-
+logging.basicConfig(level=logging.DEBUG)
 
 def check_quadrant_bounds(index:int) -> bool:
     if index < 0 or index > 3:
@@ -427,10 +427,10 @@ def get_compass(engine, id:int) -> CompassData:
         # tests
         _db_compass_def = session.query(DB_CompassDefinition).where(DB_CompassDefinition.id==id).first()
         if _db_compass_def:
-            print(_db_compass_def.quadrant_1)
-            print(_db_compass_def.quadrant_2)
-            print(_db_compass_def.quadrant_3)
-            print(_db_compass_def.quadrant_4)
+            # print(_db_compass_def.quadrant_1)
+            # print(_db_compass_def.quadrant_2)
+            # print(_db_compass_def.quadrant_3)
+            # print(_db_compass_def.quadrant_4)
             
             # However, what I REALLY want to do is return a complex CompassData object... Someting like:
             # _quadrants = session.query(DB_Quadrant).where(DB_Quadrant.id in [_compass_def.quadrant_1,_compass_def.quadrant_2,_compass_def.quadrant_3,_compass_def.quadrant_4,])
@@ -445,7 +445,9 @@ def get_compass(engine, id:int) -> CompassData:
                 _db_compass_def.quadrant_4,))
             ).all()
             
-            print(_db_quadrants)
+            print(len(_db_quadrants))
+
+            
 
             # and now I can iterate over the DB_Quadrants and obtain the Sectors belonging to each:
             # for _db_quadrant in _db_quadrants:
@@ -493,7 +495,14 @@ def get_compass(engine, id:int) -> CompassData:
             _q3_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_3,_db_q3_sectors)
             _q4_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_4,_db_q4_sectors)
 
+            _sectors = [_q1_sectors,_q2_sectors,_q3_sectors,_q4_sectors]
+            _quadrants = _get_quadrant_models_from_db_models(_db_quadrants, _sectors)
+
             print("STOP!")
+
+            _compass = CompassData(
+                data_quadrants = _quadrants
+            )
             # # retrieve the compass data by ID, then use the FK IDs to reconstruct the actual data
             # # from the stored data (TODO: UI to create...)
             # # get the definition:
@@ -512,14 +521,50 @@ def get_compass(engine, id:int) -> CompassData:
             #         break
             #     counter+=1
             # pass
+
+            ## TODO: I meed to model the competency level data - this needs a new table
+            return _compass
         else:
             print(f"No compass matching ID {id}")
             raise IndexError(f"No compass matching ID {id}")
 
-def _get_sector_models_from_db_models(quadrant_id, db_sector_model_list):
+def _get_quadrant_models_from_db_models(db_quadrant_model_list:list[DB_Quadrant],sector_models_list):
+    _out = []
+    _counter = 0
+    for db_quadrant_model in db_quadrant_model_list:
+        logging.debug(db_quadrant_model)
+
+        _titles = []
+        for title_part in db_quadrant_model.children:  # the sector titles
+            _titles.append(
+                QuadrantTitles(
+                    title_part=title_part.title_part,
+                    # coord_x=title_part.coord_x,
+                    # coord_y=title_part.coord_y,
+                )
+            )
+        try:
+            _out.append(
+                Quadrant(
+                    id = db_quadrant_model.id,
+                    title = _titles,
+                    quadrant_summary = db_quadrant_model.quadrant_summary,
+                    quadrant_css_class = db_quadrant_model.quadrant_elem_coords,
+                    quadrant_elem_coords = db_quadrant_model.quadrant_elem_coords,
+                    sectors = sector_models_list[_counter],
+                )
+            )
+            _counter += 1
+        except Exception as ex:
+            logging.warning(f"failed to add quadrant {ex}")
+    return _out
+        
+    
+
+def _get_sector_models_from_db_models(quadrant_id:int, db_sector_model_list:list[DB_Sector]) -> list[Sector]:
     _out = []
     for db_sector_model in db_sector_model_list:
-        print(db_sector_model)
+        # print(db_sector_model)
         
         _titles = []
         for title_part in db_sector_model.children:  # the sector titles
@@ -529,7 +574,6 @@ def _get_sector_models_from_db_models(quadrant_id, db_sector_model_list):
                     coord_x=title_part.coord_x,
                     coord_y=title_part.coord_y,
                 )
-
             )
         _out.append(
             Sector(
