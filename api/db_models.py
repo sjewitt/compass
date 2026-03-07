@@ -67,6 +67,8 @@ class DB_QuadrantTitles(Base):
     quadrant_id : Mapped[int] = mapped_column(ForeignKey("quadrants.id"))
     title_part : Mapped[str] = mapped_column(String)
     parent: Mapped["DB_Quadrant"] = relationship(back_populates="children")
+    coord_x :  Mapped[int] = mapped_column(Integer)
+    coord_y :  Mapped[int] = mapped_column(Integer)
     def __repr__(self):
         return "<DB_QuadrantTitles(id='%s', quadrant_id='%s', title_part='%s')>" % (
             self.id, self.quadrant_id, self.title_part
@@ -97,6 +99,13 @@ class DB_SectorTitles(Base):
         return "<DB_SectorTitles(id='%s', sector_id='%s', title_part='%s', coord_x='%s', coord_y='%s', parent='%s')>" % (
             self.id, self.sector_id, self.title_part, self.coord_x, self.coord_y, self.parent
         )
+
+class DB_Rating(Base):
+    __tablename__ = "rating"
+    id : Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String)  # max length?
+    description: Mapped[str] = mapped_column(String)
+
 
 class DB_CompassDefinition(Base):
     __tablename__ = "compass_definition"
