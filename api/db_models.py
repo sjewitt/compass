@@ -143,3 +143,12 @@ class DB_CompassDefinition(Base):
     quadrant_4_sector_2 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
     quadrant_4_sector_3 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
     quadrant_4_sector_4 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
+
+    # and the Ratings (7!!):
+    rating_1 : Mapped[int] = mapped_column(ForeignKey("rating.id"))
+    rating_2 : Mapped[int] = mapped_column(ForeignKey("rating.id"))
+    rating_3 : Mapped[int] = mapped_column(ForeignKey("rating.id"))
+    rating_4 : Mapped[int] = mapped_column(ForeignKey("rating.id"))
+    rating_5 : Mapped[int] = mapped_column(ForeignKey("rating.id"))
+    rating_6 : Mapped[int] = mapped_column(ForeignKey("rating.id"))
+    rating_7 : Mapped[int] = mapped_column(ForeignKey("rating.id"))
