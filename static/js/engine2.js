@@ -209,21 +209,39 @@ var engine = {
         // iterate over quadrants:
         for(let qt=0;qt<this.data_quadrants.length;qt++){
             let _polygon = document.createElementNS("http://www.w3.org/2000/svg",'polygon');
-            _polygon.setAttribute("class",`svg_title ${this.data_quadrants[qt].class}`);
-            _polygon.setAttribute("points",this.data_quadrants[qt].points);
+            // for STATIC DATA
+            // _polygon.setAttribute("class",`svg_title ${this.data_quadrants[qt].class}`);
+            // _polygon.setAttribute("points",this.data_quadrants[qt].points);
+            // for DATABASE DATA:
+            _polygon.setAttribute("class",`svg_title ${this.data_quadrants[qt].quadrant_css_class}`);
+            _polygon.setAttribute("points",this.data_quadrants[qt].quadrant_elem_coords);            
 
             // and append to the wrapper:
             _render_titles.appendChild(_polygon);
             
             // iterate over these lines of text, to generate a <text> element
-            for(let qtp=0;qtp<this.data_quadrants[qt].title_parts.length;qtp++){
+            // STATIC DATA:
+            // for(let qtp=0;qtp<this.data_quadrants[qt].title_parts.length;qtp++){
+            //     let _title = document.createElementNS("http://www.w3.org/2000/svg",'text');
+            //     _title.setAttribute('id',`svg_title_${qt+1}_${qtp+1}`);
+            //     _title.setAttribute('class',`svg_quad_title ${this.data_quadrants[qt].class}`);
+            //     _title.setAttribute('font-size','24');
+            //     _title.setAttribute('x',this.data_quadrants[qt].title_parts[qtp].coords[0]);
+            //     _title.setAttribute('y',this.data_quadrants[qt].title_parts[qtp].coords[1]);
+
+            // DATABASE DATA
+            for(let qtp=0;qtp<this.data_quadrants[qt].title.length;qtp++){
                 let _title = document.createElementNS("http://www.w3.org/2000/svg",'text');
                 _title.setAttribute('id',`svg_title_${qt+1}_${qtp+1}`);
-                _title.setAttribute('class',`svg_quad_title ${this.data_quadrants[qt].class}`);
+                _title.setAttribute('class',`svg_quad_title ${this.data_quadrants[qt].quadrant_css_class}`);
                 _title.setAttribute('font-size','24');
-                _title.setAttribute('x',this.data_quadrants[qt].title_parts[qtp].coords[0]);
-                _title.setAttribute('y',this.data_quadrants[qt].title_parts[qtp].coords[1]);
 
+                // STATIC DATA
+                // _title.setAttribute('x',this.data_quadrants[qt].title[qtp].coords[0]);
+                // _title.setAttribute('y',this.data_quadrants[qt].title[qtp].coords[1]);
+                // DATABASE DATA
+                _title.setAttribute('x',this.data_quadrants[qt].title[qtp].coord_x);
+                _title.setAttribute('y',this.data_quadrants[qt].title[qtp].coord_y);
                 // and append to the wrapper:
                 _render_titles.appendChild(_title);
             }
@@ -238,8 +256,15 @@ var engine = {
                     let _sector_title = document.createElementNS("http://www.w3.org/2000/svg",'text');
                     _sector_title.setAttribute('id',`svg_sector_${qt+1}_${stp+1}_${xx+1}`);
                     _sector_title.setAttribute('font-size','14');
-                    _sector_title.setAttribute('x',sector_title_array[xx].coords[0]);
-                    _sector_title.setAttribute('y',sector_title_array[xx].coords[1]);
+
+                    // STATIC DATA
+                    // _sector_title.setAttribute('x',sector_title_array[xx].coords[0]);
+                    // _sector_title.setAttribute('y',sector_title_array[xx].coords[1]);
+
+                    // DATABASE DATA
+                    _sector_title.setAttribute('x',sector_title_array[xx].coord_x);
+                    _sector_title.setAttribute('y',sector_title_array[xx].coord_y);
+
                     _render_titles.appendChild(_sector_title);
                 }
             }
@@ -258,11 +283,16 @@ var engine = {
              let current_words = this.data_quadrants[x-1];
 
             // identify the text elements by ID:
-            for(let y=1;y<=current_words.title_parts.length;y++){
+            // for(let y=1;y<=current_words.title_parts.length;y++){
+            for(let y=1;y<=current_words.title.length;y++){
                 let elem_id = `svg_title_${x}_${y}`;
                 try{
                     let elem = document.getElementById(elem_id);
-                    let txt = document.createTextNode(current_words.title_parts[y-1].title);
+                    // static data:
+                    // let txt = document.createTextNode(current_words.title_parts[y-1].title);
+
+                    // database data:
+                    let txt = document.createTextNode(current_words.title[y-1].title_part);
                     elem.appendChild(txt);
                 }
                 catch(ex){
@@ -480,9 +510,11 @@ var engine = {
     },
 
     getQuadrantTitleFromData: function(titleParts){
+        console.log(titleParts)
         let out = "";
         for(let a=0;a<titleParts.length;a++){
-            out += titleParts[a].title + " ";
+            // out += titleParts[a].title + " ";
+            out += titleParts[a].title_part + " ";
         }
         return out;
     },
@@ -506,7 +538,8 @@ var engine = {
             var sector_title = "";
             if (lookup[0] > -1) {
                 quad_description = engine.data_quadrants[lookup[0]].summary;
-                quad_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].title_parts);
+                // quad_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].title_parts);
+                quad_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].title);
             }
             var sector_title_description = '';
             if (lookup[1] > -1) {
@@ -691,14 +724,22 @@ var engine = {
         for (var a = 0; a < engine.current_data.length; a++) {
             var row = document.createElement('div');
             //engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].title_parts);
-            row.appendChild(document.createTextNode(engine.getQuadrantTitleFromData(  engine.data_quadrants[engine.current_data[a].key[0]].title_parts)
+            // STATIC DATA
+            // row.appendChild(document.createTextNode(engine.getQuadrantTitleFromData(  engine.data_quadrants[engine.current_data[a].key[0]].title_parts)
+            // DATABASE DATA:
+
+            console.log(engine.getQuadrantTitleFromData(engine.data_quadrants[engine.current_data[a].key[0]].sectors[engine.current_data[a].key[1]].title))
+            row.appendChild(document.createTextNode(engine.getQuadrantTitleFromData(  engine.data_quadrants[engine.current_data[a].key[0]].title)
             // row.appendChild(document.createTextNode(engine.data_quadrants[engine.current_data[a].key[0]].summary.title
                 + ', '
-                + engine.data_quadrants[engine.current_data[a].key[0]].sector_summaries[engine.current_data[a].key[1]].title
+                // STATIC DATA
+                // + engine.data_quadrants[engine.current_data[a].key[0]].sector_summaries[engine.current_data[a].key[1]].title
+                // DATABASE DATA:
+                + engine.getQuadrantTitleFromData(engine.data_quadrants[engine.current_data[a].key[0]].sectors[engine.current_data[a].key[1]].title)
                 + ': '
                 + engine.rating_description_lookup[engine.current_data[a].rating].title
                 + ' (' + engine.rating_description_lookup[engine.current_data[a].rating].description + ')'));
-                
+
             target.appendChild(row);
         }
     },
@@ -709,7 +750,8 @@ document.addEventListener("DOMContentLoaded",
         // load data then call init:
         // https://www.geeksforgeeks.org/javascript/read-json-file-using-javascript/
         function fetchJSONData() {
-            fetch('/static/data/display_data_rationalised.json')
+            // fetch('/static/data/display_data_rationalised.json')
+            fetch('/compass/2')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -717,6 +759,7 @@ document.addEventListener("DOMContentLoaded",
                     return response.json();  
                 })
                 .then(display_data => {
+                    console.log(display_data);
                     // apply data as required:
                     engine.init(display_data);  // put this into callback
                 })  
