@@ -1,9 +1,10 @@
 from fastapi import APIRouter
 
-from api.models import Quadrant, QuadrantTitles,Sector, \
-        SectorTitles,CompassData, CompassDefinition, CompassSummary
-from api.db_models import DB_Quadrant, DB_QuadrantTitles,\
-        DB_Sector,DB_SectorTitles
+from api.models import Quadrant, QuadrantTitles, Sector, \
+        SectorTitles,CompassData, CompassDefinition, CompassSummary, \
+        Rating, RatingIn
+# from api.db_models import DB_Quadrant, DB_QuadrantTitles,\
+#         DB_Sector,DB_SectorTitles, DB_Rating
 from api.database.engine import get_engine
 from api.database import handlers
 
@@ -94,4 +95,19 @@ def get_sector(id:int)->Sector:
     result = handlers.get_sector(engine, id)
     return result
 
+@router.post("/rating/")
+def add_rating(rating:RatingIn):
+    result = handlers.add_rating(engine, rating)
+    return result
 
+# get all ratings
+@router.get("/ratings/", response_model=list[Rating])
+def get_ratings()->list[Rating]:
+    result = handlers.get_ratings(engine)
+    return result
+
+# get specified ratings
+@router.get("/ratings/{id}", response_model=Rating)
+def get_ratings(id:int)->Rating:
+    result = handlers.get_rating(engine, id)
+    return result
