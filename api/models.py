@@ -150,7 +150,7 @@ class CompassData(BaseModel):
     # quad_1:Q1 = Field()
     # quad_2:Q2 = Field()
     # quad_3:Q3 = Field()
-    rating_description_lookup: list[Rating] = Field(min_length=8, max_length=8)  # to account for the code using 1-indexed lookup (TO FIX)
+    rating_description_lookup: list[Rating] = Field(min_length=7, max_length=7)  # to account for the code using 1-indexed lookup (TO FIX)
 
 class QuadrantDefinition(BaseModel):
     quadrant:int=Field()
@@ -161,3 +161,4 @@ class CompassDefinition(BaseModel):
     name:str = Field(min_length=4, max_length=128)
     # these are all ints (IDs of the relevant quadrants and sectors)
     quadrants:list[QuadrantDefinition] = Field(min_length=4, max_length=4)
+    ratings:list[int] = Field(min_length=7, max_length=7)   # these are Ratig IDs
