@@ -1,6 +1,8 @@
 # up three levels to api:
-from api.models import User, Competency, UserCompetencies, Quadrant, QuadrantTitles, Sector, SectorTitles, CompassData, CompassDefinition, CompassSummary
-from api.db_models import DB_Competency, DB_User, DB_Quadrant, DB_QuadrantTitles,DB_Sector, DB_SectorTitles, DB_CompassDefinition
+from api.models import User, Competency, UserCompetencies, Quadrant, QuadrantTitles, \
+    Sector, SectorTitles, CompassData, CompassDefinition, CompassSummary, Rating
+from api.db_models import DB_Competency, DB_User, DB_Quadrant, DB_QuadrantTitles,  \
+    DB_Sector, DB_SectorTitles, DB_CompassDefinition, DB_Rating
 from api.exceptions import UserNotFound, CompetencyNotFound, CompetenciesForUserNotFound
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
@@ -395,6 +397,48 @@ def get_sector(engine,id:int) -> Sector:
         )
         return result
 
+def add_rating(engine, rating:Rating) -> bool:
+    with Session(engine) as session:
+        try:
+            _r = DB_Rating(
+                title = rating.title,
+                description = rating.description,
+            )
+            session.add(_r)
+            session.commit()
+            return True
+        except Exception as ex:
+            logging.warning(f"Failed to add rating: {ex}")
+            return False
+
+def get_ratings(engine) -> list[Rating]:
+    with Session(engine) as session:
+        try:
+            _ratings = []
+            _db_ratings = session.query(DB_Rating)
+            for _db_rating in _db_ratings:
+                _rating = Rating(
+                    id=_db_rating.id,
+                    title = _db_rating.title,
+                    description = _db_rating.description,
+                )
+                _ratings.append(_rating)
+            return _ratings
+        except Exception as ex:
+            logging.warning(f"Failed to retrieve ratings: {ex}")
+
+def get_rating(engine, id:int) -> Rating:
+    with Session(engine) as session:
+        try:  
+            _db_rating = session.query(DB_Rating).where(DB_Rating.id == id).first()
+            _rating = Rating(
+                title = _db_rating.title,
+                description = _db_rating.description,
+            )
+            return _rating
+        except Exception as ex:
+            logging.warning(f"Failed to retrieve rating {id}: {ex}")
+
 # retrieve all compases (summary)
 def get_all_compasses(engine) -> list[CompassSummary]:
     with Session(engine) as session:
@@ -539,8 +583,8 @@ def _get_quadrant_models_from_db_models(db_quadrant_model_list:list[DB_Quadrant]
             _titles.append(
                 QuadrantTitles(
                     title_part=title_part.title_part,
-                    # coord_x=title_part.coord_x,
-                    # coord_y=title_part.coord_y,
+                    coord_x=title_part.coord_x,
+                    coord_y=title_part.coord_y,
                 )
             )
         try:
@@ -549,7 +593,7 @@ def _get_quadrant_models_from_db_models(db_quadrant_model_list:list[DB_Quadrant]
                     id = db_quadrant_model.id,
                     title = _titles,
                     quadrant_summary = db_quadrant_model.quadrant_summary,
-                    quadrant_css_class = db_quadrant_model.quadrant_elem_coords,
+                    quadrant_css_class = db_quadrant_model.quadrant_css_class,
                     quadrant_elem_coords = db_quadrant_model.quadrant_elem_coords,
                     sectors = sector_models_list[_counter],
                 )
