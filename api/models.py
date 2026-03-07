@@ -81,6 +81,8 @@ class QuadrantTitles(BaseModel):
     # id: int = Field()   # I DO NOT NEED THIS!!
     # quadrant_id:int=Field() # WTF?
     title_part:str=Field()
+    coord_x:int  = Field()
+    coord_y:int  = Field()
     # override the built-in dunder method so we get a better print:
     def __repr__(self):
         return "<QuadrantTitles(title_part='%s')>" % (
@@ -129,6 +131,14 @@ class CompassSummary(BaseModel):
 # class Q3(Quadrant):
 #     sectors:list[Sector]=Field(min_length=4, max_length=4)
 
+class RatingIn(BaseModel):
+    # ID?
+    title:str = Field()
+    description:str = Field()
+
+class Rating(RatingIn):
+    id:int = Field()    # the database ID, which we will need for lookups etc.
+
 class CompassData(BaseModel):
     data_quadrants: list[Quadrant] = Field(min_length=4, max_length=4)
     # name:str = Field(min_length=4, max_length=128)
@@ -140,6 +150,7 @@ class CompassData(BaseModel):
     # quad_1:Q1 = Field()
     # quad_2:Q2 = Field()
     # quad_3:Q3 = Field()
+    rating_description_lookup: list[Rating] = Field(min_length=8, max_length=8)  # to account for the code using 1-indexed lookup (TO FIX)
 
 class QuadrantDefinition(BaseModel):
     quadrant:int=Field()
