@@ -543,21 +543,36 @@ var engine = {
             }
             var sector_title_description = '';
             if (lookup[1] > -1) {
-                sector_title_description = engine.data_quadrants[lookup[0]].sector_summaries[lookup[0]].description;
-                sector_title = engine.data_quadrants[lookup[0]].sector_summaries[lookup[0]].title;
+                
+                // STATIC DATA
+                // sector_title_description = engine.data_quadrants[lookup[0]].sector_summaries[lookup[0]].description;
+                // sector_title = engine.data_quadrants[lookup[0]].sector_summaries[lookup[0]].title;
+                // DATABASE DATA
+                sector_title_description = engine.data_quadrants[lookup[0]].sectors[lookup[0]].description;
+                sector_title = engine.data_quadrants[lookup[0]].sectors[lookup[0]].title;
             }
             var sector_block_description = '';
             if (lookup[2] > -1) {
-                sector_title = engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].title;
+                console.log(engine.data_quadrants[lookup[0]]);
+                // sector_title = engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].title;
+                sector_title = engine.data_quadrants[lookup[0]].sectors[lookup[0]].title;
                 sector_rating = parseInt(this.getAttribute('data-rating'));
                 this.current_rating = sector_rating;
-                sector_block_description = engine.data_quadrants[lookup[0]].sector_descriptions[lookup[2]];
+                // sector_block_description = engine.data_quadrants[lookup[0]].sector_descriptions[lookup[2]];
+                // TODO RENAME THIS FUNCTION!!
+                sector_block_description = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].sectors[lookup[2]].title);
+                               console.log(engine.data_quadrants[lookup[0]].sectors[lookup[2]]);
             }
             // special case for outer titles: TO SORT!
             if(lookup[1] > -1 && lookup[2]===-1){
                 try{
-                    sector_title =             engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].title;
-                    sector_block_description = engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].description;
+                    // STATIC DATA:
+                    // sector_title =             engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].title;
+                    // sector_block_description = engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].description;
+                    // DATABASE DATA:
+                    sector_title =             engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].sectors[lookup[1]].title);
+                    sector_block_description = engine.data_quadrants[lookup[0]].sectors[lookup[1]].description;
+
                 }
                 catch(e){
                     console.log(e);
