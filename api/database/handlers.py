@@ -463,21 +463,13 @@ def get_all_compasses(engine) -> list[CompassSummary]:
 def get_compass(engine, id:int) -> CompassData:
     with Session(engine) as session:
         
-        # THIS is where we really need a join query!
-        # OK - THIS syntax works as a compound query:
+        # THIS syntax works as a compound query:
         # result = session.query(DB_CompassDefinition,DB_Quadrant).where(DB_CompassDefinition.id==id).where(DB_Quadrant.id==DB_CompassDefinition.quadrant_1).first()
         
-
         # tests
         _db_compass_def = session.query(DB_CompassDefinition).where(DB_CompassDefinition.id==id).first()
         if _db_compass_def:
-            # print(_db_compass_def.quadrant_1)
-            # print(_db_compass_def.quadrant_2)
-            # print(_db_compass_def.quadrant_3)
-            # print(_db_compass_def.quadrant_4)
-            
-            # However, what I REALLY want to do is return a complex CompassData object... Someting like:
-            # _quadrants = session.query(DB_Quadrant).where(DB_Quadrant.id in [_compass_def.quadrant_1,_compass_def.quadrant_2,_compass_def.quadrant_3,_compass_def.quadrant_4,])
+
             # it's actually this:
             # https://stackoverflow.com/questions/8603088/sqlalchemy-in-clause
             # geeksforgeeks.org/python/how-to-use-the-in-operator-in-sqlalchemy-in-python/
@@ -486,20 +478,23 @@ def get_compass(engine, id:int) -> CompassData:
                 _db_compass_def.quadrant_1,
                 _db_compass_def.quadrant_2,
                 _db_compass_def.quadrant_3,
-                _db_compass_def.quadrant_4,))
+                _db_compass_def.quadrant_4,)
+                )
             ).all()
-            
-            print(len(_db_quadrants))
 
-            
-
-            # and now I can iterate over the DB_Quadrants and obtain the Sectors belonging to each:
-            # for _db_quadrant in _db_quadrants:
-            #     _current_db_sectors = session.query(DB_Sector).where(DB_Sector.id == _db_quadrant.id).all()
-            #     print(_current_db_sectors)
+            _db_ratings = session.query(DB_Rating).where(
+                DB_Rating.id.in_((
+                    _db_compass_def.rating_1,
+                    _db_compass_def.rating_2,
+                    _db_compass_def.rating_3,
+                    _db_compass_def.rating_4,
+                    _db_compass_def.rating_5,
+                    _db_compass_def.rating_6,
+                    _db_compass_def.rating_7,)
+                )
+            ).all()
 
             # it's a flat, unlinked data structure...
-            # Therefore we don't do clever stuff :-)
             _db_q1_sectors = [
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_1_sector_1).first(),
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_1_sector_2).first(),
@@ -529,11 +524,6 @@ def get_compass(engine, id:int) -> CompassData:
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_4_sector_4).first(),
             ]
 
-            print(_db_q1_sectors)
-            print(_db_q2_sectors)
-            print(_db_q3_sectors)
-            print(_db_q4_sectors)
-
             _q1_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_1,_db_q1_sectors)
             _q2_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_2,_db_q2_sectors)
             _q3_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_3,_db_q3_sectors)
@@ -541,11 +531,13 @@ def get_compass(engine, id:int) -> CompassData:
 
             _sectors = [_q1_sectors,_q2_sectors,_q3_sectors,_q4_sectors]
             _quadrants = _get_quadrant_models_from_db_models(_db_quadrants, _sectors)
-
-            print("STOP!")
+            _ratings = _get_rating_models_from_db_models(_db_ratings)
 
             _compass = CompassData(
-                data_quadrants = _quadrants
+                data_quadrants = _quadrants,
+                # and we need the `ratings_description_lookup` field too:
+                rating_description_lookup = _ratings
+
             )
             # # retrieve the compass data by ID, then use the FK IDs to reconstruct the actual data
             # # from the stored data (TODO: UI to create...)
@@ -603,8 +595,6 @@ def _get_quadrant_models_from_db_models(db_quadrant_model_list:list[DB_Quadrant]
             logging.warning(f"failed to add quadrant {ex}")
     return _out
         
-    
-
 def _get_sector_models_from_db_models(quadrant_id:int, db_sector_model_list:list[DB_Sector]) -> list[Sector]:
     _out = []
     for db_sector_model in db_sector_model_list:
@@ -630,7 +620,19 @@ def _get_sector_models_from_db_models(quadrant_id:int, db_sector_model_list:list
 
     return _out
 
+def _get_rating_models_from_db_models(db_rating_model_list:list[DB_Rating]) -> list[Rating]:
+    _out = []
+    for db_rating_model in db_rating_model_list:
+        _out.append(
+            Rating(
+                id=db_rating_model.id,
+                title=db_rating_model.title,
+                description=db_rating_model.description,
+            )
+        )
+    return _out
 
+    
 # TODO: Split handlers into modules mirroring the routers:
 
 # generate compass data using extisting quadrants and sectors:
