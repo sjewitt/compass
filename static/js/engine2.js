@@ -9,6 +9,9 @@ var compass_rating;
 })(compass_rating || (compass_rating = {}));
 
 var engine = {
+
+    // API_URL: "/static/data/display_data_rationalised.json",    // static JSON file
+    API_URL: "/compass/2",    // retrieve JSON form database
     /**
      * #47
      * Jan 2026: 
@@ -510,7 +513,6 @@ var engine = {
     },
 
     getQuadrantTitleFromData: function(titleParts){
-        console.log(titleParts)
         let out = "";
         for(let a=0;a<titleParts.length;a++){
             // out += titleParts[a].title + " ";
@@ -743,7 +745,6 @@ var engine = {
             // row.appendChild(document.createTextNode(engine.getQuadrantTitleFromData(  engine.data_quadrants[engine.current_data[a].key[0]].title_parts)
             // DATABASE DATA:
 
-            console.log(engine.getQuadrantTitleFromData(engine.data_quadrants[engine.current_data[a].key[0]].sectors[engine.current_data[a].key[1]].title))
             row.appendChild(document.createTextNode(engine.getQuadrantTitleFromData(  engine.data_quadrants[engine.current_data[a].key[0]].title)
             // row.appendChild(document.createTextNode(engine.data_quadrants[engine.current_data[a].key[0]].summary.title
                 + ', '
@@ -765,8 +766,7 @@ document.addEventListener("DOMContentLoaded",
         // load data then call init:
         // https://www.geeksforgeeks.org/javascript/read-json-file-using-javascript/
         function fetchJSONData() {
-            // fetch('/static/data/display_data_rationalised.json')
-            fetch('/compass/2')
+            fetch(engine.API_URL)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -774,7 +774,6 @@ document.addEventListener("DOMContentLoaded",
                     return response.json();  
                 })
                 .then(display_data => {
-                    console.log(display_data);
                     // apply data as required:
                     engine.init(display_data);  // put this into callback
                 })  
