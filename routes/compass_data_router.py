@@ -18,14 +18,24 @@ engine = get_engine()
 @router.get("/", response_model=list[CompassSummary])
 def get_data() -> list[CompassSummary]:
     ''' Retrieve summary data for all compass models defined, return ID and title only  '''
-    result = handlers.get_all_compasses(engine)
-    return result
+    try:
+        
+        result = handlers.get_all_compasses(engine)
+        return result
+    except Exception as ex:
+        print(ex)
 
 @router.get("/{id}", response_model=CompassData)
 def get_data(id) -> CompassData:
     ''' retrieve the definition by ID and compose the actual data in the handler '''
-    result = handlers.get_compass(engine,id)
-    return result
+    try:
+        
+        result = handlers.get_compass(engine,id)
+        return result
+
+    except Exception as ex:
+        print(ex)
+
 
 @router.post("/")
 def set_data(definition:CompassDefinition) -> CompassSummary:

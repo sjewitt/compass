@@ -8,17 +8,17 @@ router = APIRouter(
 )
 
 engine = get_engine()
-compass_config_data = load_config_data()
+compass_config_data = load_config_data(engine=engine, caller="settings")
 
   
 # endpoint for settings/json config retrieval
 @router.get("/compass_config/") 
 def get_json_config_as_dict():
-    return compass_config_data
+    return load_config_data(engine=engine, caller="settings")
 
 
 # reload config data so we don't need to restart:
 @router.get("/compass_config/reload/") 
 def reload_json_config():
-    load_config_data()
+    load_config_data(engine=engine, caller="settings (reload)")
     return {"message":"loaded config data","status":"ok"}

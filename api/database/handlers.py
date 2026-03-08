@@ -4,10 +4,13 @@ from api.models import User, Competency, UserCompetencies, Quadrant, QuadrantTit
 from api.db_models import DB_Competency, DB_User, DB_Quadrant, DB_QuadrantTitles,  \
     DB_Sector, DB_SectorTitles, DB_CompassDefinition, DB_Rating
 from api.exceptions import UserNotFound, CompetencyNotFound, CompetenciesForUserNotFound
+from fastapi import HTTPException
+from fastapi.exceptions import RequestValidationError, ResponseValidationError
+
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 def check_quadrant_bounds(index:int) -> bool:
     if index < 0 or index > 3:
@@ -168,8 +171,10 @@ def get_user_data(engine, user_id:int) -> UserCompetencies: # to type!
             result=UserCompetencies(
                 user=get_user(engine,user_id),
                 competencies=[])
+            _competencies = session.query(DB_Competency).where(DB_Competency.user_id == user_id).order_by(DB_Competency.quadrant).all()
             stmt = select(DB_Competency).where(DB_Competency.user_id == user_id)
-            for row in session.scalars(stmt):
+            # for row in session.scalars(stmt):
+            for row in _competencies:
                 _competency = Competency(
                     user_id=user_id,
                     quadrant=row.quadrant,
@@ -304,22 +309,6 @@ def get_quadrants(engine) -> list[Quadrant]:
             except Exception as ex:
                 print(ex)
         return result
-            
-
-        # stmt = select(DB_Quadrant)
-        # result = []
-        # for row in session.scalars(stmt):
-        #     result.append(Quadrant(
-        #         id=row.id,
-        #         title=[],#do as sub-query?
-        #         quadrant_summary=row.quadrant_summary,
-        #         quadrant_css_class=row.quadrant_css_class,
-        #         quadrant_elem_coords=row.quadrant_elem_coords)
-        #     )
-        # if result:
-        #     return result
-        # logging.warning("no quadrants found")
-        # return []
 
 def get_quadrant(engine, id:int) -> Quadrant:
     with Session(engine) as session:
@@ -533,12 +522,21 @@ def get_compass(engine, id:int) -> CompassData:
             _quadrants = _get_quadrant_models_from_db_models(_db_quadrants, _sectors)
             _ratings = _get_rating_models_from_db_models(_db_ratings)
 
-            _compass = CompassData(
-                data_quadrants = _quadrants,
-                # and we need the `ratings_description_lookup` field too:
-                rating_description_lookup = _ratings
+            try:
+                _compass = CompassData(
+                    data_quadrants = _quadrants,
+                    # and we need the `ratings_description_lookup` field too:
+                    rating_description_lookup = _ratings
 
-            )
+                )
+            except RequestValidationError as ex:
+                print(ex)
+
+            except ResponseValidationError as ex:
+                print(ex)
+
+            except Exception as ex:
+                print(ex)
             # # retrieve the compass data by ID, then use the FK IDs to reconstruct the actual data
             # # from the stored data (TODO: UI to create...)
             # # get the definition:

@@ -11,13 +11,18 @@ router = APIRouter(
     prefix="/competencies",
     tags=["Competencies"],
 )
-
+import logging
+logging.basicConfig(level=logging.DEBUG)
 engine = get_engine()
-compass_config_data = load_config_data()
+logging.debug("calling load config with Engine")
+logging.debug(engine)
+compass_config_data = load_config_data(engine=engine, caller="competency")
+logging.debug("loaded")
 
 @router.post("/add/")
-async def add_competency(competency:Competency):    #todo: make pydantic model
-    ''' Add a user competency to database. Note this includes a user_id, so we end up
+async def add_competency(competency:Competency):
+    ''' WIP:<br />
+    TODO: Add a user competency to database. Note this includes a user_id, so we end up
      with a 1:many relationship. This should fail if an unknown user_id is passed, and if the various
       indices for the values are out of bounds or if this competency is already applied
       to specified user. '''
@@ -25,19 +30,31 @@ async def add_competency(competency:Competency):    #todo: make pydantic model
     result = handlers.add_competency(engine,_competency)
     return result
 
-# TODO: This needs to use the loaded data, not the python mappr
+# TODO: This needs to use the loaded data, not the python mapper
 @router.get("/{quadrant}/{sector}/")
 async def get_competency(quadrant:int, sector:int):
-    '''return a competency description by index '''
+    '''return a competency description by Compass index (not database ID!)'''
+    # _test = compass_config_data["configuration"].data_quadrants[quadrant]    #.sectors[sector].title)
+    # _test2 = compass_config_data["configuration"].data_quadrants[quadrant].sectors[sector]
+    # print("x")
     try:
         return {
             "quadrant":{
-                "id":quadrant,
-                "value":get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["title_parts"]),
+                "idx":quadrant,
+                # static file data:
+                # "value":get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["title_parts"]),
+            
+                # database data:
+                "value":get_sector_title_from_data(compass_config_data["configuration"].data_quadrants[quadrant].title),
             },
             "sector":{
-                "id":sector,
-                "value":get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["sector_parts"][sector]),
+                "idx":sector,
+                # static file data:
+                # "value":get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["sector_parts"][sector]),
+
+                # database data:
+                "value":get_sector_title_from_data(compass_config_data["configuration"].data_quadrants[quadrant].sectors[sector].title),
+
             }
         }
     except IndexError as ex:

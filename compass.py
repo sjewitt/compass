@@ -17,6 +17,9 @@ from api.database import handlers
 from api.database.engine import get_engine
 from api.db_models import  Base
 
+from fastapi import HTTPException
+from fastapi.exceptions import RequestValidationError, ResponseValidationError
+
 # # https://fastapitutorial.com/blog/dependencies-in-fastapi-coursefor-book/
 # https://github.com/fastapi/fastapi/discussions/12254
 
@@ -25,6 +28,21 @@ engine = get_engine()
 
 app = FastAPI()
 
+# exception handlers for app:
+# see https://fastapi.tiangolo.com/tutorial/handling-errors/#override-request-validation-exceptions
+# TODO: move to module?
+
+@app.exception_handler(RequestValidationError)
+async def test(request,exc:RequestValidationError):
+    print(f"RequestValidationError occurred: {exc}")
+    # https://stackoverflow.com/questions/62986778/fastapi-handling-and-redirecting-404
+    return RedirectResponse("/static/404.html")
+
+@app.exception_handler(ResponseValidationError)
+async def test(request,exc:ResponseValidationError):
+    print(f"ResponseValidationError occurred: {exc}")
+    return "BROKEN" 
+
 from routes import competency_router, ratings_router, user_router, settings_router,compass_data_router
 app.include_router(user_router.router)
 app.include_router(settings_router.router)
@@ -32,7 +50,7 @@ app.include_router(competency_router.router)
 app.include_router(ratings_router.router)
 app.include_router(compass_data_router.router)
 
-compass_config_data = load_config_data()
+compass_config_data = load_config_data(engine=engine, caller="root")
 app.mount("/api/",app)
 app.mount("/static", StaticFiles(directory="static", html=True, ),name="static")
 
@@ -43,7 +61,7 @@ templates = Jinja2Templates(directory="templates")
 Base.metadata.create_all(engine)
 
 # load JSON data on startup:
-load_config_data()
+# load_config_data()
 
 @app.get("/")
 async def root():
@@ -65,6 +83,12 @@ async def update_user(request: Request,user_id:int) -> User:
         request=request,name="user_edit.html", context={"user":_user}
     )
 
+@app.get("/configure/")
+async def configure(request: Request):
+    return templates.TemplateResponse(
+        request=request,name="configure.html"
+    )
+
 
 @app.get("/{user_id}/data")
 async def get_user_data(user_id:int) -> UserCompetencies:
@@ -82,15 +106,20 @@ async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
     csv_data = header
     
     for comp in user_data.competencies:
+        _test = get_sector_title_from_data(config_data["configuration"].data_quadrants[comp.quadrant].title)
         row = ",".join([
-            get_sector_title_from_data(config_data["configuration"]["data_quadrants"][comp.quadrant]["title_parts"]),
-
+            # get_sector_title_from_data(config_data["configuration"]["data_quadrants"][comp.quadrant]["title_parts"]),
+            # get_sector_title_from_data(config_data["configuration"].data_quadrants[comp.quadrant].title),
+            _test,
             # see: https://www.geeksforgeeks.org/python/python-program-to-remove-all-control-characters/
             # https://stackoverflow.com/questions/47187792/writing-csv-with-quotes-around-strings-python
-            config_data["configuration"]["data_quadrants"][comp.quadrant]["sector_summaries"][comp.sector]["title"], 
-            config_data["configuration"]["rating_description_lookup"][comp.rating]["title"],
+            # config_data["configuration"]["data_quadrants"][comp.quadrant]["sector_summaries"][comp.sector]["title"], 
+            # config_data["configuration"]["rating_description_lookup"][comp.rating]["title"],
+            get_sector_title_from_data(config_data["configuration"].data_quadrants[comp.quadrant].sectors[comp.sector].title), 
+            config_data["configuration"].rating_description_lookup[comp.rating].title,
             # remove control chars (TODO: quote the fields - probably use the CSV module...)
-            re.sub(r'[\x00-\x1f]', '', config_data["configuration"]["rating_description_lookup"][comp.rating]["description"])
+            # re.sub(r'[\x00-\x1f]', '', config_data["configuration"]["rating_description_lookup"][comp.rating]["description"])
+            re.sub(r'[\x00-\x1f]', '', config_data["configuration"].rating_description_lookup[comp.rating].description)
         ])
         csv_data = csv_data+row+"\n"
     response = StreamingResponse(csv_data)
