@@ -85,8 +85,12 @@ async def update_user(request: Request,user_id:int) -> User:
 
 @app.get("/configure/")
 async def configure(request: Request):
+    # retrieve data we need
+    compass_data = handlers.get_compass(engine=engine,id=2) # to sort. we can't have hardcoded IDs floating about...
     return templates.TemplateResponse(
-        request=request,name="configure.html"
+        request=request,
+        name="configure.html",
+        context={"compass_data":compass_data}
     )
 
 

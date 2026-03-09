@@ -238,11 +238,6 @@ var engine = {
                 _title.setAttribute('id',`svg_title_${qt+1}_${qtp+1}`);
                 _title.setAttribute('class',`svg_quad_title ${this.data_quadrants[qt].quadrant_css_class}`);
                 _title.setAttribute('font-size','24');
-
-                // STATIC DATA
-                // _title.setAttribute('x',this.data_quadrants[qt].title[qtp].coords[0]);
-                // _title.setAttribute('y',this.data_quadrants[qt].title[qtp].coords[1]);
-                // DATABASE DATA
                 _title.setAttribute('x',this.data_quadrants[qt].title[qtp].coord_x);
                 _title.setAttribute('y',this.data_quadrants[qt].title[qtp].coord_y);
                 // and append to the wrapper:
@@ -251,14 +246,16 @@ var engine = {
 
             // and for each quadrant, generate the sector titles:
             for(let stp=0;stp<this.data_quadrants[qt].sectors.length;stp++){
-                let sector_title_array = this.data_quadrants[qt].sectors[stp];
-
+                let sector_title_array = this.data_quadrants[qt].sectors[stp].title;
+                // console.log(stp)    //OK
+                // console.log(sector_title_array) //OK - actually this is now an Object = {quadrant_id: 2, title: Array(2), summary: 'a', description: 'a'}
                 // and for each of these, generate a <text> element:
                 for(let xx=0;xx<sector_title_array.length;xx++){
 
                     let _sector_title = document.createElementNS("http://www.w3.org/2000/svg",'text');
                     _sector_title.setAttribute('id',`svg_sector_${qt+1}_${stp+1}_${xx+1}`);
                     _sector_title.setAttribute('font-size','14');
+                    // console.log(`svg_sector_${qt+1}_${stp+1}_${xx+1}`); //OK
 
                     // STATIC DATA
                     // _sector_title.setAttribute('x',sector_title_array[xx].coords[0]);
@@ -267,6 +264,7 @@ var engine = {
                     // DATABASE DATA
                     _sector_title.setAttribute('x',sector_title_array[xx].coord_x);
                     _sector_title.setAttribute('y',sector_title_array[xx].coord_y);
+                    // console.log(_sector_title)
 
                     _render_titles.appendChild(_sector_title);
                 }
@@ -305,11 +303,20 @@ var engine = {
 
             // now get the segment titles: we do a double loop to get each segment, and the lines array for each:
             for(let z=1;z<=current_words.sectors.length;z++){
-                for(let xx=1;xx<=current_words.sectors[z-1].length;xx++){
+                // console.log(`ln 306 `)
+                console.log(current_words.sectors);
+                console.log(x,z)
+                console.log(z-1)
+                console.log(current_words.sectors[z-1].title.length)
+                for(let xx=1;xx<=current_words.sectors[z-1].title.length;xx++){
+                    console.log(xx)
                     let elem_id = `svg_sector_${x}_${z}_${xx}`;
+                    console.log(elem_id);
                     try{
                         let elem = document.getElementById(elem_id);
-                        let txt = document.createTextNode(current_words.sectors[z-1][xx-1].title);
+                        console.log(elem)
+                        console.log(current_words.sectors[z-1].title);
+                        let txt = document.createTextNode(current_words.sectors[z-1].title[xx-1].title_part);
                         elem.appendChild(txt);
                     }
                     catch(ex){
