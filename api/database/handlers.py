@@ -334,13 +334,13 @@ def get_quadrant(engine, id:int) -> Quadrant:
         return res
     
 # (test) this is fine...
-def get_quadrant_titles(engine):
+def get_quadrant_titles(engine) -> list[QuadrantTitles]:
     with Session(engine) as session:
         _x = session.query(DB_QuadrantTitles).all()
         _z = []
         for _y in _x:
             print(_y) # db model
-            _z.append(QuadrantTitles(id=_y.id, title_part = _y.title_part)) # model
+            _z.append(QuadrantTitles(id=_y.id, title_part = _y.title_part, coord_x=_y.coord_x, coord_y=_y.coord_y)) # model
         return(_z)
 
 
