@@ -18,7 +18,6 @@ def check_quadrant_bounds(index:int) -> bool:
         return False
     return True
 
-
 # NOTE: Quadrant 0 has 5 sectors, all others have 4
 def check_sector_bounds(quadrant_index:int, sector_index) -> bool:
     upper_bound = 3
@@ -53,7 +52,6 @@ def check_competency_is_applied_to_user_already(engine,competency:DB_Competency)
         if result:
             return True
         return False
-
 
 def add_user(engine,user:DB_User):
     # eventually, this all needs to go in database.py
@@ -343,7 +341,6 @@ def get_quadrant_titles(engine) -> list[QuadrantTitles]:
             _z.append(QuadrantTitles(id=_y.id, title_part = _y.title_part, coord_x=_y.coord_x, coord_y=_y.coord_y)) # model
         return(_z)
 
-
 def add_sector(engine,sector:Sector) -> dict:
     with Session(engine) as session:
         try:
@@ -428,6 +425,21 @@ def get_rating(engine, id:int) -> Rating:
         except Exception as ex:
             logging.warning(f"Failed to retrieve rating {id}: {ex}")
 
+# get the lists of all configured data to use as dropdowns for compass assembly page:
+# (give it an API endpoint too)
+def retrieve_all_configured_data():
+    all_ratings = get_ratings()
+    all_quadrants = get_quadrants()
+    all_sectors = get_sectors()
+
+    data = {
+        "ratings": all_ratings,
+        "quadrants":all_quadrants,
+        "sectors":all_sectors,
+        }
+    return data
+
+
 # retrieve all compases (summary)
 def get_all_compasses(engine) -> list[CompassSummary]:
     with Session(engine) as session:
@@ -447,7 +459,6 @@ def get_all_compasses(engine) -> list[CompassSummary]:
     print("error")
     return []
 
-
 # retrieve current compass data
 def get_compass(engine, id:int) -> CompassData:
     with Session(engine) as session:
@@ -462,26 +473,44 @@ def get_compass(engine, id:int) -> CompassData:
             # it's actually this:
             # https://stackoverflow.com/questions/8603088/sqlalchemy-in-clause
             # geeksforgeeks.org/python/how-to-use-the-in-operator-in-sqlalchemy-in-python/
-            _db_quadrants = session.query(DB_Quadrant).where(
-                DB_Quadrant.id.in_((
-                _db_compass_def.quadrant_1,
-                _db_compass_def.quadrant_2,
-                _db_compass_def.quadrant_3,
-                _db_compass_def.quadrant_4,)
-                )
-            ).all()
+            # _db_quadrants = session.query(DB_Quadrant).where(
+            #     DB_Quadrant.id.in_((
+            #     _db_compass_def.quadrant_1,
+            #     _db_compass_def.quadrant_2,
+            #     _db_compass_def.quadrant_3,
+            #     _db_compass_def.quadrant_4,)
+            #     )
+            # ).all()
+            # I actually need to do this:
+            _db_quadrants = []
+            _db_quadrants.append(session.query(DB_Quadrant).where(DB_Quadrant.id == _db_compass_def.quadrant_1).first())
+            _db_quadrants.append(session.query(DB_Quadrant).where(DB_Quadrant.id == _db_compass_def.quadrant_2).first())
+            _db_quadrants.append(session.query(DB_Quadrant).where(DB_Quadrant.id == _db_compass_def.quadrant_3).first())
+            _db_quadrants.append(session.query(DB_Quadrant).where(DB_Quadrant.id == _db_compass_def.quadrant_4).first())
+            print("ADDED COMPASS QUADS.")
 
-            _db_ratings = session.query(DB_Rating).where(
-                DB_Rating.id.in_((
-                    _db_compass_def.rating_1,
-                    _db_compass_def.rating_2,
-                    _db_compass_def.rating_3,
-                    _db_compass_def.rating_4,
-                    _db_compass_def.rating_5,
-                    _db_compass_def.rating_6,
-                    _db_compass_def.rating_7,)
-                )
-            ).all()
+            # _db_ratings = session.query(DB_Rating).where(
+            #     DB_Rating.id.in_((
+            #         _db_compass_def.rating_1,
+            #         _db_compass_def.rating_2,
+            #         _db_compass_def.rating_3,
+            #         _db_compass_def.rating_4,
+            #         _db_compass_def.rating_5,
+            #         _db_compass_def.rating_6,
+            #         _db_compass_def.rating_7,)
+            #     )
+            # ).all()
+
+            # actually this:
+            _db_ratings = []
+            _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_1).first())
+            _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_2).first())
+            _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_3).first())
+            _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_4).first())
+            _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_5).first())
+            _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_6).first())
+            _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_7).first())
+            print("ADDED RATINGS.")
 
             # it's a flat, unlinked data structure...
             _db_q1_sectors = [
@@ -533,6 +562,7 @@ def get_compass(engine, id:int) -> CompassData:
                 print(ex)
 
             except ResponseValidationError as ex:
+                print("response validation error")
                 print(ex)
 
             except Exception as ex:
@@ -555,7 +585,7 @@ def get_compass(engine, id:int) -> CompassData:
             #         break
             #     counter+=1
             # pass
-
+            print(_compass)
             ## TODO: I meed to model the competency level data - this needs a new table
             return _compass
         else:
@@ -630,7 +660,6 @@ def _get_rating_models_from_db_models(db_rating_model_list:list[DB_Rating]) -> l
         )
     return _out
 
-    
 # TODO: Split handlers into modules mirroring the routers:
 
 # generate compass data using extisting quadrants and sectors:
@@ -673,6 +702,15 @@ def set_compass(engine, definition:CompassDefinition,id:int = 0) -> int:
                 quadrant_4_sector_2 = definition.quadrants[3].sectors[1],            
                 quadrant_4_sector_3 = definition.quadrants[3].sectors[2],
                 quadrant_4_sector_4 = definition.quadrants[3].sectors[3],
+
+                # Ratings
+                rating_1 = definition.ratings[0],
+                rating_2 = definition.ratings[1],
+                rating_3 = definition.ratings[2],
+                rating_4 = definition.ratings[3],
+                rating_5 = definition.ratings[4],
+                rating_6 = definition.ratings[5],
+                rating_7 = definition.ratings[6],
             )
             try:
                 session.add(_compass)

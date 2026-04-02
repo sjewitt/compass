@@ -1,0 +1,49 @@
+<html>
+<head>
+	<title>
+	Compass interactive: User edit
+	</title>
+		<link type="text/css" href="/static/css/styles2.css" rel="stylesheet" />
+		<link href="/static/images/favicon.jpg" rel="icon" />
+</head>
+<body data-page="configure">
+	<div class="button inline_block">
+		<a href="/static/" title="Home">
+			<img src="/static/images/home-2-64.png" alt="Home" title="Home" />
+		</a>
+	</div>
+
+	<div class="button inline_block">
+		<a href="#" title="Help">
+			<img src="/static/images/help-64.png" alt="Help" title="Help" />
+		</a>
+	</div>
+	<h1>New Compass</h1>
+	<!-- Ooohhh I really need to make semantic HTML here... -->
+	<section>
+{{ compass_summaries }}
+<ul>
+{% for summary in compass_summaries %}
+	<li><a href="/configure/{{summary.id}}">{{summary.name}}</a></li>
+{% endfor %}
+</ul>
+	</section>
+
+<div class="panel">
+
+</div>
+
+<div class="panel">
+	<div>Submit:</div> 
+	<div>
+		<div class="button sml_width" id="btn_update_user">
+			<a href="#" title="Update Quadrant 1">update</a>
+		</div>
+	</div>
+	<div></div><div id="message"></div>
+</div>
+
+
+</body>
+<script src="/static/js/engine2.js"></script>
+</html>
