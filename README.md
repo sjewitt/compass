@@ -196,3 +196,20 @@ and is managed by a launch.json in VS Code:
 ```
 
 Thanks Chris N
+
+The sector rings need to reflectthe rating applied to teh current compass
+
+# So what needs to happen for the UI is this:
+
+we need getters for 
+ - sectors (all, without titles)
+ - sector titles (all)
+ - quadrants (all, without titles OR sectors)
+ - quadrant titles (all)
+ - competencis (all)
+
+The actual assembly of a Compass should ONLY be linked in the compass table - therefore ALL of the components should ONLY be discrete objects. What this means is that the definition of the models should be looser, and should only really apply to the assembled Compass complex object.
+
+This ALSO means that the assembly of the compass data should include the TITLES as well - so the individual components are not bound to any given titles at their database table level - which there isn't - so that (I think) means that the model restriction is at fault here??
+
+And then in the edit/create route, I can provide dropdowsn for each sub-component

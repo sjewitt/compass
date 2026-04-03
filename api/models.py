@@ -41,16 +41,16 @@ class UserCompetencies(BaseModel):
 Model the compass lookup data
 '''
 class SectorTitles(BaseModel):  # RENAME!!
-    # id: int = Field()
+    id: int = Field()
     # sector_id:int = Field()
     title_part:str = Field()
     coord_x:int=Field()
     coord_y:int=Field()
 
 class Sector(BaseModel):
-    # id:int = Field()
-    quadrant_id:int=Field()
-    title : list[SectorTitles] = Field(max_length=2)
+    id:int = Field()
+    quadrant_id:int=Field(default_factory=0) # this can probably go?
+    title : list[SectorTitles] = Field(max_length=2, default_factory=list)
     summary:str=Field()
     description:str=Field()
 
@@ -111,11 +111,12 @@ class QuadrantTitles(BaseModel):
 
 class Quadrant(BaseModel):
     id: int = Field()
-    title : list[QuadrantTitles] = Field(max_length=2)
+    # https://stackoverflow.com/questions/63793662/how-to-give-a-pydantic-list-field-a-default-value
+    title : list[QuadrantTitles] = Field(max_length=2,default_factory=list)
     quadrant_summary: str = Field()
     quadrant_css_class:str = Field()
     quadrant_elem_coords:str = Field()
-    sectors:list[Sector] = Field(min_length=4, max_length=5)
+    sectors:list[Sector] = Field(min_length=4, max_length=5,default_factory=list)
 
 class CompassSummary(BaseModel):
     id:int = Field()

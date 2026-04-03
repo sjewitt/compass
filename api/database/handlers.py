@@ -280,25 +280,30 @@ def add_quadrant(engine,quadrant:Quadrant) -> dict:
             return {f"action":"quadrantcreate","message":"Failed: {ex}", "quadrantcreated":False}        
     return {"action":"quadrantcreate","message":"Failed", "quadrantcreated":False}
 
-def get_quadrants(engine) -> list[Quadrant]:
+def get_quadrants(engine, include_titles=True) -> list[Quadrant]:
     with Session(engine) as session:
         print("getting quads")
         result = []
         _quads = session.query(DB_Quadrant)
         print(_quads)
+        
         # get each quad's title parts:
         for _quad in _quads:
             try:
-                _db_quad_titles = session.query(DB_QuadrantTitles).where(DB_QuadrantTitles.quadrant_id==_quad.id).all()
-                _titleparts=[]
-                for _title_part in _db_quad_titles:
-                    _x = QuadrantTitles(id=_title_part.id, title_part = _title_part.title_part)
-                    _titleparts.append(_x)
+                _titles = []
+                if include_titles:
+                    _db_quad_titles = session.query(DB_QuadrantTitles).where(DB_QuadrantTitles.quadrant_id==_quad.id).all()
+                    _titleparts=[]
+                    for _title_part in _db_quad_titles:
+                        _x = QuadrantTitles(id=_title_part.id, title_part = _title_part.title_part)
+                        _titleparts.append(_x)
+                    _titles = _titleparts
 
                 # build the final output as fully populated Quadrant:
                 _res = Quadrant(
                     id=_quad.id,
-                    title=_titleparts,
+                    # title=_titleparts,
+                    title=_titles,
                     quadrant_summary=_quad.quadrant_summary,
                     quadrant_css_class=_quad.quadrant_css_class,
                     quadrant_elem_coords=_quad.quadrant_elem_coords,
@@ -369,8 +374,30 @@ def add_sector(engine,sector:Sector) -> dict:
 
 def get_sectors(engine) -> list[Sector]:
     with Session(engine) as session:
-        db_sectors = session.query(DB_Sector).all()
-        return None # TODO
+        # I think here I don't want to retrieve the childs (titles)
+        # I think also the DB model should be looser?
+        # possibly not. The Compass definition does not (YET!!) include
+        # a lookup for sector or quadrant title. Therefore, the model should change to
+        # remove this dependency comletely].
+        # I may be left in the short term with a mismatch between a sector and it's 
+        # intrinsically associated titles, and that defined by the Compass itself
+        # (same for quad titles I think)
+        # This is a big TODO:
+        # Although, because I need to return a [Sector] (not a [DB_Sector]) I can
+        # filter any childs out HERE as I construct the return data.
+        _db_sectors = session.query(DB_Sector).all()
+        _out = []
+        for _db_sector in _db_sectors:
+            _out.append(
+                Sector(
+                    id = _db_sector.id,
+                    quadrant_id = 0,
+                    title=[],
+                    summary = _db_sector.summary,
+                    description = _db_sector.description,
+                )
+            )
+        return _out
 
 def get_sector(engine,id:int) -> Sector:
     with Session(engine) as session:
@@ -382,6 +409,22 @@ def get_sector(engine,id:int) -> Sector:
             description = db_sector.description,
         )
         return result
+
+def get_sector_titles(engine) -> list[SectorTitles]:
+    ''' return all sector titles '''
+    with Session(engine) as session:
+        _dbresults = session.query(DB_SectorTitles).all()
+        _results = []
+        for _dbresult in _dbresults:
+            _results.append(SectorTitles(
+                id=_dbresult.id,
+                title_part=_dbresult.title_part, 
+                coord_x=_dbresult.coord_x,
+                coord_y=_dbresult.coord_y,
+            )
+        )
+        return _results
+
 
 def add_rating(engine, rating:Rating) -> bool:
     with Session(engine) as session:
@@ -439,7 +482,7 @@ def retrieve_all_configured_data():
         }
     return data
 
-
+# MOVE TO A NEW HANDLER:
 # retrieve all compases (summary)
 def get_all_compasses(engine) -> list[CompassSummary]:
     with Session(engine) as session:
@@ -632,6 +675,7 @@ def _get_sector_models_from_db_models(quadrant_id:int, db_sector_model_list:list
         for title_part in db_sector_model.children:  # the sector titles
             _titles.append(
                 SectorTitles(
+                    id=title_part.id,
                     title_part=title_part.title_part,
                     coord_x=title_part.coord_x,
                     coord_y=title_part.coord_y,

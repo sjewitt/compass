@@ -15,11 +15,14 @@ router = APIRouter(
 
 engine = get_engine()
 
+
+################
+# COMPASSES
+################
 @router.get("/", response_model=list[CompassSummary])
 def get_data() -> list[CompassSummary]:
     ''' Retrieve summary data for all compass models defined, return ID and title only  '''
     try:
-        
         result = handlers.get_all_compasses(engine)
         return result
     except Exception as ex:
@@ -29,52 +32,42 @@ def get_data() -> list[CompassSummary]:
 def get_data(id) -> CompassData:
     ''' retrieve the definition by ID and compose the actual data in the handler '''
     try:
-        
         result = handlers.get_compass(engine,id)
         return result
-
     except Exception as ex:
         print(ex)
 
-
 @router.post("/")
 def set_data(definition:CompassDefinition) -> CompassSummary:
-    print(definition)
     result = handlers.set_compass(engine,definition)
-    # print(result)
     return CompassSummary(id=result,name=definition.name)
-    # return {}
 
 
-# @router.post("/")
-# def set_data(compass_data:CompassData):
-#     pass
-
+################
+# QUADRANTS
+################
 @router.post("/quadrant/")
 def add_quadrant(quadrant:Quadrant):
-    # breakpoint()
-    print("IN ADD QUAD:")
-    print(quadrant)
-    # _titles = [QuadrantTitles]
-    # for _title in quadrant.title:
-    #     _titles.append(DB_QuadrantTitles(_title["title_part"]))
-    # _quad = DB_Quadrant(
-    #     quadrant_summary = quadrant.quadrant_summary,
-    #     quadrant_css_class = quadrant.quadrant_css_class,
-    #     quadrant_elem_coords = quadrant.quadrant_elem_coords,
-    #     children = _titles
-    # )
-    print("CALLING HANDLER:")
     result = handlers.add_quadrant(engine,quadrant)
-    print("ADD QUAD RESULT:")
-    print(result)
-    pass
+    return result
 
+# retrieve quads, including assigned titles
 @router.get("/quadrants/")
 def get_quadrants()->list[Quadrant]:
-    print("CALLING HANDLERS:")
     result = handlers.get_quadrants(engine)
-    print(result)
+    return result
+
+# retrieve quads, without  assigned titles
+@router.get("/quadrants/no_titles/")
+def get_quadrants()->list[Quadrant]:
+    result = handlers.get_quadrants(engine,include_titles=False)
+    return result
+
+
+# retrieve all quadrant titles (as list, not assigned (rename this endpoint?))
+@router.get("/quadrants/titles/")
+def get_quadrant_titles() -> list[QuadrantTitles]:
+    result = handlers.get_quadrant_titles(engine)
     return result
 
 @router.get("/quadrants/{id}/", response_model=Quadrant)
@@ -82,14 +75,11 @@ def get_quadrant(id:int)->Quadrant:
     result = handlers.get_quadrant(engine,id)
     return result
 
-# test:
-@router.get("/quadranttitles/")
-def get_quadrant_titles() -> list[QuadrantTitles]:
-    result = handlers.get_quadrant_titles(engine)
-    print(result)
-    return result
 
 
+################
+# SECTORS
+################
 @router.post("/sectors/")
 def add_sector(sector:Sector):
     result = handlers.add_sector(engine,sector)
@@ -100,23 +90,31 @@ def get_sectors()->list[Sector]:
     result = handlers.get_sectors(engine)
     return result
 
+@router.get("/sectors/titles/")
+def get_sector_titles() -> list[SectorTitles]:
+    result = handlers.get_sector_titles(engine)
+    return result
+
 @router.get("/sectors/{id}/")
 def get_sector(id:int)->Sector:
     result = handlers.get_sector(engine, id)
     return result
 
+
+
+################
+# RATINGS
+################
 @router.post("/rating/")
 def add_rating(rating:RatingIn):
     result = handlers.add_rating(engine, rating)
     return result
 
-# get all ratings
 @router.get("/ratings/", response_model=list[Rating])
 def get_ratings()->list[Rating]:
     result = handlers.get_ratings(engine)
     return result
 
-# get specified ratings
 @router.get("/ratings/{id}", response_model=Rating)
 def get_ratings(id:int)->Rating:
     result = handlers.get_rating(engine, id)
