@@ -153,6 +153,7 @@ def get_user(engine, user_id:int) -> User|None:
         stmt = select(DB_User).where(DB_User.id == user_id)
         result = []
         # need to convert the DB_User into a User, so th epydantic validation works
+        # also, TODO: need to update this to return ONE result...
         for row in session.scalars(stmt):
             _usr = User(id=row.id,name=row.name,username=row.username, email=row.email)
             result.append(_usr)   # new: A User()
@@ -503,48 +504,26 @@ def get_all_compasses(engine) -> list[CompassSummary]:
     return []
 
 # retrieve current compass data
+# re #72, this may be a good placve to return the static coords data (I think
+# the dababase column is ignored - though returned.)
+# Let's add the constants to the models.
 def get_compass(engine, id:int) -> CompassData:
     with Session(engine) as session:
         
         # THIS syntax works as a compound query:
         # result = session.query(DB_CompassDefinition,DB_Quadrant).where(DB_CompassDefinition.id==id).where(DB_Quadrant.id==DB_CompassDefinition.quadrant_1).first()
-        
-        # tests
         _db_compass_def = session.query(DB_CompassDefinition).where(DB_CompassDefinition.id==id).first()
+        _compass = {}
         if _db_compass_def:
 
-            # it's actually this:
-            # https://stackoverflow.com/questions/8603088/sqlalchemy-in-clause
-            # geeksforgeeks.org/python/how-to-use-the-in-operator-in-sqlalchemy-in-python/
-            # _db_quadrants = session.query(DB_Quadrant).where(
-            #     DB_Quadrant.id.in_((
-            #     _db_compass_def.quadrant_1,
-            #     _db_compass_def.quadrant_2,
-            #     _db_compass_def.quadrant_3,
-            #     _db_compass_def.quadrant_4,)
-            #     )
-            # ).all()
-            # I actually need to do this:
+            # explicitly retrieve each quad (even if it's the same one twice):
             _db_quadrants = []
             _db_quadrants.append(session.query(DB_Quadrant).where(DB_Quadrant.id == _db_compass_def.quadrant_1).first())
             _db_quadrants.append(session.query(DB_Quadrant).where(DB_Quadrant.id == _db_compass_def.quadrant_2).first())
             _db_quadrants.append(session.query(DB_Quadrant).where(DB_Quadrant.id == _db_compass_def.quadrant_3).first())
             _db_quadrants.append(session.query(DB_Quadrant).where(DB_Quadrant.id == _db_compass_def.quadrant_4).first())
-            print("ADDED COMPASS QUADS.")
 
-            # _db_ratings = session.query(DB_Rating).where(
-            #     DB_Rating.id.in_((
-            #         _db_compass_def.rating_1,
-            #         _db_compass_def.rating_2,
-            #         _db_compass_def.rating_3,
-            #         _db_compass_def.rating_4,
-            #         _db_compass_def.rating_5,
-            #         _db_compass_def.rating_6,
-            #         _db_compass_def.rating_7,)
-            #     )
-            # ).all()
-
-            # actually this:
+            #likewise for ratings:
             _db_ratings = []
             _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_1).first())
             _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_2).first())
@@ -553,9 +532,8 @@ def get_compass(engine, id:int) -> CompassData:
             _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_5).first())
             _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_6).first())
             _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_7).first())
-            print("ADDED RATINGS.")
 
-            # it's a flat, unlinked data structure...
+            # then get each quadrant's sectors:
             _db_q1_sectors = [
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_1_sector_1).first(),
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_1_sector_2).first(),
@@ -585,23 +563,34 @@ def get_compass(engine, id:int) -> CompassData:
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_4_sector_4).first(),
             ]
 
+            # Then construct the pydantic model from the database models returned:
             _q1_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_1,_db_q1_sectors)
             _q2_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_2,_db_q2_sectors)
             _q3_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_3,_db_q3_sectors)
             _q4_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_4,_db_q4_sectors)
 
+            # these are pydantic models:
             _sectors = [_q1_sectors,_q2_sectors,_q3_sectors,_q4_sectors]
+
+            # and THESE are database models (should probably modify to pass same type of data):
+            # although it may be OK as all this is doing is attaching the rithr Sectors to each 
+            # returned Quadrant.
             _quadrants = _get_quadrant_models_from_db_models(_db_quadrants, _sectors)
+            
             _ratings = _get_rating_models_from_db_models(_db_ratings)
 
             try:
                 _compass = CompassData(
+                    id = _db_compass_def.id,
+                    title = _db_compass_def.name,
                     data_quadrants = _quadrants,
                     # and we need the `ratings_description_lookup` field too:
-                    rating_description_lookup = _ratings
-
+                    rating_description_lookup = _ratings,
+                    # titles = [{"points":[1,2,3,4,5,6,7,8], "title":}]
                 )
+
             except RequestValidationError as ex:
+                print("request validation error")
                 print(ex)
 
             except ResponseValidationError as ex:
@@ -609,6 +598,7 @@ def get_compass(engine, id:int) -> CompassData:
                 print(ex)
 
             except Exception as ex:
+                print("Exception")
                 print(ex)
             # # retrieve the compass data by ID, then use the FK IDs to reconstruct the actual data
             # # from the stored data (TODO: UI to create...)
@@ -635,7 +625,9 @@ def get_compass(engine, id:int) -> CompassData:
             print(f"No compass matching ID {id}")
             raise IndexError(f"No compass matching ID {id}")
 
-def _get_quadrant_models_from_db_models(db_quadrant_model_list:list[DB_Quadrant],sector_models_list):
+def _get_quadrant_models_from_db_models(
+        db_quadrant_model_list:list[DB_Quadrant],
+        sector_models_list:list[list[Sector]]) -> list[Quadrant]:
     _out = []
     _counter = 0
     for db_quadrant_model in db_quadrant_model_list:
@@ -683,6 +675,7 @@ def _get_sector_models_from_db_models(quadrant_id:int, db_sector_model_list:list
             )
         _out.append(
             Sector(
+                id=db_sector_model.id,
                 quadrant_id=quadrant_id,
                 title=_titles,
                 summary=db_sector_model.summary,
