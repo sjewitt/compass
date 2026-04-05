@@ -41,16 +41,16 @@ class UserCompetencies(BaseModel):
 Model the compass lookup data
 '''
 class SectorTitles(BaseModel):  # RENAME!!
-    # id: int = Field()
+    id: int = Field()
     # sector_id:int = Field()
     title_part:str = Field()
     coord_x:int=Field()
     coord_y:int=Field()
 
 class Sector(BaseModel):
-    # id:int = Field()
-    quadrant_id:int=Field()
-    title : list[SectorTitles] = Field(max_length=2)
+    id:int = Field()
+    quadrant_id:int=Field(default_factory=0) # this can probably go?
+    title : list[SectorTitles] = Field(max_length=2, default_factory=list)
     summary:str=Field()
     description:str=Field()
 
@@ -111,11 +111,12 @@ class QuadrantTitles(BaseModel):
 
 class Quadrant(BaseModel):
     id: int = Field()
-    title : list[QuadrantTitles] = Field(max_length=2)
+    # https://stackoverflow.com/questions/63793662/how-to-give-a-pydantic-list-field-a-default-value
+    title : list[QuadrantTitles] = Field(max_length=2,default_factory=list)
     quadrant_summary: str = Field()
     quadrant_css_class:str = Field()
     quadrant_elem_coords:str = Field()
-    sectors:list[Sector] = Field(min_length=4, max_length=5)
+    sectors:list[Sector] = Field(min_length=4, max_length=5,default_factory=list)
 
 class CompassSummary(BaseModel):
     id:int = Field()
@@ -140,6 +141,8 @@ class Rating(RatingIn):
     id:int = Field()    # the database ID, which we will need for lookups etc.
 
 class CompassData(BaseModel):
+    id:int=Field(default_factory=0)
+    title:str=Field()
     data_quadrants: list[Quadrant] = Field(min_length=4, max_length=4)
     # name:str = Field(min_length=4, max_length=128)
     # quad_0:Quadrant = Q0
@@ -157,8 +160,25 @@ class QuadrantDefinition(BaseModel):
     # This needs front-end logic to account for the first quadrant having 5...
     sectors:list[int] = Field(min_length=4, max_length=5)
 
+# constants defining the Compass quadrant and sector titles,
+# the quadrant colours and the main quadrant title border coords:
+# class Coordinate(BaseModel):
+#     coord:list[int]=Field(min_length=2, max_length=2)
+
+# class TitleCoordinate(BaseModel):
+#     coordinates:list[Coordinate] = Field(min_length=1, max_length=2)
+
+# class QuadrantTitles(BaseModel):
+#     # define outer quad title borders
+#     points:list[int] = Field(min_length=8, max_length=8)
+#     title:TitleCoordinate = Field()
+#     sectors:list[TitleCoordinate] = Field(min_length=4, max_length=5)
+
+
 class CompassDefinition(BaseModel):
     name:str = Field(min_length=4, max_length=128)
     # these are all ints (IDs of the relevant quadrants and sectors)
     quadrants:list[QuadrantDefinition] = Field(min_length=4, max_length=4)
     ratings:list[int] = Field(min_length=7, max_length=7)   # these are Ratig IDs
+    # titles: list[QuadrantTitles] = Field(min_length=4, max_length=4)
+

@@ -18,14 +18,41 @@
 			<img src="/static/images/help-64.png" alt="Help" title="Help" />
 		</a>
 	</div>
+	<!--
+	{{ compass_data.data_quadrants[0].title|count}}
+{% if compass_data.data_quadrants[0].title|count == 2%}
+	LONG DATA
+{% endif %}
+{% for tp in compass_data.data_quadrants[0].title %}
+    <li>{{ tp|e }}</li>
+{% endfor %}
+-->
 
+<!-- 
+ what I need to do here is a dropdown of each type for each node in the compass. I don't want the VALUES
+ to be rendered in the text fields. So I really need a large configuration form to:
+
+ 1: create / amend quadrant and sector definitions
+ 2: create / amend competencies
+ 3: create / amend titles
+ 4: ASSEMBLE a compass based on pre-defined quads, titles, sectors and competencies
+
+ so, for the assembly page(s) I want dropdowns against each node that can be selected or not.
+ The assembly page also needs to have tabs or something to make it nice...
+-->
 	<h1>Configure</h1>
+	<!-- Ooohhh I really need to make semantic HTML here... -->
+	<section>
+
+	</section>
 
 	<h2>Quadrant 1</h2>
 <div class="panel">
 	<div>ID</div><input type="text" disabled="disabled" value="{{compass_data.data_quadrants[0].id}}">
 	<div>Title #1</div><input type="text" value="{{compass_data.data_quadrants[0].title[0].title_part}}">
+{% if compass_data.data_quadrants[0].title|count == 2 %}
 	<div>Title #2</div><input type="text" value="{{compass_data.data_quadrants[0].title[1].title_part}}">
+{% endif %}
 	<div>Summary</div><input type="text" value="{{compass_data.data_quadrants[0].quadrant_summary}}">
 	<div>Coords</div><input disabled="disabled" type="text" value="{{compass_data.data_quadrants[0].quadrant_elem_coords}}">
 </div>
@@ -34,7 +61,9 @@
 <div class="panel">
 	<div>ID</div><input type="text" disabled="disabled" value="{{compass_data.data_quadrants[1].id}}">
 	<div>Title #1</div><input type="text" value="{{compass_data.data_quadrants[1].title[0].title_part}}">
+	{% if compass_data.data_quadrants[1].title|count == 2 %}
 	<div>Title #2</div><input type="text" value="{{compass_data.data_quadrants[1].title[1].title_part}}">
+	{% endif %}
 	<div>Summary</div><input type="text" value="{{compass_data.data_quadrants[1].quadrant_summary}}">
 	<div>Coords</div><input disabled="disabled" type="text" value="{{compass_data.data_quadrants[1].quadrant_elem_coords}}">
 </div>
@@ -43,7 +72,9 @@
 <div class="panel">
 	<div>ID</div><input type="text" disabled="disabled" value="{{compass_data.data_quadrants[2].id}}">
 	<div>Title #1</div><input type="text" value="{{compass_data.data_quadrants[2].title[0].title_part}}">
+	{% if compass_data.data_quadrants[2].title|count == 2 %}
 	<div>Title #2</div><input type="text" value="{{compass_data.data_quadrants[2].title[1].title_part}}">
+	{% endif %}
 	<div>Summary</div><input type="text" value="{{compass_data.data_quadrants[2].quadrant_summary}}">
 	<div>Coords</div><input disabled="disabled" type="text" value="{{compass_data.data_quadrants[2].quadrant_elem_coords}}">
 </div>
@@ -52,7 +83,9 @@
 <div class="panel">
 	<div>ID</div><input type="text" disabled="disabled" value="{{compass_data.data_quadrants[3].id}}">
 	<div>Title #1</div><input type="text" value="{{compass_data.data_quadrants[3].title[0].title_part}}">
+	{% if compass_data.data_quadrants[3].title|count == 2 %}
 	<div>Title #2</div><input type="text" value="{{compass_data.data_quadrants[3].title[1].title_part}}">
+	{% endif %}
 	<div>Summary</div><input type="text" value="{{compass_data.data_quadrants[3].quadrant_summary}}">
 	<div>Coords</div><input disabled="disabled" type="text" value="{{compass_data.data_quadrants[3].quadrant_elem_coords}}">
 </div>

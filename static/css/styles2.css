@@ -141,7 +141,9 @@ body{
   height: 30px;
 }
 
-/* svg */
+/** 
+ * SVG ELEMENT STYLING: 
+ */
 #svg_compass {
   position: absolute;
   top: 9px;
@@ -157,13 +159,16 @@ body{
   stroke-width: 2px;
 }
 
-
-
-/* initially hide in markup, these elements */
+/* 
+initially hide in markup, these elements 
+*/
 .svg_hide {
   fill: none;
 }
 
+/* 
+define title style for each quadrant 
+*/
 .svg_quad_title{
   fill:none;
   font-weight: bold;
@@ -175,64 +180,55 @@ body{
   max-width: 200px;
 }
 
-.green {
+/* 
+define title and box colour for each auto-generated quadrant class name: 
+*/
+.svg_quadrant_1{
   stroke: green;
 }
 
-.blue{
+.svg_quadrant_2{
   stroke: blue;
 }
 
-.red{
+.svg_quadrant_3{
   stroke: darkred
 }
 
-.yellow{
+.svg_quadrant_4{
   stroke: darkorange;
 }
 
-
-/* text.green {
-  fill: lightgreen;
-} */
-
-
-
-
-/* and identify any that have been previously flagged by the user */
+/* 
+Style any sector blocks that have been previously flagged by the user 
+*/
 .svg_show.q1 {
-  /* fill: #d5f9d5; */
   fill: lightgreen;
 }
 .svg_show.q2 {
-  /* fill: #daedf3; */
   fill: lightblue;
 }
 .svg_show.q3 {
-  /* fill: #ffe1e6; */
   fill: lightpink;
 }
 .svg_show.q4 {
-  /* fill: #ffffe6; */
   fill: #ffffc6;
 }
 
-/* trigger the se (via the javascript) on hover: */
+/* 
+Trigger the visual highlight (via the javascript) on hover: 
+NOTE: This needs to be after the four above, so that the hover
+colour overrides the exisitng style, if present:
+*/
 .svg_hover.q1 {
-  /* fill: lightgreen; */
   fill: green;
 }
 .svg_hover.q2 {
-  /* fill: lightblue; */
   fill:blue;
 }
 .svg_hover.q3 {
-  /* fill: lightpink; */
   fill: rgb(255, 141, 160);
 }
 .svg_hover.q4 {
-  /* fill: #ffff66; */
   fill: yellow;
 }
-
-/*# sourceMappingURL=styles2.css.map */
