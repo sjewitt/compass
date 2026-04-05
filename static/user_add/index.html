@@ -7,17 +7,29 @@
 		<link href="/static/images/favicon.jpg" rel="icon" />
 </head>
 <body data-page="add_user">
+	<div id="flyout">
+		<h1>
 
-<h1>
-	<div class="button button-static inline_block">
-		<!-- <a href="/static/user_add/" title="Add User"> -->
-			<img src="/static/images/add-user-3-64.png" alt="Add user icon" title="Add a user" />
-		<!-- </a> -->
+			<div class="button inline_block">
+				<a href="/static/" title="Home">
+					<img src="/static/images/home-2-64.png" alt="Home" title="Home" />
+				</a>
+			</div>
+
+			<div class="button inline_block">
+				<a href="#" title="Help">
+					<img src="/static/images/help-64.png" alt="Help" title="Help" />
+				</a>
+			</div>
+
+			<div class="button button-static inline_block">
+				<img src="/static/images/add-user-3-64.png" alt="Add user icon" title="Add a user" />
+			</div>
+			Add a new User
+		</h1>
 	</div>
-	Add a new User
-</h1>
 
-<div class="panel">
+<div class="panel offset_top">
 	<div>Name:</div> <input type="text" name="new_user_name" id="new_user_name" placeholder="New user name" />
 	<div>Login:</div><input type="text" name="new_user_login" id="new_user_login" placeholder="New user login" />
 	<div>Email:</div><input type="text" name="new_user_email" id="new_user_email" placeholder="New user email" />
