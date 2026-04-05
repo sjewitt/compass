@@ -18,6 +18,11 @@ body{
   width:60%;
 }
 
+.offset_top{
+  position: relative;
+  top:85px;
+}
+
 #flyout {
   display: inline-block;
   position: absolute;

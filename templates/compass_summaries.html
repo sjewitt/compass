@@ -7,6 +7,8 @@
 		<link href="/static/images/favicon.jpg" rel="icon" />
 </head>
 <body data-page="configure">
+<div id="flyout">
+	<h1>
 	<div class="button inline_block">
 		<a href="/static/" title="Home">
 			<img src="/static/images/home-2-64.png" alt="Home" title="Home" />
@@ -18,8 +20,15 @@
 			<img src="/static/images/help-64.png" alt="Help" title="Help" />
 		</a>
 	</div>
-	<h1>Existing Compasses</h1>
+		
+		Existing Compasses
+	</h1>
+	</div>
+
 	<!-- Ooohhh I really need to make semantic HTML here... -->
+
+
+<div class="panel offset_top">
 	<section>
 {{ compass_summaries }}
 <h2>Current Compasses</h2>
@@ -33,9 +42,6 @@
 	<li><a href="/configure/new/">[create new]</a></li>
 </ul>
 	</section>
-
-<div class="panel">
-
 </div>
 
 

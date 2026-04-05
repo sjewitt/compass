@@ -8,15 +8,18 @@
 </head>
 <body data-page="home">
 <div id="flyout">
-	<!-- <a href='#' title="Download data">
-		<img src="/static/images/arrow-down.png" alt="Download"/>
-	</a> -->
-	<select id="select_user" name="select_user">
-		<option>-- Select yourself --</option>
-        <!-- <option value="1">User #1</option>
-        <option value="2">User #2</option>
-        <option value="3">User #3</option> -->
-    </select>
+	<h1>
+
+
+	<div class="button button-static inline_block">
+			<img src="/static/images/home-2-64.png" alt="Home" title="Home" />
+	</div>
+
+	<div class="button inline_block">
+		<a href="#" title="Help">
+			<img src="/static/images/help-64.png" alt="Help" title="Help" />
+		</a>
+	</div>
 	<div class="button inline_block">
 		<a href="/static/user_add/" title="Add User">
 			<!-- <img src="/static/images/gear-settings-icon_outline.png" alt="Settings gear icon" title="Manage Users" /> -->
@@ -28,12 +31,11 @@
 			<img src="/static/images/gear-settings-64.png" alt="Settings gear icon" title="Configure Compass" />
 		</a>
 	</div>
+	<select id="select_user" name="select_user">
+		<option>-- Select yourself --</option>
+    </select>
+</h1>
 
-	<div class="button inline_block">
-		<a href="#" title="Help">
-			<img src="/static/images/help-64.png" alt="Help" title="Help" />
-		</a>
-	</div>
 </div>
 
 <img src='/static/compass_trans_blank_cropped.png' id='test' alt='Craft Compass' title='Craft Compass' usemap="#testmapxx">
