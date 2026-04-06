@@ -36,27 +36,15 @@ async def add_competency(competency:Competency):
 @router.get("/{quadrant}/{sector}/")
 async def get_competency(quadrant:int, sector:int):
     '''return a competency description by Compass index (not database ID!)'''
-    # _test = compass_config_data["configuration"].data_quadrants[quadrant]    #.sectors[sector].title)
-    # _test2 = compass_config_data["configuration"].data_quadrants[quadrant].sectors[sector]
-    # print("x")
     try:
         return {
             "quadrant":{
                 "idx":quadrant,
-                # static file data:
-                # "value":get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["title_parts"]),
-            
-                # database data:
                 "value":get_sector_title_from_data(compass_config_data["configuration"].data_quadrants[quadrant].title),
             },
             "sector":{
                 "idx":sector,
-                # static file data:
-                # "value":get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["sector_parts"][sector]),
-
-                # database data:
                 "value":get_sector_title_from_data(compass_config_data["configuration"].data_quadrants[quadrant].sectors[sector].title),
-
             }
         }
     except IndexError as ex:
