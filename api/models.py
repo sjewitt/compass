@@ -49,7 +49,7 @@ class SectorTitles(BaseModel):  # RENAME!!
 
 class Sector(BaseModel):
     id:int = Field()
-    quadrant_id:int=Field(default_factory=0) # this can probably go?
+    # quadrant_id:int=Field(default_factory=0) # this can probably go?
     title : list[SectorTitles] = Field(max_length=2, default_factory=list)
     summary:str=Field()
     description:str=Field()
@@ -78,7 +78,7 @@ class Sector(BaseModel):
 #         )
 
 class QuadrantTitles(BaseModel):
-    # id: int = Field()   # I DO NOT NEED THIS!!
+    id: int = Field()   # I DO NOT NEED THIS!!
     # quadrant_id:int=Field() # WTF?
     title_part:str=Field()
     coord_x:int  = Field()
