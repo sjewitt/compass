@@ -41,6 +41,7 @@ def get_data(id:int) -> CompassData:
         return result
     except Exception as ex:
         print(ex)
+        return handlers.get_compass(engine,0)   # return a dummy to prevent errors (TO FIX PROPERLY!)
 
 @router.post("/")
 def set_data(definition:CompassDefinition) -> CompassSummary:
@@ -59,19 +60,21 @@ def add_quadrant(quadrant:Quadrant):
 # retrieve quads, including assigned titles
 @router.get("/quadrants/")
 def get_quadrants()->list[Quadrant]:
+    ''' get all quadrants defined in the database '''
     result = handlers.get_quadrants(engine)
     return result
 
-# retrieve quads, without  assigned titles
-@router.get("/quadrants/no_titles/")
-def get_quadrants()->list[Quadrant]:
-    result = handlers.get_quadrants(engine,include_titles=False)
-    return result
+# # retrieve quads, without  assigned titles
+# @router.get("/quadrants/no_titles/")
+# def get_quadrants()->list[Quadrant]:
+#     result = handlers.get_quadrants(engine,include_titles=False)
+#     return result
 
 
 # retrieve all quadrant titles (as list, not assigned (rename this endpoint?))
 @router.get("/quadrants/titles/")
 def get_quadrant_titles() -> list[QuadrantTitles]:
+    ''' get all quadrant titles in the database '''
     result = handlers.get_quadrant_titles(engine)
     return result
 
@@ -92,16 +95,19 @@ def add_sector(sector:Sector):
 
 @router.get("/sectors/")
 def get_sectors()->list[Sector]:
+    ''' get all sectors defined in the database '''
     result = handlers.get_sectors(engine)
     return result
 
 @router.get("/sectors/titles/")
 def get_sector_titles() -> list[SectorTitles]:
+    ''' get all sector titles defined in the database '''
     result = handlers.get_sector_titles(engine)
     return result
 
 @router.get("/sectors/{id}/")
 def get_sector(id:int)->Sector:
+    ''' get a sector by database ID '''
     result = handlers.get_sector(engine, id)
     return result
 
