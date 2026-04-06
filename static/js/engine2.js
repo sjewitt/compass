@@ -11,7 +11,7 @@ var compass_rating;
 var engine = {
 
     // API_URL: "/static/data/display_data_rationalised.json",    // static JSON file
-    API_URL: "/compass/2",    // retrieve JSON form database
+    API_URL: "/compass/1/",    // retrieve JSON form database
     // THIS NEEDS TO BE REPLACED WITH THE STATIC DATA RETURNED BY THE /compass/{id} ENDPOINT 
     CONSTANTS_URL: "/static/data/compass_titles.json",
     /**
@@ -783,7 +783,11 @@ document.addEventListener("DOMContentLoaded",
                     // apply data as required:
                     engine.init(display_data);  // put this into callback
                 })  
-                .catch(error => console.error('Failed to fetch data:', error)); 
+                .catch(error => {
+                    console.error('Failed to fetch data:', error);
+                    return({"status":"error", "message":'Failed to fetch data:', error});
+                }
+                ); 
         }
         // THIS NEEDS TO BE REPLACED WITH THE STATIC DATA RETURNED BY THE /compass/{id} ENDPOINT
         function fetchConstantData() {
