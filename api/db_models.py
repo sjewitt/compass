@@ -44,7 +44,7 @@ class DB_Competency(Base):
 class DB_Quadrant(Base):
     __tablename__ = "quadrants"
     id : Mapped[int] = mapped_column(primary_key=True)
-    children: Mapped[List["DB_QuadrantTitles"]] = relationship(back_populates='parent')
+    # children: Mapped[List["DB_QuadrantTitles"]] = relationship(back_populates='parent')
     # I need to set a relationship so FK constraints are managed.  See:
     # https://docs.sqlalchemy.org/en/21/orm/basic_relationships.html
     # Currently, I can insert ANY integer into the compass definition, but it SHOULD
@@ -64,37 +64,37 @@ class DB_Quadrant(Base):
 class DB_QuadrantTitles(Base):
     __tablename__ = "quadrant_titles"
     id : Mapped[int] = mapped_column(primary_key=True)
-    quadrant_id : Mapped[int] = mapped_column(ForeignKey("quadrants.id"))
+    # quadrant_id : Mapped[int] = mapped_column(ForeignKey("quadrants.id"))
     title_part : Mapped[str] = mapped_column(String)
-    parent: Mapped["DB_Quadrant"] = relationship(back_populates="children")
+    # parent: Mapped["DB_Quadrant"] = relationship(back_populates="children")
     coord_x :  Mapped[int] = mapped_column(Integer)
     coord_y :  Mapped[int] = mapped_column(Integer)
     def __repr__(self):
-        return "<DB_QuadrantTitles(id='%s', quadrant_id='%s', title_part='%s')>" % (
-            self.id, self.quadrant_id, self.title_part
+        return "<DB_QuadrantTitles(id='%s', title_part='%s')>" % (
+            self.id, self.title_part
         )
 
 class DB_Sector(Base):
     __tablename__ = "sectors"
     id : Mapped[int] = mapped_column(primary_key=True)
-    children: Mapped[List["DB_SectorTitles"]] = relationship(back_populates='parent')
+    # children: Mapped[List["DB_SectorTitles"]] = relationship(back_populates='parent')
     # each sector belongs to a quadrant:
-    quadrant_id : Mapped[int] = mapped_column(ForeignKey("quadrants.id"))
+    # quadrant_id : Mapped[int] = mapped_column(ForeignKey("quadrants.id"))
     summary: Mapped[str] = mapped_column(String)
     description: Mapped[str] = mapped_column(String)
     def __repr__(self):
-        return "<DB_Sector(id='%s', children='%s', quadrant_id='%s', summary='%s', description='%s')>" % (
-            self.id, self.children, self.quadrant_id, self.summary, self.description
+        return "<DB_Sector(id='%s', children='%s', summary='%s', description='%s')>" % (
+            self.id, self.children, self.summary, self.description
         )
 
 class DB_SectorTitles(Base):
     __tablename__ = "sector_titles"
     id : Mapped[int] = mapped_column(primary_key=True)
-    sector_id : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
+    # sector_id : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
     title_part : Mapped[str] = mapped_column(String)
     coord_x :  Mapped[int] = mapped_column(Integer)
     coord_y :  Mapped[int] = mapped_column(Integer)
-    parent: Mapped["DB_Sector"] = relationship(back_populates="children")
+    # parent: Mapped["DB_Sector"] = relationship(back_populates="children")
     def __repr__(self):
         return "<DB_SectorTitles(id='%s', sector_id='%s', title_part='%s', coord_x='%s', coord_y='%s', parent='%s')>" % (
             self.id, self.sector_id, self.title_part, self.coord_x, self.coord_y, self.parent
@@ -122,6 +122,16 @@ class DB_CompassDefinition(Base):
     quadrant_3 : Mapped[int] = mapped_column(ForeignKey("quadrants.id"))
     quadrant_4 : Mapped[int] = mapped_column(ForeignKey("quadrants.id"))
 
+    # specify quadrant_title parts:
+    q1_tp1 : Mapped[int] = mapped_column(ForeignKey("quadrant_titles.id"))
+    q1_tp2 : Mapped[int] = mapped_column(ForeignKey("quadrant_titles.id"))
+    q2_tp1 : Mapped[int] = mapped_column(ForeignKey("quadrant_titles.id"))
+    q2_tp2 : Mapped[int] = mapped_column(ForeignKey("quadrant_titles.id"))
+    q3_tp1 : Mapped[int] = mapped_column(ForeignKey("quadrant_titles.id"))
+    q3_tp2 : Mapped[int] = mapped_column(ForeignKey("quadrant_titles.id"))
+    q4_tp1 : Mapped[int] = mapped_column(ForeignKey("quadrant_titles.id"))
+    q4_tp2 : Mapped[int] = mapped_column(ForeignKey("quadrant_titles.id"))
+
     # specify the sectors per quadrant (5, 4, 4, 4)
     quadrant_1_sector_1 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
     quadrant_1_sector_2 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
@@ -129,20 +139,62 @@ class DB_CompassDefinition(Base):
     quadrant_1_sector_4 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
     quadrant_1_sector_5 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
 
+    # specify q1 sector titles
+    q1_s1_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q1_s1_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q1_s2_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q1_s2_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q1_s3_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q1_s3_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q1_s4_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q1_s4_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q1_s5_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q1_s5_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+
     quadrant_2_sector_1 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
     quadrant_2_sector_2 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
     quadrant_2_sector_3 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
     quadrant_2_sector_4 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
+
+    # specify q2 sector titles
+    q2_s1_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q2_s1_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q2_s2_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q2_s2_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q2_s3_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q2_s3_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q2_s4_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q2_s4_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
 
     quadrant_3_sector_1 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
     quadrant_3_sector_2 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
     quadrant_3_sector_3 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
     quadrant_3_sector_4 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
 
+    # specify q3 sector titles
+    q3_s1_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q3_s1_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q3_s2_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q3_s2_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q3_s3_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q3_s3_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q3_s4_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q3_s4_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+
     quadrant_4_sector_1 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
     quadrant_4_sector_2 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
     quadrant_4_sector_3 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
     quadrant_4_sector_4 : Mapped[int] = mapped_column(ForeignKey("sectors.id"))
+
+    # specify q4 sector titles
+    q4_s1_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q4_s1_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q4_s2_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q4_s2_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q4_s3_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q4_s3_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q4_s4_tp1 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
+    q4_s4_tp2 : Mapped[int] = mapped_column(ForeignKey("sector_titles.id"))
 
     # and the Ratings (7!!):
     rating_1 : Mapped[int] = mapped_column(ForeignKey("rating.id"))
