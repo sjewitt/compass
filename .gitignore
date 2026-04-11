@@ -6,6 +6,6 @@ routes/__pycache__/
 api/database/__pycache__/.
 __pycache__/compass.cpython-310.pyc
 api/database/__pycache__/handlers.cpython-310.pyc
-database/db.sqlite
+database/*.sqlite
 *.pyc
 
