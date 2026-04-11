@@ -5,8 +5,10 @@ api/__pycache__/
 routes/__pycache__/
 routes/__pycache__/__init__.cpython-310.pyc
 api/database/__pycache__/
+routes/__pycache__/
 __pycache__/compass.cpython-310.pyc
 api/database/__pycache__/handlers.cpython-310.pyc
+database/*.sqlite
 database/db.sqlite
 *.pyc
 
