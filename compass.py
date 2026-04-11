@@ -83,15 +83,42 @@ async def update_user(request: Request,user_id:int) -> User:
         request=request,name="user_edit.html", context={"user":_user}
     )
 
+# jumpoff page to select or create a compass definition
+# so here, we need to pass in the compass list only
 @app.get("/configure/")
-async def configure(request: Request):
+async def compass_summaries(request: Request):
     # retrieve data we need
-    compass_data = handlers.get_compass(engine=engine,id=2) # to sort. we can't have hardcoded IDs floating about...
+
+    compass_summaries = handlers.get_all_compasses(engine=engine) # to sort. we can't have hardcoded IDs floating about...
+    return templates.TemplateResponse(
+        request=request,
+        name="compass_summaries.html",
+        context={"compass_summaries":compass_summaries}
+    )
+
+@app.get("/configure/new/")
+async def compass_new(request: Request):
+    # retrieve data we need
+    # get empty configuration?
+    data = {"test":"testy"}
+    return templates.TemplateResponse(
+        request=request,
+        # name="new_compass.html",
+        name="dummy.html",
+        context={"data":data},
+    )
+
+@app.get("/configure/{compass_id}/")
+async def configure(request: Request, compass_id: int):
+    # retrieve data we need
+    print(compass_id)
+    compass_data = handlers.get_compass(engine=engine,id=compass_id) # to sort. we can't have hardcoded IDs floating about...
     return templates.TemplateResponse(
         request=request,
         name="configure.html",
         context={"compass_data":compass_data}
     )
+
 
 
 @app.get("/{user_id}/data")

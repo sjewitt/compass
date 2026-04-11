@@ -196,3 +196,115 @@ and is managed by a launch.json in VS Code:
 ```
 
 Thanks Chris N
+
+The sector rings need to reflectthe rating applied to teh current compass
+
+# So what needs to happen for the UI is this:
+
+we need getters for 
+ - sectors (all, without titles)
+ - sector titles (all)
+ - quadrants (all, without titles OR sectors)
+ - quadrant titles (all)
+ - competencis (all)
+
+The actual assembly of a Compass should ONLY be linked in the compass table - therefore ALL of the components should ONLY be discrete objects. What this means is that the definition of the models should be looser, and should only really apply to the assembled Compass complex object.
+
+This ALSO means that the assembly of the compass data should include the TITLES as well - so the individual components are not bound to any given titles at their database table level - which there isn't - so that (I think) means that the model restriction is at fault here??
+
+And then in the edit/create route, I can provide dropdowsn for each sub-component
+
+CREATE SQL:
+-----------
+
+
+insert INTO quadrants (quadrant_summary,quadrant_css_class,quadrant_elem_coords) values ('test','x','y');
+insert into rating (title, description) values ('test', 'desr');
+insert into quadrant_titles (quadrant_id,title_part, coord_x, coord_y) values (1,1,0,0);
+insert into sectors (quadrant_id,summary, description) values (1,'test','test');
+insert into sector_titles (sector_id,title_part, coord_x, coord_y) values (1,'sector y',0,0);
+insert into compass_definition values (
+12,
+	'test',
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1
+);
+
+# 81 Implements branches:
+
+ - 71_72/sj/remove_component_coords_from_database_and_create_as_globals
+ - 74/sj/remove_dependency_on_database_quadrant_css_classname
+ - 77/sj/add_home_button_to_other_templates
+
+
+`.env` usage
+
+https://stackoverflow.com/questions/58602833/flask-app-config-settings-from-env-flaskenv-in-mod-wsgi

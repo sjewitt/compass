@@ -11,7 +11,9 @@ var compass_rating;
 var engine = {
 
     // API_URL: "/static/data/display_data_rationalised.json",    // static JSON file
-    API_URL: "/compass/2",    // retrieve JSON form database
+    API_URL: "/compass/1/",    // retrieve JSON form database
+    // THIS NEEDS TO BE REPLACED WITH THE STATIC DATA RETURNED BY THE /compass/{id} ENDPOINT 
+    CONSTANTS_URL: "/static/data/compass_titles.json",
     /**
      * #47
      * Jan 2026: 
@@ -25,6 +27,7 @@ var engine = {
      *    element ID.
      */
     rating_description_lookup:null,
+    coordinate_lookup: null,
     data_quadrant: null,
     elems: [
         'q-1',
@@ -152,6 +155,11 @@ var engine = {
         }
     },
 
+    loadConstantData: function(data){
+        console.log(data);
+        engine.coordinate_lookup = data;
+    },
+
     // populate data for routes that require it from JSON data file:
     populateCompassImageData: function(){
 
@@ -212,34 +220,33 @@ var engine = {
         // iterate over quadrants:
         for(let qt=0;qt<this.data_quadrants.length;qt++){
             let _polygon = document.createElementNS("http://www.w3.org/2000/svg",'polygon');
-            // for STATIC DATA
-            // _polygon.setAttribute("class",`svg_title ${this.data_quadrants[qt].class}`);
-            // _polygon.setAttribute("points",this.data_quadrants[qt].points);
+            
             // for DATABASE DATA:
-            _polygon.setAttribute("class",`svg_title ${this.data_quadrants[qt].quadrant_css_class}`);
-            _polygon.setAttribute("points",this.data_quadrants[qt].quadrant_elem_coords);            
+            _polygon.setAttribute("class",`svg_title svg_quadrant_${qt+1}`);
+            // THIS NEEDS TO BE REPLACED WITH THE STATIC DATA RETURNED BY THE /compass/{id} ENDPOINT
+            // LOG DATA REGARDING THAT API CALL HERE!!
+            _polygon.setAttribute("points",engine.coordinate_lookup.quadrants[qt].points);
+
 
             // and append to the wrapper:
             _render_titles.appendChild(_polygon);
             
-            // iterate over these lines of text, to generate a <text> element
-            // STATIC DATA:
-            // for(let qtp=0;qtp<this.data_quadrants[qt].title_parts.length;qtp++){
-            //     let _title = document.createElementNS("http://www.w3.org/2000/svg",'text');
-            //     _title.setAttribute('id',`svg_title_${qt+1}_${qtp+1}`);
-            //     _title.setAttribute('class',`svg_quad_title ${this.data_quadrants[qt].class}`);
-            //     _title.setAttribute('font-size','24');
-            //     _title.setAttribute('x',this.data_quadrants[qt].title_parts[qtp].coords[0]);
-            //     _title.setAttribute('y',this.data_quadrants[qt].title_parts[qtp].coords[1]);
-
-            // DATABASE DATA
+            // iterate over title parts for each quadrant (0, 1 or 2):
             for(let qtp=0;qtp<this.data_quadrants[qt].title.length;qtp++){
                 let _title = document.createElementNS("http://www.w3.org/2000/svg",'text');
                 _title.setAttribute('id',`svg_title_${qt+1}_${qtp+1}`);
-                _title.setAttribute('class',`svg_quad_title ${this.data_quadrants[qt].quadrant_css_class}`);
+                // This replaces classname stored in database with auto-generated one:
+                console.log()
+                _title.setAttribute('class',`svg_quad_title svg_quadrant_${qt+1}`);
                 _title.setAttribute('font-size','24');
-                _title.setAttribute('x',this.data_quadrants[qt].title[qtp].coord_x);
-                _title.setAttribute('y',this.data_quadrants[qt].title[qtp].coord_y);
+                
+                // TODO:
+                // for #71/#72 here we would define a lookup for qt/qtp for specific coords 
+                
+                console.log(engine.coordinate_lookup.quadrants[qt].title, qt, qtp);
+                _title.setAttribute('x',engine.coordinate_lookup.quadrants[qt].title[qtp].coords[0]);
+                _title.setAttribute('y',engine.coordinate_lookup.quadrants[qt].title[qtp].coords[1]);
+                
                 // and append to the wrapper:
                 _render_titles.appendChild(_title);
             }
@@ -247,25 +254,17 @@ var engine = {
             // and for each quadrant, generate the sector titles:
             for(let stp=0;stp<this.data_quadrants[qt].sectors.length;stp++){
                 let sector_title_array = this.data_quadrants[qt].sectors[stp].title;
-                // console.log(stp)    //OK
-                // console.log(sector_title_array) //OK - actually this is now an Object = {quadrant_id: 2, title: Array(2), summary: 'a', description: 'a'}
                 // and for each of these, generate a <text> element:
                 for(let xx=0;xx<sector_title_array.length;xx++){
 
                     let _sector_title = document.createElementNS("http://www.w3.org/2000/svg",'text');
                     _sector_title.setAttribute('id',`svg_sector_${qt+1}_${stp+1}_${xx+1}`);
                     _sector_title.setAttribute('font-size','14');
-                    // console.log(`svg_sector_${qt+1}_${stp+1}_${xx+1}`); //OK
-
-                    // STATIC DATA
-                    // _sector_title.setAttribute('x',sector_title_array[xx].coords[0]);
-                    // _sector_title.setAttribute('y',sector_title_array[xx].coords[1]);
 
                     // DATABASE DATA
-                    _sector_title.setAttribute('x',sector_title_array[xx].coord_x);
-                    _sector_title.setAttribute('y',sector_title_array[xx].coord_y);
-                    // console.log(_sector_title)
-
+                    // with static lookups:
+                    _sector_title.setAttribute('x',engine.coordinate_lookup.quadrants[qt].sectors[stp][xx].coords[0]);
+                    _sector_title.setAttribute('y',engine.coordinate_lookup.quadrants[qt].sectors[stp][xx].coords[1]);
                     _render_titles.appendChild(_sector_title);
                 }
             }
@@ -314,7 +313,7 @@ var engine = {
                     console.log(elem_id);
                     try{
                         let elem = document.getElementById(elem_id);
-                        console.log(elem)
+                        console.log(elem);
                         console.log(current_words.sectors[z-1].title);
                         let txt = document.createTextNode(current_words.sectors[z-1].title[xx-1].title_part);
                         elem.appendChild(txt);
@@ -784,8 +783,30 @@ document.addEventListener("DOMContentLoaded",
                     // apply data as required:
                     engine.init(display_data);  // put this into callback
                 })  
-                .catch(error => console.error('Failed to fetch data:', error)); 
+                .catch(error => {
+                    console.error('Failed to fetch data:', error);
+                    return({"status":"error", "message":'Failed to fetch data:', error});
+                }
+                ); 
+        }
+        // THIS NEEDS TO BE REPLACED WITH THE STATIC DATA RETURNED BY THE /compass/{id} ENDPOINT
+        function fetchConstantData() {
+            fetch(engine.CONSTANTS_URL)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();  
+                })
+                .then(constant_data => {
+                    // apply data as required:
+                    engine.loadConstantData(constant_data);  // put this into callback
+                })  
+                .catch(error => console.error('Failed to fetch constant data:', error)); 
         }
         fetchJSONData(); 
+        // test:
+        // THIS NEEDS TO BE REPLACED WITH THE STATIC DATA RETURNED BY THE /compass/{id} ENDPOINT
+        fetchConstantData();
     }
 )

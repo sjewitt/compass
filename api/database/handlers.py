@@ -18,7 +18,6 @@ def check_quadrant_bounds(index:int) -> bool:
         return False
     return True
 
-
 # NOTE: Quadrant 0 has 5 sectors, all others have 4
 def check_sector_bounds(quadrant_index:int, sector_index) -> bool:
     upper_bound = 3
@@ -53,7 +52,6 @@ def check_competency_is_applied_to_user_already(engine,competency:DB_Competency)
         if result:
             return True
         return False
-
 
 def add_user(engine,user:DB_User):
     # eventually, this all needs to go in database.py
@@ -155,6 +153,7 @@ def get_user(engine, user_id:int) -> User|None:
         stmt = select(DB_User).where(DB_User.id == user_id)
         result = []
         # need to convert the DB_User into a User, so th epydantic validation works
+        # also, TODO: need to update this to return ONE result...
         for row in session.scalars(stmt):
             _usr = User(id=row.id,name=row.name,username=row.username, email=row.email)
             result.append(_usr)   # new: A User()
@@ -282,25 +281,30 @@ def add_quadrant(engine,quadrant:Quadrant) -> dict:
             return {f"action":"quadrantcreate","message":"Failed: {ex}", "quadrantcreated":False}        
     return {"action":"quadrantcreate","message":"Failed", "quadrantcreated":False}
 
-def get_quadrants(engine) -> list[Quadrant]:
+def get_quadrants(engine, include_titles=False) -> list[Quadrant]:
     with Session(engine) as session:
         print("getting quads")
         result = []
         _quads = session.query(DB_Quadrant)
         print(_quads)
+        
         # get each quad's title parts:
         for _quad in _quads:
             try:
-                _db_quad_titles = session.query(DB_QuadrantTitles).where(DB_QuadrantTitles.quadrant_id==_quad.id).all()
-                _titleparts=[]
-                for _title_part in _db_quad_titles:
-                    _x = QuadrantTitles(id=_title_part.id, title_part = _title_part.title_part)
-                    _titleparts.append(_x)
+                _titles = []
+                if include_titles:
+                    _db_quad_titles = session.query(DB_QuadrantTitles).where(DB_QuadrantTitles.quadrant_id==_quad.id).all()
+                    _titleparts=[]
+                    for _title_part in _db_quad_titles:
+                        _x = QuadrantTitles(id=_title_part.id, title_part = _title_part.title_part)
+                        _titleparts.append(_x)
+                    _titles = _titleparts
 
                 # build the final output as fully populated Quadrant:
+                # there may be scope here for a Quadrant variant taht doesn't include title or sector array
                 _res = Quadrant(
                     id=_quad.id,
-                    title=_titleparts,
+                    title=_titles,
                     quadrant_summary=_quad.quadrant_summary,
                     quadrant_css_class=_quad.quadrant_css_class,
                     quadrant_elem_coords=_quad.quadrant_elem_coords,
@@ -311,16 +315,17 @@ def get_quadrants(engine) -> list[Quadrant]:
         return result
 
 def get_quadrant(engine, id:int) -> Quadrant:
+    ''' get a quadrant by database ID '''
     with Session(engine) as session:
         db_quad = session.query(DB_Quadrant).where(DB_Quadrant.id == id).first()
-        db_quad_titles = session.query(DB_QuadrantTitles).where(DB_QuadrantTitles.quadrant_id==id).all()
+        # db_quad_titles = session.query(DB_QuadrantTitles).where(DB_QuadrantTitles.quadrant_id==id).all()
         _titleparts=[]
-        for title_part in db_quad_titles:
-            _x = QuadrantTitles(title_part = title_part.title_part)
-            # cannot do this in one step!:
-            # _titleparts.append(QuadrantTitles(title_part.title_part))
-            # need to do this:
-            _titleparts.append(_x)
+        # for title_part in db_quad_titles:
+        #     _x = QuadrantTitles(title_part = title_part.title_part)
+        #     # cannot do this in one step!:
+        #     # _titleparts.append(QuadrantTitles(title_part.title_part))
+        #     # need to do this:
+        #     _titleparts.append(_x)
 
         # build the final output as fully populated Quadrant:
         res = Quadrant(
@@ -336,13 +341,17 @@ def get_quadrant(engine, id:int) -> Quadrant:
 # (test) this is fine...
 def get_quadrant_titles(engine) -> list[QuadrantTitles]:
     with Session(engine) as session:
-        _x = session.query(DB_QuadrantTitles).all()
         _z = []
-        for _y in _x:
-            print(_y) # db model
-            _z.append(QuadrantTitles(id=_y.id, title_part = _y.title_part, coord_x=_y.coord_x, coord_y=_y.coord_y)) # model
-        return(_z)
-
+        try:
+            _x = session.query(DB_QuadrantTitles).all()
+            
+            for _y in _x:
+                print(_y) # db model
+                _z.append(QuadrantTitles(id=_y.id, title_part = _y.title_part, coord_x=_y.coord_x, coord_y=_y.coord_y)) # model
+            return(_z)
+        except Exception as ex:
+            print(ex)
+        return _z
 
 def add_sector(engine,sector:Sector) -> dict:
     with Session(engine) as session:
@@ -372,19 +381,61 @@ def add_sector(engine,sector:Sector) -> dict:
 
 def get_sectors(engine) -> list[Sector]:
     with Session(engine) as session:
-        db_sectors = session.query(DB_Sector).all()
-        return None # TODO
+        # I think here I don't want to retrieve the childs (titles)
+        # I think also the DB model should be looser?
+        # possibly not. The Compass definition does not (YET!!) include
+        # a lookup for sector or quadrant title. Therefore, the model should change to
+        # remove this dependency comletely].
+        # I may be left in the short term with a mismatch between a sector and it's 
+        # intrinsically associated titles, and that defined by the Compass itself
+        # (same for quad titles I think)
+        # This is a big TODO:
+        # Although, because I need to return a [Sector] (not a [DB_Sector]) I can
+        # filter any childs out HERE as I construct the return data.
+        _db_sectors = session.query(DB_Sector).all()
+        _out = []
+        for _db_sector in _db_sectors:
+            _out.append(
+                Sector(
+                    id = _db_sector.id,
+                    # quadrant_id = 0,
+                    title=[],
+                    summary = _db_sector.summary,
+                    description = _db_sector.description,
+                )
+            )
+        return _out
 
 def get_sector(engine,id:int) -> Sector:
     with Session(engine) as session:
         db_sector = session.query(DB_Sector).where(DB_Sector.id == id).first()
-        result = Sector(
-            quadrant_id = db_sector.quadrant_id,
-            title = [],
-            summary = db_sector.summary,
-            description = db_sector.description,
+        try:
+            result = Sector(
+                id=db_sector.id,
+                # quadrant_id = db_sector.quadrant_id,
+                title = [],
+                summary = db_sector.summary,
+                description = db_sector.description,
+            )
+            return result
+        except Exception as ex:
+            print(ex)
+
+def get_sector_titles(engine) -> list[SectorTitles]:
+    ''' return all sector titles '''
+    with Session(engine) as session:
+        _dbresults = session.query(DB_SectorTitles).all()
+        _results = []
+        for _dbresult in _dbresults:
+            _results.append(SectorTitles(
+                id=_dbresult.id,
+                title_part=_dbresult.title_part, 
+                coord_x=_dbresult.coord_x,
+                coord_y=_dbresult.coord_y,
+            )
         )
-        return result
+        return _results
+
 
 def add_rating(engine, rating:Rating) -> bool:
     with Session(engine) as session:
@@ -401,6 +452,7 @@ def add_rating(engine, rating:Rating) -> bool:
             return False
 
 def get_ratings(engine) -> list[Rating]:
+    ''' get all ratings defined in database '''
     with Session(engine) as session:
         try:
             _ratings = []
@@ -417,10 +469,12 @@ def get_ratings(engine) -> list[Rating]:
             logging.warning(f"Failed to retrieve ratings: {ex}")
 
 def get_rating(engine, id:int) -> Rating:
+    ''' get a rating by database ID '''
     with Session(engine) as session:
         try:  
             _db_rating = session.query(DB_Rating).where(DB_Rating.id == id).first()
             _rating = Rating(
+                id=_db_rating.id,
                 title = _db_rating.title,
                 description = _db_rating.description,
             )
@@ -428,6 +482,21 @@ def get_rating(engine, id:int) -> Rating:
         except Exception as ex:
             logging.warning(f"Failed to retrieve rating {id}: {ex}")
 
+# get the lists of all configured data to use as dropdowns for compass assembly page:
+# (give it an API endpoint too)
+def retrieve_all_configured_data():
+    all_ratings = get_ratings()
+    all_quadrants = get_quadrants()
+    all_sectors = get_sectors()
+
+    data = {
+        "ratings": all_ratings,
+        "quadrants":all_quadrants,
+        "sectors":all_sectors,
+        }
+    return data
+
+# MOVE TO A NEW HANDLER:
 # retrieve all compases (summary)
 def get_all_compasses(engine) -> list[CompassSummary]:
     with Session(engine) as session:
@@ -447,43 +516,43 @@ def get_all_compasses(engine) -> list[CompassSummary]:
     print("error")
     return []
 
-
 # retrieve current compass data
+# re #72, this may be a good placve to return the static coords data (I think
+# the dababase column is ignored - though returned.)
+# Let's add the constants to the models.
 def get_compass(engine, id:int) -> CompassData:
     with Session(engine) as session:
         
         # THIS syntax works as a compound query:
         # result = session.query(DB_CompassDefinition,DB_Quadrant).where(DB_CompassDefinition.id==id).where(DB_Quadrant.id==DB_CompassDefinition.quadrant_1).first()
-        
-        # tests
         _db_compass_def = session.query(DB_CompassDefinition).where(DB_CompassDefinition.id==id).first()
+        _compass = {}
         if _db_compass_def:
 
-            # it's actually this:
-            # https://stackoverflow.com/questions/8603088/sqlalchemy-in-clause
-            # geeksforgeeks.org/python/how-to-use-the-in-operator-in-sqlalchemy-in-python/
-            _db_quadrants = session.query(DB_Quadrant).where(
-                DB_Quadrant.id.in_((
-                _db_compass_def.quadrant_1,
-                _db_compass_def.quadrant_2,
-                _db_compass_def.quadrant_3,
-                _db_compass_def.quadrant_4,)
-                )
-            ).all()
+            # explicitly retrieve each quad (even if it's the same one twice):
+            _db_quadrants = []
+            _db_quadrants.append(session.query(DB_Quadrant).where(DB_Quadrant.id == _db_compass_def.quadrant_1).first())
+            _db_quadrants.append(session.query(DB_Quadrant).where(DB_Quadrant.id == _db_compass_def.quadrant_2).first())
+            _db_quadrants.append(session.query(DB_Quadrant).where(DB_Quadrant.id == _db_compass_def.quadrant_3).first())
+            _db_quadrants.append(session.query(DB_Quadrant).where(DB_Quadrant.id == _db_compass_def.quadrant_4).first())
 
-            _db_ratings = session.query(DB_Rating).where(
-                DB_Rating.id.in_((
-                    _db_compass_def.rating_1,
-                    _db_compass_def.rating_2,
-                    _db_compass_def.rating_3,
-                    _db_compass_def.rating_4,
-                    _db_compass_def.rating_5,
-                    _db_compass_def.rating_6,
-                    _db_compass_def.rating_7,)
-                )
-            ).all()
+            _db_quadrant_titles = []
+            _db_quadrant_titles.append(_get_quadrant_title_parts(session, _db_compass_def.q1_tp1,_db_compass_def.q1_tp2))
+            _db_quadrant_titles.append(_get_quadrant_title_parts(session, _db_compass_def.q2_tp1,_db_compass_def.q2_tp2))
+            _db_quadrant_titles.append(_get_quadrant_title_parts(session, _db_compass_def.q3_tp1,_db_compass_def.q3_tp2))
+            _db_quadrant_titles.append(_get_quadrant_title_parts(session, _db_compass_def.q4_tp1,_db_compass_def.q4_tp2))
 
-            # it's a flat, unlinked data structure...
+            #likewise for ratings:
+            _db_ratings = []
+            _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_1).first())
+            _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_2).first())
+            _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_3).first())
+            _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_4).first())
+            _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_5).first())
+            _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_6).first())
+            _db_ratings.append(session.query(DB_Rating).where(DB_Rating.id == _db_compass_def.rating_7).first())
+
+            # then get each quadrant's sectors:
             _db_q1_sectors = [
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_1_sector_1).first(),
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_1_sector_2).first(),
@@ -492,11 +561,28 @@ def get_compass(engine, id:int) -> CompassData:
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_1_sector_5).first(),
             ]
 
+            # and for each quadrant's sectors, get the titles:
+            _q1_sectors_titles = [
+                _get_sector_title_parts(session,_db_compass_def.q1_s1_tp1,_db_compass_def.q1_s1_tp2),
+                _get_sector_title_parts(session,_db_compass_def.q1_s2_tp1,_db_compass_def.q1_s2_tp2),
+                _get_sector_title_parts(session,_db_compass_def.q1_s3_tp1,_db_compass_def.q1_s3_tp2),
+                _get_sector_title_parts(session,_db_compass_def.q1_s4_tp1,_db_compass_def.q1_s4_tp2),
+                _get_sector_title_parts(session,_db_compass_def.q1_s5_tp1,_db_compass_def.q1_s5_tp2),
+            ] 
+
+
             _db_q2_sectors = [
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_2_sector_1).first(),
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_2_sector_2).first(),
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_2_sector_3).first(),
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_2_sector_4).first(),
+            ]
+            
+            _q2_sectors_titles = [
+                _get_sector_title_parts(session,_db_compass_def.q2_s1_tp1,_db_compass_def.q2_s1_tp2),
+                _get_sector_title_parts(session,_db_compass_def.q2_s2_tp1,_db_compass_def.q2_s2_tp2),
+                _get_sector_title_parts(session,_db_compass_def.q2_s3_tp1,_db_compass_def.q2_s3_tp2),
+                _get_sector_title_parts(session,_db_compass_def.q2_s4_tp1,_db_compass_def.q2_s4_tp2),
             ]
 
             _db_q3_sectors = [
@@ -506,6 +592,13 @@ def get_compass(engine, id:int) -> CompassData:
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_3_sector_4).first(),
             ]
 
+            _q3_sectors_titles = [
+                _get_sector_title_parts(session,_db_compass_def.q3_s1_tp1,_db_compass_def.q3_s1_tp2),
+                _get_sector_title_parts(session,_db_compass_def.q3_s2_tp1,_db_compass_def.q3_s2_tp2),
+                _get_sector_title_parts(session,_db_compass_def.q3_s3_tp1,_db_compass_def.q3_s3_tp2),
+                _get_sector_title_parts(session,_db_compass_def.q3_s4_tp1,_db_compass_def.q3_s4_tp2),
+            ]
+
             _db_q4_sectors = [
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_4_sector_1).first(),
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_4_sector_2).first(),
@@ -513,29 +606,53 @@ def get_compass(engine, id:int) -> CompassData:
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_4_sector_4).first(),
             ]
 
-            _q1_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_1,_db_q1_sectors)
-            _q2_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_2,_db_q2_sectors)
-            _q3_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_3,_db_q3_sectors)
-            _q4_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_4,_db_q4_sectors)
+            _q4_sectors_titles = [
+                _get_sector_title_parts(session,_db_compass_def.q4_s1_tp1,_db_compass_def.q4_s1_tp2),
+                _get_sector_title_parts(session,_db_compass_def.q4_s2_tp1,_db_compass_def.q4_s2_tp2),
+                _get_sector_title_parts(session,_db_compass_def.q4_s3_tp1,_db_compass_def.q4_s3_tp2),
+                _get_sector_title_parts(session,_db_compass_def.q4_s4_tp1,_db_compass_def.q4_s4_tp2),
+            ]
 
+            # Then construct the pydantic model from the database models returned:
+            # [I already have teh title IDs, so use them here?]
+
+            _q1_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_1,_db_q1_sectors,_q1_sectors_titles)
+            _q2_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_2,_db_q2_sectors,_q2_sectors_titles)
+            _q3_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_3,_db_q3_sectors,_q3_sectors_titles)
+            _q4_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_4,_db_q4_sectors,_q4_sectors_titles)
+
+            # these are pydantic models:
             _sectors = [_q1_sectors,_q2_sectors,_q3_sectors,_q4_sectors]
-            _quadrants = _get_quadrant_models_from_db_models(_db_quadrants, _sectors)
+
+            # and THESE are database models (should probably modify to pass same type of data):
+            # although it may be OK as all this is doing is attaching the rithr Sectors to each 
+            # returned Quadrant.
+            # update: as I am building the entire thing here, and I now have the quad titles for each, I
+            # can pass them in here (though be careful with model vs db_model types!!)
+            _quadrants = _get_quadrant_models_from_db_models(_db_quadrants,_db_quadrant_titles, _sectors)
+            
             _ratings = _get_rating_models_from_db_models(_db_ratings)
 
             try:
                 _compass = CompassData(
+                    id = _db_compass_def.id,
+                    title = _db_compass_def.name,
                     data_quadrants = _quadrants,
                     # and we need the `ratings_description_lookup` field too:
-                    rating_description_lookup = _ratings
-
+                    rating_description_lookup = _ratings,
+                    # titles = [{"points":[1,2,3,4,5,6,7,8], "title":}]
                 )
+
             except RequestValidationError as ex:
+                print("request validation error")
                 print(ex)
 
             except ResponseValidationError as ex:
+                print("response validation error")
                 print(ex)
 
             except Exception as ex:
+                print("Exception")
                 print(ex)
             # # retrieve the compass data by ID, then use the FK IDs to reconstruct the actual data
             # # from the stored data (TODO: UI to create...)
@@ -555,23 +672,30 @@ def get_compass(engine, id:int) -> CompassData:
             #         break
             #     counter+=1
             # pass
-
+            print(_compass)
             ## TODO: I meed to model the competency level data - this needs a new table
             return _compass
         else:
             print(f"No compass matching ID {id}")
+            return CompassData()
             raise IndexError(f"No compass matching ID {id}")
 
-def _get_quadrant_models_from_db_models(db_quadrant_model_list:list[DB_Quadrant],sector_models_list):
+
+def _get_quadrant_models_from_db_models(
+        db_quadrant_model_list:list[DB_Quadrant],
+        quadrant_titles_list:list[list[QuadrantTitles]],
+        sector_models_list:list[list[Sector]]) -> list[Quadrant]:
     _out = []
     _counter = 0
     for db_quadrant_model in db_quadrant_model_list:
         logging.debug(db_quadrant_model)
 
         _titles = []
-        for title_part in db_quadrant_model.children:  # the sector titles
+        # _titles.append(quadrant_titles_list[_counter][0])
+        for title_part in quadrant_titles_list[_counter]:  # the sector titles
             _titles.append(
                 QuadrantTitles(
+                    id=title_part.id,
                     title_part=title_part.title_part,
                     coord_x=title_part.coord_x,
                     coord_y=title_part.coord_y,
@@ -593,29 +717,34 @@ def _get_quadrant_models_from_db_models(db_quadrant_model_list:list[DB_Quadrant]
             logging.warning(f"failed to add quadrant {ex}")
     return _out
         
-def _get_sector_models_from_db_models(quadrant_id:int, db_sector_model_list:list[DB_Sector]) -> list[Sector]:
+def _get_sector_models_from_db_models(quadrant_id:int, db_sector_model_list:list[DB_Sector],sector_title_model_list) -> list[Sector]:
+    ''' retrieve the list of title parts for each set of sectors for supplied quadrant data '''
     _out = []
+    _counter = 0
     for db_sector_model in db_sector_model_list:
         # print(db_sector_model)
         
         _titles = []
-        for title_part in db_sector_model.children:  # the sector titles
+        for title_part in sector_title_model_list[_counter]:  # the sector titles
             _titles.append(
                 SectorTitles(
+                    id=title_part.id,
                     title_part=title_part.title_part,
                     coord_x=title_part.coord_x,
                     coord_y=title_part.coord_y,
-                )
+               )
             )
+            
         _out.append(
             Sector(
+                id=db_sector_model.id,
                 quadrant_id=quadrant_id,
-                title=_titles,
+                title=_titles,  # MAY NEED TO REMOVE THIS FORM THE MODEL!
                 summary=db_sector_model.summary,
                 description=db_sector_model.description,
             )
         )
-
+        _counter += 1
     return _out
 
 def _get_rating_models_from_db_models(db_rating_model_list:list[DB_Rating]) -> list[Rating]:
@@ -630,7 +759,31 @@ def _get_rating_models_from_db_models(db_rating_model_list:list[DB_Rating]) -> l
         )
     return _out
 
-    
+def _get_quadrant_title_parts(session,tp1:int, tp2:int) -> list[QuadrantTitles]:
+    ''' return an array of titles [0, 1 or 2 length] '''
+    _returnval = []
+    if tp1 and tp2: # not null, or > 0
+        _returnval.append(session.query(DB_QuadrantTitles).where(DB_QuadrantTitles.id == tp1).first())
+        _returnval.append(session.query(DB_QuadrantTitles).where(DB_QuadrantTitles.id == tp2).first())
+    if tp1 and not tp2: # not null, or > 0
+        _returnval.append(session.query(DB_QuadrantTitles).where(DB_QuadrantTitles.id == tp1).first())
+    if tp2 and not tp1: # not null, or > 0
+        _returnval.append(session.query(DB_QuadrantTitles).where(DB_QuadrantTitles.id == tp2).first())
+    return _returnval
+
+def _get_sector_title_parts(session,tp1:int, tp2:int) -> list[SectorTitles]:
+    ''' return an array of titles [0, 1 or 2 length] '''
+    _returnval = []
+    if tp1 and tp2: # not null, or > 0
+        _returnval.append(session.query(DB_SectorTitles).where(DB_SectorTitles.id == tp1).first())
+        _returnval.append(session.query(DB_SectorTitles).where(DB_SectorTitles.id == tp2).first())
+    if tp1 and not tp2: # not null, or > 0
+        _returnval.append(session.query(DB_SectorTitles).where(DB_SectorTitles.id == tp1).first())
+    if tp2 and not tp1: # not null, or > 0
+        _returnval.append(session.query(DB_SectorTitles).where(DB_SectorTitles.id == tp2).first())
+    return _returnval
+
+
 # TODO: Split handlers into modules mirroring the routers:
 
 # generate compass data using extisting quadrants and sectors:
@@ -673,6 +826,15 @@ def set_compass(engine, definition:CompassDefinition,id:int = 0) -> int:
                 quadrant_4_sector_2 = definition.quadrants[3].sectors[1],            
                 quadrant_4_sector_3 = definition.quadrants[3].sectors[2],
                 quadrant_4_sector_4 = definition.quadrants[3].sectors[3],
+
+                # Ratings
+                rating_1 = definition.ratings[0],
+                rating_2 = definition.ratings[1],
+                rating_3 = definition.ratings[2],
+                rating_4 = definition.ratings[3],
+                rating_5 = definition.ratings[4],
+                rating_6 = definition.ratings[5],
+                rating_7 = definition.ratings[6],
             )
             try:
                 session.add(_compass)

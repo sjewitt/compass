@@ -17,6 +17,7 @@ engine = get_engine()
 logging.debug("calling load config with Engine")
 logging.debug(engine)
 compass_config_data = load_config_data(engine=engine, caller="competency")
+# compass_config_data_by_compass = load_config_data(engine=engine, compass_id=1, caller="competency")
 logging.debug("loaded")
 
 @router.post("/add/")
@@ -31,30 +32,19 @@ async def add_competency(competency:Competency):
     return result
 
 # TODO: This needs to use the loaded data, not the python mapper
+# TODO: This needs to account for multiple compass IDs
 @router.get("/{quadrant}/{sector}/")
 async def get_competency(quadrant:int, sector:int):
     '''return a competency description by Compass index (not database ID!)'''
-    # _test = compass_config_data["configuration"].data_quadrants[quadrant]    #.sectors[sector].title)
-    # _test2 = compass_config_data["configuration"].data_quadrants[quadrant].sectors[sector]
-    # print("x")
     try:
         return {
             "quadrant":{
                 "idx":quadrant,
-                # static file data:
-                # "value":get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["title_parts"]),
-            
-                # database data:
                 "value":get_sector_title_from_data(compass_config_data["configuration"].data_quadrants[quadrant].title),
             },
             "sector":{
                 "idx":sector,
-                # static file data:
-                # "value":get_sector_title_from_data(compass_config_data["configuration"]["data_quadrant_titles"][quadrant]["sector_parts"][sector]),
-
-                # database data:
                 "value":get_sector_title_from_data(compass_config_data["configuration"].data_quadrants[quadrant].sectors[sector].title),
-
             }
         }
     except IndexError as ex:
@@ -64,6 +54,37 @@ async def get_competency(quadrant:int, sector:int):
         }
     except KeyError as ex:
         # TODO: construct more informative return values
+        return {
+            "error":f"No match for competency at quadrant:{quadrant}, sector:{sector}. KeyError Exception was {ex}. "
+        }
+    except Exception as ex:
+        return {
+            "error":f"An unexpected error occurred: {ex}"
+        }
+    
+# TODO: This needs to account for multiple compass IDs
+@router.get("/{compass}/{quadrant}/{sector}/")
+async def get_competency(compass:int, quadrant:int, sector:int):
+    '''return a competency description by Compass index (not database ID!)'''
+
+    compass_config_data = load_config_data(engine=engine, compass_id=compass, caller="competency")
+
+    try:
+        return {
+            "quadrant":{
+                "idx":quadrant,
+                "value":get_sector_title_from_data(compass_config_data["configuration"].data_quadrants[quadrant].title),
+            },
+            "sector":{
+                "idx":sector,
+                "value":get_sector_title_from_data(compass_config_data["configuration"].data_quadrants[quadrant].sectors[sector].title),
+            }
+        }
+    except IndexError as ex:
+        return {
+            "error":f"out of range got quadrant:{quadrant}, sector:{sector}. IndexError Exception was {ex}."
+        }
+    except KeyError as ex:
         return {
             "error":f"No match for competency at quadrant:{quadrant}, sector:{sector}. KeyError Exception was {ex}. "
         }

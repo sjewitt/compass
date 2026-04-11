@@ -7,14 +7,30 @@
 		<link href="/static/images/favicon.jpg" rel="icon" />
 </head>
 <body data-page="update_user">
-
+	
+<div id="flyout">
 <h1>
+	
+	
+	<div class="button inline_block">
+		<a href="/static/" title="Home">
+			<img src="/static/images/home-2-64.png" alt="Home" title="Home" />
+		</a>
+	</div>
+
+	<div class="button inline_block">
+		<a href="#" title="Help">
+			<img src="/static/images/help-64.png" alt="Help" title="Help" />
+		</a>
+	</div>
 	<div class="button button-static inline_block">
 		<img src="/static/images/edit-user-64.png" alt="Edit user icon" title="Edit user" />
 	</div>
-	Edit User {{ user.name }}</h1>
-
-<div class="panel">
+	
+	Edit User {{ user.name }}
+</h1>
+</div>
+<div class="panel offset_top" >
 	<div>Login:</div><input disabled="disabled" value="{{ user.username }}" name="update_user_login" id="update_user_login" placeholder="Update user login"/>
 	<div>Name:</div> <input type="text" value="{{ user.name }}" name="update_user_name" id="update_user_name" placeholder="Update user name" />
 	<div>Email:</div><input type="text" value="{{ user.email }}" name="update_user_email" id="update_user_email" placeholder="Update user email" />
