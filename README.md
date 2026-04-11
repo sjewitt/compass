@@ -303,3 +303,8 @@ insert into compass_definition values (
  - 71_72/sj/remove_component_coords_from_database_and_create_as_globals
  - 74/sj/remove_dependency_on_database_quadrant_css_classname
  - 77/sj/add_home_button_to_other_templates
+
+
+`.env` usage
+
+https://stackoverflow.com/questions/58602833/flask-app-config-settings-from-env-flaskenv-in-mod-wsgi
