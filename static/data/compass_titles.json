@@ -1,6 +1,7 @@
 {
     "quadrants":[
         {
+            "homepage_title":"TO",
             "points":"807,92,806,174,1010,184,1005,68",
             "title":[{"coords":[829,125]},{"coords":[829,153]}],
             "sectors":[
@@ -12,6 +13,7 @@
             ]
         },
         {
+            "homepage_title":"COMPASS!",
             "points":"818,693,816,761,1020,771,1022,669", 
             "title":[{"coords":[835,720]}, {"coords":[835,748]}],
             "sectors":[
@@ -22,6 +24,7 @@
             ] 
         },
         {
+            "homepage_title":"THE",
             "points":"45,663,211,689,207,770,45,783",
             "title":[{"coords":[60,720]},{"coords":[60,748]}],
             "sectors":[
@@ -32,6 +35,7 @@
             ]
         },
         {
+            "homepage_title":"WELCOME",
             "points":"38,85,237,90,242,177,46,195",
             "title":[{"coords":[60,132]},{"coords":[60,160]}],
             "sectors":[
