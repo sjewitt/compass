@@ -3,11 +3,13 @@ from pydantic import BaseModel, EmailStr, Field
 
 class User(BaseModel):
     id: int=Field()     # new - from DB ID field
+    compass_id:int=Field()
     name: str = Field()
     username: str = Field()
     email: EmailStr = Field()
 
 class CreateUser(BaseModel):
+    compass_id:int=Field()
     name: str = Field()
     username: str = Field()
     email: EmailStr = Field()
@@ -85,8 +87,8 @@ class QuadrantTitles(BaseModel):
     coord_y:int  = Field()
     # override the built-in dunder method so we get a better print:
     def __repr__(self):
-        return "<QuadrantTitles(title_part='%s')>" % (
-            # self.id,
+        return "<QuadrantTitles(id='%s', title_part='%s')>" % (
+            self.id,
             self.title_part
         )
 

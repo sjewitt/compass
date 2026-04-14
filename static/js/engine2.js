@@ -11,8 +11,11 @@ var compass_rating;
 var engine = {
 
     // API_URL: "/static/data/display_data_rationalised.json",    // static JSON file
-    API_URL: "/compass/1/",    // retrieve JSON form database
-    // THIS NEEDS TO BE REPLACED WITH THE STATIC DATA RETURNED BY THE /compass/{id} ENDPOINT 
+    // This is the currently hardcoded URL of a configured compass data API endpoint.
+    // If there is no compass of this ID, the system currently breaks:
+    API_URL: "/compass/1/", 
+
+    // This is the coordiate lookup for the title positions:
     CONSTANTS_URL: "/static/data/compass_titles.json",
     /**
      * #47
@@ -236,13 +239,11 @@ var engine = {
                 let _title = document.createElementNS("http://www.w3.org/2000/svg",'text');
                 _title.setAttribute('id',`svg_title_${qt+1}_${qtp+1}`);
                 // This replaces classname stored in database with auto-generated one:
-                console.log()
                 _title.setAttribute('class',`svg_quad_title svg_quadrant_${qt+1}`);
                 _title.setAttribute('font-size','24');
                 
                 // TODO:
                 // for #71/#72 here we would define a lookup for qt/qtp for specific coords 
-                
                 console.log(engine.coordinate_lookup.quadrants[qt].title, qt, qtp);
                 _title.setAttribute('x',engine.coordinate_lookup.quadrants[qt].title[qtp].coords[0]);
                 _title.setAttribute('y',engine.coordinate_lookup.quadrants[qt].title[qtp].coords[1]);
@@ -334,6 +335,7 @@ var engine = {
         let submit = true;
         data={}
         data['username'] = document.getElementById("new_user_login").value;
+        data['compass_id'] = document.getElementById("compass_id").value;
         data['name'] = document.getElementById("new_user_name").value;
         data['email'] = document.getElementById("new_user_email").value;
         data['password'] = document.getElementById("new_user_pwd").value;
@@ -341,6 +343,7 @@ var engine = {
         if(data["password"] !== data["password_check"]){    // also checks on server
             submit = false;
         }
+        console.table(data);
         // TODO: Do blur/change handlers and alert in real-time 
         if(submit){
             fetch('/users/new/', {
@@ -364,13 +367,15 @@ var engine = {
     },
 
     submitUpdateUserDataHandler: function(){
+        console.log(document.getElementById("compass_id"));
         let submit = true;
         data={}
         data['username'] = document.getElementById("update_user_login").value;
         data['id'] = parseInt(document.getElementById("update_user_id").value);
+        data['compass_id'] = parseInt(document.getElementById("compass_id").value);
         data['name'] = document.getElementById("update_user_name").value;
         data['email'] = document.getElementById("update_user_email").value;
-
+        console.log(data);
         /** 
          * TODO: check if pwds are present, then are the same, then match existing pwd 
          * This needs to call a back-end check so we don't have the old pwd on

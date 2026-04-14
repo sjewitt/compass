@@ -42,11 +42,20 @@
 <!-- <img src='/static/compass_trans.png' id='test' alt='Craft Compass' title="Craft Compass" usemap="#testmap"> -->
 <img src='/static/compass_trans_blank_cropped.png' id='test' alt='Craft Compass' title='Craft Compass' usemap="#testmap">
 
-
+compass for me: {{ user.compass_id }}
 <div style="width:1152px;">
 		<!-- q1 -->
 		<svg viewBox="0 0 1152 900" id="svg_compass">
 			<g id="static_titles">
+				<!--
+				 I need to rework THIS BIT to call for a specific compass based on the user's configured compass. 
+				 So I THINK what I need to do is include the results of another API call to retrieve compass def 
+				 belonging to ME and feed that to the javascript... This I think is a big task. 
+
+				 For now, I'll leave the JS calling a hardcoded (and existing) compass ID (from top of JS file)
+				 -->
+
+
 				<!-- compass titles are pushed in here -->
 			</g>
 

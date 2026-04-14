@@ -34,7 +34,6 @@ def check_ratings_bounds(rating:int):
         return False
     return True
 
-# note: `session` comes from main handler function
 def check_user_exists(engine, user_id:int) -> bool:
     if get_user(engine, user_id):
         return True
@@ -128,6 +127,7 @@ def get_users(engine) -> list[User]|None:
             print(isinstance(row,DB_User))
             _usr = User(
                 id=row.id,
+                compass_id=row.compass_id,
                 name=row.name,
                 username=row.username,
                 email=row.email,
@@ -155,7 +155,12 @@ def get_user(engine, user_id:int) -> User|None:
         # need to convert the DB_User into a User, so th epydantic validation works
         # also, TODO: need to update this to return ONE result...
         for row in session.scalars(stmt):
-            _usr = User(id=row.id,name=row.name,username=row.username, email=row.email)
+            _usr = User(
+                id=row.id,
+                compass_id=row.compass_id,
+                name=row.name,
+                username=row.username, 
+                email=row.email)
             result.append(_usr)   # new: A User()
             # result.append(row) # orig a DB_User()
         if result:
@@ -225,11 +230,12 @@ def update_user(engine, user:User) -> User|None:
             # extract the incoming User data and construct 
 
             if get_user(engine,user.id):
-                stmt = update(DB_User).where(DB_User.id == user.id).values(name=user.name)  #, username=user.username, email=user.email)
-                print(stmt)
+                stmt = update(DB_User).where(DB_User.id == user.id).values(
+                    name=user.name,
+                    compass_id=user.compass_id
+                )  #, username=user.username, email=user.email)
                 result = session.execute(stmt)
                 session.commit()
-                print(result)
                 # TODO: make testing for user more robust! i.e. GET the user first!
                 # # need to convert the DB_User into a User, so th epydantic validation works
                 # for row in session.scalars(stmt):
@@ -357,16 +363,18 @@ def add_sector(engine,sector:Sector) -> dict:
     with Session(engine) as session:
         try:
             _s = DB_Sector(
-                quadrant_id = sector.quadrant_id,
+                # quadrant_id = sector.quadrant_id,
                 summary = sector.summary,
                 description = sector.description,
             )
             session.add(_s) 
             session.flush() # this gives us the ID, which we need to append the title parts:
             new_sector_id = _s.id
+            # to update: redirect to a new add title method (which will need an API endpoint too)
+            # I also don't need the sector ID because there is no FK relationship now...
             for sector_title_part in sector.title:
                 _t = DB_SectorTitles(
-                    sector_id = new_sector_id,
+                    # sector_id = new_sector_id,
                     title_part = sector_title_part.title_part,
                     coord_x = sector_title_part.coord_x,
                     coord_y = sector_title_part.coord_y,
@@ -435,7 +443,6 @@ def get_sector_titles(engine) -> list[SectorTitles]:
             )
         )
         return _results
-
 
 def add_rating(engine, rating:Rating) -> bool:
     with Session(engine) as session:
@@ -677,7 +684,7 @@ def get_compass(engine, id:int) -> CompassData:
             return _compass
         else:
             print(f"No compass matching ID {id}")
-            return CompassData()
+            # return CompassData()
             raise IndexError(f"No compass matching ID {id}")
 
 

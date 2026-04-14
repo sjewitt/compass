@@ -1,0 +1,60 @@
+<html>
+<head>
+	<title>
+	Compass interactive: New User
+	</title>
+		<link type="text/css" href="/static/css/styles2.css" rel="stylesheet" />
+		<link href="/static/images/favicon.jpg" rel="icon" />
+</head>
+<body data-page="add_user">
+	
+<div id="flyout">
+<h1>
+	<div class="button inline_block">
+		<a href="/static/" title="Home">
+			<img src="/static/images/home-2-64.png" alt="Home" title="Home" />
+		</a>
+	</div>
+
+	<div class="button inline_block">
+		<a href="#" title="Help">
+			<img src="/static/images/help-64.png" alt="Help" title="Help" />
+		</a>
+	</div>
+	<div class="button button-static inline_block">
+		<img src="/static/images/edit-user-64.png" alt="New user icon" title="New user" />
+	</div>
+	Add User 
+</h1>
+</div>
+<div class="panel offset_top" >
+	<div>Login:</div><input value="" name="new_user_login" id="new_user_login" placeholder="New user login"/>
+	<div>Name:</div> <input type="text" value="" name="new_user_name" id="new_user_name" placeholder="New user name" />
+	<div>Email:</div><input type="text" value="" name="new_user_email" id="new_user_email" placeholder="New user email" />
+	<div>Add password:</div><input type="password" name="new_user_pwd" id="new_user_pwd" placeholder="New password" />
+	<div>Add password (repeat):</div><input type="password" name="new_user_pwd_repeat" id="new_user_pwd_repeat" placeholder="New password (verify)" />
+	<div>Compass:</div><select name="compass_id" id="compass_id">
+		<option value="-1">Select compass (todo):</option>
+		{% for compass_summary in compasses %}
+		<option value="{{ compass_summary.id }}">{{ compass_summary.name }}</option>
+		{% endfor %}
+	</select>
+<!-- </div>
+<div class="panel offset_top " > -->
+	<div>&nbsp;</div> 
+
+	<div>
+		<div class="button sml_width" id="btn_add_user">
+			<a href="#" title="Add User">Add</a>
+		</div>
+		<div class="button med_width">
+			<a href="/" title="Cancel">Cancel</a>
+		</div>
+	</div>
+	<div id="message"></div>
+</div>
+
+
+</body>
+<script src="/static/js/engine2.js"></script>
+</html>

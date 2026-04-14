@@ -79,8 +79,9 @@ async def template_test(request: Request,user_id:int):
 async def update_user(request: Request,user_id:int) -> User:
     ''' update user's competencies in database '''
     _user = handlers.get_user(engine, user_id)  # get current state of user
+    _compasses = handlers.get_all_compasses(engine)
     return templates.TemplateResponse(
-        request=request,name="user_edit.html", context={"user":_user}
+        request=request,name="user_edit.html", context={"user":_user,"compasses":_compasses}
     )
 
 # jumpoff page to select or create a compass definition
@@ -110,15 +111,23 @@ async def compass_new(request: Request):
 
 @app.get("/configure/{compass_id}/")
 async def configure(request: Request, compass_id: int):
+
     # retrieve data we need
     print(compass_id)
-    compass_data = handlers.get_compass(engine=engine,id=compass_id) # to sort. we can't have hardcoded IDs floating about...
-    return templates.TemplateResponse(
-        request=request,
-        name="configure.html",
-        context={"compass_data":compass_data}
-    )
-
+    try:
+        compass_data = handlers.get_compass(engine=engine,id=compass_id) # to sort. we can't have hardcoded IDs floating about...
+        # I also need the current data for the various components so I can generate the dropdowns as well:
+        quadrants = handlers.get_quadrants(engine=engine)
+        quadrant_titles = handlers.get_quadrant_titles(engine=engine)
+        return templates.TemplateResponse(
+            request=request,
+            name="configure.html",
+            context={"compass_data":compass_data,"quadrants":quadrants,"quadrant_titles":quadrant_titles}
+        )
+    except IndexError as ex:
+        print(f"IndexError: {ex}")
+    except Exception as ex:
+        print(f"Exception: {ex}")
 
 
 @app.get("/{user_id}/data")

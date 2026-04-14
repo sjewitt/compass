@@ -42,52 +42,168 @@
 -->
 	<h1>Configure</h1>
 	<!-- Ooohhh I really need to make semantic HTML here... -->
+	{{quadrants}}
+	<hr>
+	{{quadrant_titles}}
+	<p>TODO: I need a page to CREATE the components. Possibly via an admin jumpoff page?</p>
 	<section>
 
 	</section>
 
 	<h2>Quadrant 1</h2>
 <div class="panel">
-	<div>ID</div><input type="text" disabled="disabled" value="{{compass_data.data_quadrants[0].id}}">
-	<div>Title #1</div><input type="text" value="{{compass_data.data_quadrants[0].title[0].title_part}}">
-{% if compass_data.data_quadrants[0].title|count == 2 %}
-	<div>Title #2</div><input type="text" value="{{compass_data.data_quadrants[0].title[1].title_part}}">
-{% endif %}
-	<div>Summary</div><input type="text" value="{{compass_data.data_quadrants[0].quadrant_summary}}">
-	<div>Coords</div><input disabled="disabled" type="text" value="{{compass_data.data_quadrants[0].quadrant_elem_coords}}">
+	<!-- <div>ID</div><input type="text" disabled="disabled" value="{{compass_data.data_quadrants[0].id}}"> -->
+	<div>Title #1</div>
+	<select>
+		{% for title_part in quadrant_titles %}
+		<option value="{{ title_part.id }}"
+		{% if title_part.id == compass_data.data_quadrants[0].title[0].id %}
+			selected="selected" 
+		{% endif %}
+		>{{ title_part.title_part }}</option>
+		{% endfor %}
+	</select>
+	
+	<!-- <input type="text" value="{{compass_data.data_quadrants[0].title[0].title_part}}"> -->
+<!-- {% if compass_data.data_quadrants[0].title|count == 2 %} -->
+	<div>Title #2</div>
+	<select>
+		<option value="none">Not set</option>
+		{% for title_part in quadrant_titles %}
+		<option value="{{ title_part.id }}"
+		{% if title_part.id == compass_data.data_quadrants[0].title[1].id %}
+			selected="selected" 
+		{% endif %}
+		>{{ title_part.title_part }}</option>
+		{% endfor %}
+	</select>
+	<!-- <input type="text" value="{{compass_data.data_quadrants[0].title[1].title_part}}"> -->
+
+<!-- {% endif %} -->
+	<div>Summary</div>
+	<!-- <input type="text" value="{{compass_data.data_quadrants[0].quadrant_summary}}"> -->
+	<select>
+		{% for quadrant in quadrants %}
+		<option value="{{ quadrant.id }}"
+		{% if quadrant.id == compass_data.data_quadrants[0].id %}
+			selected="selected" 
+		{% endif %}
+		>{{ quadrant.quadrant_summary }}</option>
+		{% endfor %}
+	</select>	 
+	<!-- <div>Coords</div><input disabled="disabled" type="text" value="{{compass_data.data_quadrants[0].quadrant_elem_coords}}"> -->
 </div>
 
 <h2>Quadrant 2</h2>
 <div class="panel">
-	<div>ID</div><input type="text" disabled="disabled" value="{{compass_data.data_quadrants[1].id}}">
-	<div>Title #1</div><input type="text" value="{{compass_data.data_quadrants[1].title[0].title_part}}">
-	{% if compass_data.data_quadrants[1].title|count == 2 %}
-	<div>Title #2</div><input type="text" value="{{compass_data.data_quadrants[1].title[1].title_part}}">
-	{% endif %}
-	<div>Summary</div><input type="text" value="{{compass_data.data_quadrants[1].quadrant_summary}}">
-	<div>Coords</div><input disabled="disabled" type="text" value="{{compass_data.data_quadrants[1].quadrant_elem_coords}}">
+	<div>Title #1</div>
+	<select>
+		{% for title_part in quadrant_titles %}
+		<option value="{{ title_part.id }}"
+		{% if title_part.id == compass_data.data_quadrants[1].title[0].id %}
+			selected="selected" 
+		{% endif %}
+		>{{ title_part.title_part }}</option>
+		{% endfor %}
+	</select>
+	
+	<div>Title #2</div>
+	<select>
+		<option value="none">Not set</option>
+		{% for title_part in quadrant_titles %}
+		<option value="{{ title_part.id }}"
+		{% if title_part.id == compass_data.data_quadrants[1].title[1].id %}
+			selected="selected" 
+		{% endif %}
+		>{{ title_part.title_part }}</option>
+		{% endfor %}
+	</select>
+
+	<div>Summary</div>
+	<select>
+		{% for quadrant in quadrants %}
+		<option value="{{ quadrant.id }}"
+		{% if quadrant.id == compass_data.data_quadrants[1].id %}
+			selected="selected" 
+		{% endif %}
+		>{{ quadrant.quadrant_summary }}</option>
+		{% endfor %}
+	</select>	 
 </div>
 
 <h2>Quadrant 3</h2>
 <div class="panel">
-	<div>ID</div><input type="text" disabled="disabled" value="{{compass_data.data_quadrants[2].id}}">
-	<div>Title #1</div><input type="text" value="{{compass_data.data_quadrants[2].title[0].title_part}}">
-	{% if compass_data.data_quadrants[2].title|count == 2 %}
-	<div>Title #2</div><input type="text" value="{{compass_data.data_quadrants[2].title[1].title_part}}">
-	{% endif %}
-	<div>Summary</div><input type="text" value="{{compass_data.data_quadrants[2].quadrant_summary}}">
-	<div>Coords</div><input disabled="disabled" type="text" value="{{compass_data.data_quadrants[2].quadrant_elem_coords}}">
+	<div>Title #1</div>
+	<select>
+		{% for title_part in quadrant_titles %}
+		<option value="{{ title_part.id }}"
+		{% if title_part.id == compass_data.data_quadrants[2].title[0].id %}
+			selected="selected" 
+		{% endif %}
+		>{{ title_part.title_part }}</option>
+		{% endfor %}
+	</select>
+	
+	<div>Title #2</div>
+	<select>
+		<option value="none">Not set</option>
+		{% for title_part in quadrant_titles %}
+		<option value="{{ title_part.id }}"
+		{% if title_part.id == compass_data.data_quadrants[2].title[1].id %}
+			selected="selected" 
+		{% endif %}
+		>{{ title_part.title_part }}</option>
+		{% endfor %}
+	</select>
+
+	<div>Summary</div>
+	<select>
+		{% for quadrant in quadrants %}
+		<option value="{{ quadrant.id }}"
+		{% if quadrant.id == compass_data.data_quadrants[2].id %}
+			selected="selected" 
+		{% endif %}
+		>{{ quadrant.quadrant_summary }}</option>
+		{% endfor %}
+	</select>	
 </div>
 
 <h2>Quadrant 4</h2>
 <div class="panel">
-	<div>ID</div><input type="text" disabled="disabled" value="{{compass_data.data_quadrants[3].id}}">
-	<div>Title #1</div><input type="text" value="{{compass_data.data_quadrants[3].title[0].title_part}}">
-	{% if compass_data.data_quadrants[3].title|count == 2 %}
-	<div>Title #2</div><input type="text" value="{{compass_data.data_quadrants[3].title[1].title_part}}">
-	{% endif %}
-	<div>Summary</div><input type="text" value="{{compass_data.data_quadrants[3].quadrant_summary}}">
-	<div>Coords</div><input disabled="disabled" type="text" value="{{compass_data.data_quadrants[3].quadrant_elem_coords}}">
+	<div>Title #1</div>
+	<select>
+		{% for title_part in quadrant_titles %}
+		<option value="{{ title_part.id }}"
+		{% if title_part.id == compass_data.data_quadrants[3].title[0].id %}
+			selected="selected" 
+		{% endif %}
+		>{{ title_part.title_part }}</option>
+		{% endfor %}
+	</select>
+	
+	<div>Title #2</div>
+	<select>
+		<option value="none">Not set</option>
+		{% for title_part in quadrant_titles %}
+		<option value="{{ title_part.id }}"
+		{% if title_part.id == compass_data.data_quadrants[3].title[1].id %}
+			selected="selected" 
+		{% endif %}
+		>{{ title_part.title_part }}</option>
+		{% endfor %}
+	</select>
+
+	<div>Summary</div>
+	<select>
+		{% for quadrant in quadrants %}
+		<option value="{{ quadrant.id }}"
+		{% if quadrant.id == compass_data.data_quadrants[3].id %}
+			selected="selected" 
+		{% endif %}
+		>{{ quadrant.quadrant_summary }}</option>
+		{% endfor %}
+	</select>	
+
 </div>
 
 <div class="panel">

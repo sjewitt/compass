@@ -15,6 +15,8 @@ class Base(DeclarativeBase):
 class DB_User(Base):
     __tablename__ = "users"
     id : Mapped[int] = mapped_column(primary_key=True)
+    # TO CHECK ON REBUILD:
+    compass_id: Mapped[int] = mapped_column(ForeignKey("compass_definition.id"))
     name : Mapped[str] = mapped_column(String(50))
     username : Mapped[str] = mapped_column(String(50),unique=True)
     email : Mapped[str] = mapped_column(String(50),unique=True)

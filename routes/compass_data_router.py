@@ -33,7 +33,7 @@ def get_data() -> list[CompassSummary]:
 # Currently, {id} is hardcoded to 2 in the javascript,
 # so I need to allow a compass ID to be passed from the currently
 # logged-in/selected user. TODO: 
-@router.get("/{id}", response_model=CompassData)
+@router.get("/{id}", response_model=CompassData|None)
 def get_data(id:int) -> CompassData:
     ''' retrieve the definition by ID and compose the actual data in the handler '''
     try:
@@ -41,7 +41,8 @@ def get_data(id:int) -> CompassData:
         return result
     except Exception as ex:
         print(ex)
-        return handlers.get_compass(engine,0)   # return a dummy to prevent errors (TO FIX PROPERLY!)
+        # return handlers.get_compass(engine,0)   # return a dummy to prevent errors (TO FIX PROPERLY!)
+        return None
 
 @router.post("/")
 def set_data(definition:CompassDefinition) -> CompassSummary:
