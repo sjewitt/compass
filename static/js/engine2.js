@@ -81,8 +81,12 @@ var engine = {
     // pass in loaded data here 
     init: function (display_data) {
         // and set the properties of the object from the loaded data:
-        this.data_quadrants = display_data.data_quadrants;
-        this.rating_description_lookup = display_data.rating_description_lookup;
+        if(display_data){
+            this.data_quadrants = display_data.data_quadrants;
+            this.rating_description_lookup = display_data.rating_description_lookup;
+        }
+        
+        
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
         for (var _i = 0, _a = this.elems; _i < _a.length; _i++) {
             var id = _a[_i];
@@ -360,7 +364,8 @@ var engine = {
                  * try with JS instead:
                  */
                 if(response.usercreated){
-                    document.location.href=`/static/?user_id=${response.user_id}`
+                    // document.location.href=`/static/?user_id=${response.user_id}`
+                    document.location.href=`/${response.user_id}`
                 }
             });
         }
