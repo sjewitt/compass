@@ -103,14 +103,20 @@ async def compass_summaries(request: Request):
 @app.get("/configure/new/")
 async def compass_new(request: Request):
     # retrieve data we need
-    # get empty configuration?
-    data = {"test":"testy"}
-    return templates.TemplateResponse(
-        request=request,
-        # name="new_compass.html",
-        name="dummy.html",
-        context={"data":data},
-    )
+    try:
+        # compass_data = handlers.get_compass(engine=engine) # to sort. we can't have hardcoded IDs floating about...
+        # I also need the current data for the various components so I can generate the dropdowns as well:
+        quadrants = handlers.get_quadrants(engine=engine)
+        quadrant_titles = handlers.get_quadrant_titles(engine=engine)
+        return templates.TemplateResponse(
+            request=request,
+            name="configure.html",
+            context={"compass_data":None,"quadrants":quadrants,"quadrant_titles":quadrant_titles}
+        )
+    except IndexError as ex:
+        print(f"IndexError: {ex}")
+    except Exception as ex:
+        print(f"Exception: {ex}")
 
 @app.get("/configure/{compass_id}/")
 async def configure(request: Request, compass_id: int):
