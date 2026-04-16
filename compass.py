@@ -64,8 +64,11 @@ Base.metadata.create_all(engine)
 # load_config_data()
 
 @app.get("/")
-async def root():
-    return RedirectResponse("/static/")
+async def root(request: Request):
+    # return RedirectResponse("/static/")
+    return templates.TemplateResponse(
+        request=request,name="home.html", context={}
+    )
 
 # template test:
 @app.get("/{user_id}")
