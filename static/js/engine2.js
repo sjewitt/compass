@@ -114,7 +114,6 @@ var engine = {
         };
 
         if (page === 'svg') {
-            
             this.loadAndBuildUserDropdown();
         }
 
@@ -145,6 +144,19 @@ var engine = {
             }
         }
 
+        if(page === "configure"){
+            // apply handler to tabs:
+            let tabber_elems = document.getElementsByClassName("panel_selector_tab");
+            for(let x=0;x<tabber_elems.length; x++){
+                console.log(tabber_elems[x].getAttribute("data-tabid"), tabber_elems[x]);
+                tabber_elems[x].addEventListener("click",(e)=>{
+                    engine.tabHandler(e,tabber_elems);
+                    // console.log(this);   // this is the script instance!
+                    // console.log(e);
+                })
+            }
+        }
+
         /** add event listener for the user dropdown: */
         var user_dropdown_btn = document.getElementById("select_user_button");
         var user_dropdown = document.getElementById("select_user");
@@ -158,6 +170,21 @@ var engine = {
             }
             if(page="svg"){
                 user_dropdown.addEventListener("change",() => {engine.selectAndLoadUser()});
+            }
+        }
+    },
+
+    tabHandler: function(evt,tablist){
+        console.log(tablist);
+        console.log(evt.srcElement.getAttribute("data-tabid"));
+        // we also need the list of panels to show/hide:
+        let panel_list = document.getElementsByClassName("gutterpanel");
+        for(x=0; x<tablist.length;x++){
+            tablist[x].classList.remove("panel_selector_tab_selected");
+            panel_list[x].classList.add("hidden");
+            if( x===parseInt(evt.srcElement.getAttribute("data-tabid"))-1 ){    // because '0' will do odd things...
+                tablist[x].classList.add("panel_selector_tab_selected");
+                panel_list[x].classList.remove("hidden");
             }
         }
     },

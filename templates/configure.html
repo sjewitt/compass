@@ -4,9 +4,18 @@
 	Compass interactive: Configure Compasses
 	</title>
 		<link type="text/css" href="/static/css/styles2.css" rel="stylesheet" />
+		<link type="text/css" href="/static/css/tabber.css" rel="stylesheet" />
+		<!-- <link type="text/css" href="/static/css/gridder.css" rel="stylesheet" /> -->
 		<link href="/static/images/favicon.jpg" rel="icon" />
 </head>
 <body data-page="configure">
+
+	<!-- 
+	  'flyoput has position:fixed', so it overlies the image.
+	  Therefore, I need to give 
+	-->
+<div id="flyout_block"></div>	
+	<h1>
 	<div class="button inline_block">
 		<a href="/" title="Home">
 			<img src="/static/images/home-2-64.png" alt="Home" title="Home" />
@@ -17,175 +26,278 @@
 		<a href="#" title="Help">
 			<img src="/static/images/help-64.png" alt="Help" title="Help" />
 		</a>
+	</div>	
+		{% if compass_data %}
+			Configure Compass '{{compass_data.title}}'
+			{% else %}
+			Add new Compass
+			{% endif %}
+	</h1>
+</div>
+
+<div class="tabswrapper">
+	<div data-tabid="1" class="panel_selector_tab panel_selector_tab_selected" id="tab_1">Quadrant 1</div>
+	<div data-tabid="2" class="panel_selector_tab" id="tab_2">Quadrant 2</div>
+	<div data-tabid="3" class="panel_selector_tab" id="tab_3">Quadrant 3</div>
+	<div data-tabid="4" class="panel_selector_tab" id="tab_4">Quadrant 4</div>
+</div>
+<div class="panelwrapper">
+	<div class="gutterpanel" data-panelid="1">
+		<div>
+			<h2>
+				<div class="button button-static inline_block">
+					<img src="/static/images/one-quarter_trans.png" alt="Home" title="Quadrant 1" />
+				</div>
+				Quadrant 1 
+			</h2>
+		</div>
+		<div>
+			<div class="panelnested">
+				<div>Title #1</div>
+				<select>
+					<option value="none">[not set]</option>
+					{% for title_part in quadrant_titles %}
+					<option value="{{ title_part.id }}"
+					{% if compass_data and title_part.id == compass_data.data_quadrants[0].title[0].id %}
+						selected="selected" 
+					{% endif %}
+					>{{ title_part.title_part }}</option>
+					{% endfor %}
+				</select>
+				
+				<div>Title #2</div>
+				<select>
+					<option value="none">[not set]</option>
+					{% for title_part in quadrant_titles %}
+					<option value="{{ title_part.id }}"
+					{% if compass_data and title_part.id == compass_data.data_quadrants[0].title[1].id %}
+						selected="selected" 
+					{% endif %}
+					>{{ title_part.title_part }}</option>
+					{% endfor %}
+				</select>
+
+				<div>Summary</div>
+				<select>
+					<option value="none">[not set]</option>
+					{% for quadrant in quadrants %}
+					<option value="{{ quadrant.id }}"
+					{% if compass_data and quadrant.id == compass_data.data_quadrants[0].id %}
+						selected="selected" 
+					{% endif %}
+					>{{ quadrant.quadrant_summary }}</option>
+					{% endfor %}
+				</select>	
+			</div>
+			<div class="panelnested">
+				<div>Sector 1</div>
+				<div>[dropdown]</div>
+				
+				<div>Sector 2</div>
+				<div>[dropdown]</div>
+
+				<div>Sector 3</div>
+				<div>[dropdown]</div>
+
+				<div>Sector 4</div>
+				<div>[dropdown]</div>
+
+				<div>Sector 5</div>
+				<div>[dropdown]</div>
+			</div>
+		</div>
 	</div>
-	
-	<h1>Configure</h1>
-	<!-- Ooohhh I really need to make semantic HTML here... -->
-	{{quadrants}}
-	<hr>
-	{{quadrant_titles}}
-	<section>
 
-	</section>
+	<!-- Q2 edit -->
+	<div class="gutterpanel hidden" data-panelid="2">
+		<div>
+			<h2>
+				<div class="button button-static inline_block ">
+					<img src="/static/images/one-quarter_trans.png" class="rotate_90" alt="Home" title="Quadrant 2" />
+				</div>		
+				Quadrant 2
+			</h2>
+		</div>
+		<div>
+			<div class="panelnested">
+				<div>Title #1</div>
+				<select>
+					<option value="none">[not set]</option>
+					{% for title_part in quadrant_titles %}
+					<option value="{{ title_part.id }}"
+					{% if compass_data and title_part.id == compass_data.data_quadrants[1].title[0].id %}
+						selected="selected" 
+					{% endif %}
+					>{{ title_part.title_part }}</option>
+					{% endfor %}
+				</select>
+				
+				<div>Title #2</div>
+				<select>
+					<option value="none">[not set]</option>
+					{% for title_part in quadrant_titles %}
+					<option value="{{ title_part.id }}"
+					{% if compass_data and title_part.id == compass_data.data_quadrants[1].title[1].id %}
+						selected="selected" 
+					{% endif %}
+					>{{ title_part.title_part }}</option>
+					{% endfor %}
+				</select>
 
-	<h2>Quadrant 1</h2>
-<div class="panel">
-	<div>Title #1</div>
-	<select>
-		<option value="none">[not set]</option>
-		{% for title_part in quadrant_titles %}
-		<option value="{{ title_part.id }}"
-		{% if compass_data and title_part.id == compass_data.data_quadrants[0].title[0].id %}
-			selected="selected" 
-		{% endif %}
-		>{{ title_part.title_part }}</option>
-		{% endfor %}
-	</select>
-	
-	<div>Title #2</div>
-	<select>
-		<option value="none">[not set]</option>
-		{% for title_part in quadrant_titles %}
-		<option value="{{ title_part.id }}"
-		{% if compass_data and title_part.id == compass_data.data_quadrants[0].title[1].id %}
-			selected="selected" 
-		{% endif %}
-		>{{ title_part.title_part }}</option>
-		{% endfor %}
-	</select>
+				<div>Summary</div>
+				<select>
+					<option value="none">[not set]</option>
+					{% for quadrant in quadrants %}
+					<option value="{{ quadrant.id }}"
+					{% if compass_data and quadrant.id == compass_data.data_quadrants[1].id %}
+						selected="selected" 
+					{% endif %}
+					>{{ quadrant.quadrant_summary }}</option>
+					{% endfor %}
+				</select>	 
+			</div>
+			<div class="panelnested">
+				<div>Sector 1</div>
+				<div>[dropdown]</div>
+				
+				<div>Sector 2</div>
+				<div>[dropdown]</div>
 
-	<div>Summary</div>
-	<select>
-		<option value="none">[not set]</option>
-		{% for quadrant in quadrants %}
-		<option value="{{ quadrant.id }}"
-		{% if compass_data and quadrant.id == compass_data.data_quadrants[0].id %}
-			selected="selected" 
-		{% endif %}
-		>{{ quadrant.quadrant_summary }}</option>
-		{% endfor %}
-	</select>	 
+				<div>Sector 3</div>
+				<div>[dropdown]</div>
+
+				<div>Sector 4</div>
+				<div>[dropdown]</div>
+			</div>
+		</div>
+	</div>
+	<div class="gutterpanel hidden" data-panelid="3">
+		<div>
+			<h2>
+				<div class="button button-static inline_block ">
+					<img src="/static/images/one-quarter_trans.png" class="rotate_180" alt="Home" title="Quadrant 3" />
+				</div>
+				Quadrant 3
+			</h2>
+		</div>
+		<div>		
+			<div class="panelnested">
+				<div>Title #1</div>
+				<select>
+					<option value="none">[not set]</option>
+					{% for title_part in quadrant_titles %}
+					<option value="{{ title_part.id }}"
+					{% if compass_data and title_part.id == compass_data.data_quadrants[2].title[0].id %}
+						selected="selected" 
+					{% endif %}
+					>{{ title_part.title_part }}</option>
+					{% endfor %}
+				</select>
+				
+				<div>Title #2</div>
+				<select>
+					<option value="none">[not set]</option>
+					{% for title_part in quadrant_titles %}
+					<option value="{{ title_part.id }}"
+					{% if compass_data and title_part.id == compass_data.data_quadrants[2].title[1].id %}
+						selected="selected" 
+					{% endif %}
+					>{{ title_part.title_part }}</option>
+					{% endfor %}
+				</select>
+
+				<div>Summary</div>
+				<select>
+					<option value="none">[not set]</option>
+					{% for quadrant in quadrants %}
+					<option value="{{ quadrant.id }}"
+					{% if compass_data and quadrant.id == compass_data.data_quadrants[2].id %}
+						selected="selected" 
+					{% endif %}
+					>{{ quadrant.quadrant_summary }}</option>
+					{% endfor %}
+				</select>	
+			</div>
+			<div class="panelnested">
+				<div>Sector 1</div>
+				<div>[dropdown]</div>
+				
+				<div>Sector 2</div>
+				<div>[dropdown]</div>
+
+				<div>Sector 3</div>
+				<div>[dropdown]</div>
+
+				<div>Sector 4</div>
+				<div>[dropdown]</div>
+			</div>
+		</div>
+	</div>
+	<div class="gutterpanel hidden" data-panelid="4">
+		<div>
+			<h2>
+				<div class="button button-static inline_block ">
+					<img src="/static/images/one-quarter_trans.png" class="rotate_270" alt="Home" title="Quadrant 4" />
+				</div>			
+					Quadrant 4
+			</h2>
+		</div>
+		<div>
+			<div class="panelnested">
+				<div>Title #1</div>
+				<select>
+					<option value="none">[not set]</option>
+					{% for title_part in quadrant_titles %}
+					<option value="{{ title_part.id }}"
+					{% if compass_data and title_part.id == compass_data.data_quadrants[3].title[0].id %}
+						selected="selected" 
+					{% endif %}
+					>{{ title_part.title_part }}</option>
+					{% endfor %}
+				</select>
+				
+				<div>Title #2</div>
+				<select>
+					<option value="none">[not set]</option>
+					{% for title_part in quadrant_titles %}
+					<option value="{{ title_part.id }}"
+					{% if compass_data and title_part.id == compass_data.data_quadrants[3].title[1].id %}
+						selected="selected" 
+					{% endif %}
+					>{{ title_part.title_part }}</option>
+					{% endfor %}
+				</select>
+
+				<div>Summary</div>
+				<select>
+					<option value="none">[not set]</option>
+					{% for quadrant in quadrants %}
+					<option value="{{ quadrant.id }}"
+					{% if compass_data and quadrant.id == compass_data.data_quadrants[3].id %}
+						selected="selected" 
+					{% endif %}
+					>{{ quadrant.quadrant_summary }}</option>
+					{% endfor %}
+				</select>	
+			</div>
+			<div class="panelnested">
+				<div>Sector 1</div>
+				<div>[dropdown]</div>
+				
+				<div>Sector 2</div>
+				<div>[dropdown]</div>
+
+				<div>Sector 3</div>
+				<div>[dropdown]</div>
+
+				<div>Sector 4</div>
+				<div>[dropdown]</div>
+			</div>
+		</div>
+	</div>
 </div>
 
-<h2>Quadrant 2</h2>
-<div class="panel">
-	<div>Title #1</div>
-	<select>
-		<option value="none">[not set]</option>
-		{% for title_part in quadrant_titles %}
-		<option value="{{ title_part.id }}"
-		{% if compass_data and title_part.id == compass_data.data_quadrants[1].title[0].id %}
-			selected="selected" 
-		{% endif %}
-		>{{ title_part.title_part }}</option>
-		{% endfor %}
-	</select>
-	
-	<div>Title #2</div>
-	<select>
-		<option value="none">[not set]</option>
-		{% for title_part in quadrant_titles %}
-		<option value="{{ title_part.id }}"
-		{% if compass_data and title_part.id == compass_data.data_quadrants[1].title[1].id %}
-			selected="selected" 
-		{% endif %}
-		>{{ title_part.title_part }}</option>
-		{% endfor %}
-	</select>
-
-	<div>Summary</div>
-	<select>
-		<option value="none">[not set]</option>
-		{% for quadrant in quadrants %}
-		<option value="{{ quadrant.id }}"
-		{% if compass_data and quadrant.id == compass_data.data_quadrants[1].id %}
-			selected="selected" 
-		{% endif %}
-		>{{ quadrant.quadrant_summary }}</option>
-		{% endfor %}
-	</select>	 
-</div>
-
-<h2>Quadrant 3</h2>
-<div class="panel">
-	<div>Title #1</div>
-	<select>
-		<option value="none">[not set]</option>
-		{% for title_part in quadrant_titles %}
-		<option value="{{ title_part.id }}"
-		{% if compass_data and title_part.id == compass_data.data_quadrants[2].title[0].id %}
-			selected="selected" 
-		{% endif %}
-		>{{ title_part.title_part }}</option>
-		{% endfor %}
-	</select>
-	
-	<div>Title #2</div>
-	<select>
-		<option value="none">[not set]</option>
-		{% for title_part in quadrant_titles %}
-		<option value="{{ title_part.id }}"
-		{% if compass_data and title_part.id == compass_data.data_quadrants[2].title[1].id %}
-			selected="selected" 
-		{% endif %}
-		>{{ title_part.title_part }}</option>
-		{% endfor %}
-	</select>
-
-	<div>Summary</div>
-	<select>
-		<option value="none">[not set]</option>
-		{% for quadrant in quadrants %}
-		<option value="{{ quadrant.id }}"
-		{% if compass_data and quadrant.id == compass_data.data_quadrants[2].id %}
-			selected="selected" 
-		{% endif %}
-		>{{ quadrant.quadrant_summary }}</option>
-		{% endfor %}
-	</select>	
-</div>
-
-<h2>Quadrant 4</h2>
-<div class="panel">
-	<div>Title #1</div>
-	<select>
-		<option value="none">[not set]</option>
-		{% for title_part in quadrant_titles %}
-		<option value="{{ title_part.id }}"
-		{% if compass_data and title_part.id == compass_data.data_quadrants[3].title[0].id %}
-			selected="selected" 
-		{% endif %}
-		>{{ title_part.title_part }}</option>
-		{% endfor %}
-	</select>
-	
-	<div>Title #2</div>
-	<select>
-		<option value="none">[not set]</option>
-		{% for title_part in quadrant_titles %}
-		<option value="{{ title_part.id }}"
-		{% if compass_data and title_part.id == compass_data.data_quadrants[3].title[1].id %}
-			selected="selected" 
-		{% endif %}
-		>{{ title_part.title_part }}</option>
-		{% endfor %}
-	</select>
-
-	<div>Summary</div>
-	<select>
-		<option value="none">[not set]</option>
-		{% for quadrant in quadrants %}
-		<option value="{{ quadrant.id }}"
-		{% if compass_data and quadrant.id == compass_data.data_quadrants[3].id %}
-			selected="selected" 
-		{% endif %}
-		>{{ quadrant.quadrant_summary }}</option>
-		{% endfor %}
-	</select>	
-
-</div>
-
-<div class="panel">
+<div class="panel offset_top">
 	<div>Submit:</div> 
 	<div>
 		<div class="button med_width" id="btn_update_user">
@@ -196,9 +308,9 @@
 			{% endif %}
 		</div>
 	</div>
-	<div></div><div id="message"></div>
+	<div></div>
+	<div id="message"></div>
 </div>
-
 
 </body>
 <script src="/static/js/engine2.js"></script>

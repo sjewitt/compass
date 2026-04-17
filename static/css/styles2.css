@@ -18,6 +18,20 @@ body{
   width:60%;
 }
 
+.panelnested{
+  display: grid;
+  grid-template-columns: 30% 70%;
+  grid-gap:10px;
+  width:100%;
+}
+
+.gutterpanel{
+  display: grid;
+  grid-template-columns: 20% 70% ;
+  grid-gap: 10px;
+  width: 100%
+}
+
 .offset_top{
   position: relative;
   top:85px;
@@ -26,6 +40,57 @@ body{
 #flyout {
   display: inline-block;
   position: absolute;
+}
+
+#flyout_block {
+  display: inline-block;
+  position: relative;
+}
+
+/* compass editing */
+.panel_selector_tab{
+  display:inline-block;
+  width:20%;
+  cursor: pointer;
+  /* margin:5px; */
+  padding:10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border: 1px solid #555;
+  background-color:#aaa;
+}
+
+.panel_selector_tab_selected{
+  font-weight: bold;
+  background-color:#fff;
+  border-bottom: none;
+}
+
+.panelwrapper{
+  padding-top: 20px;
+}
+
+/* see https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/transform-function/rotate */
+.rotate_90{
+  transform: rotate(90deg)
+}
+
+.rotate_180{
+  transform: rotate(180deg)
+}
+
+.rotate_270{
+  transform: rotate(270deg)
+}
+
+.hidden{
+  display: none;
+}
+
+.block{
+  padding-top:8px;
+  display: inline-block;
+  position:relative;
 }
 
 .inline_block{
@@ -146,6 +211,8 @@ body{
   height: 30px;
 }
 
+
+
 /** 
  * SVG ELEMENT STYLING: 
  */
@@ -236,4 +303,18 @@ colour overrides the exisitng style, if present:
 }
 .svg_hover.q4 {
   fill: yellow;
+}
+
+/* quad edit */
+
+.inlineblock{
+	display: inline-block;
+}
+
+.gutter{
+  width:100px;
+}
+
+.fillwidth{
+  width: 100%;
 }
