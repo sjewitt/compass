@@ -37,12 +37,16 @@ body{
   top:85px;
 }
 
-#flyout {
+.flyout {
   display: inline-block;
   position: absolute;
 }
 
-#flyout_block {
+.flyout > a{
+  text-decoration: none;
+}
+
+.flyout_block {
   display: inline-block;
   position: relative;
 }
@@ -63,12 +67,16 @@ body{
 .panel_selector_tab_selected{
   font-weight: bold;
   background-color:#fff;
-  border-bottom: none;
+  border-bottom: 1px solid white; /* simulate a foreground tab */
 }
 
 .panelwrapper{
   padding-top: 20px;
+  border: 1px solid black;
 }
+/***************************************************
+ * UTILITIES
+ ***************************************************/
 
 /* see https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/transform-function/rotate */
 .rotate_90{
@@ -87,18 +95,21 @@ body{
   display: none;
 }
 
-.block{
+.mt_minus_1{
+  margin-top: -1px;
+}
+
+.pt8{
   padding-top:8px;
+}
+
+.block{
   display: inline-block;
   position:relative;
 }
 
 .inline_block{
   display: inline-block;
-}
-
-#flyout > a{
-  text-decoration: none;
 }
 
 #select_user{
