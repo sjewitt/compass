@@ -108,15 +108,23 @@ async def compass_new(request: Request):
         # I also need the current data for the various components so I can generate the dropdowns as well:
         quadrants = handlers.get_quadrants(engine=engine)
         quadrant_titles = handlers.get_quadrant_titles(engine=engine)
+        sectors = handlers.get_sectors(engine=engine)
+        sector_titles = handlers.get_sector_titles(engine=engine)
         return templates.TemplateResponse(
             request=request,
             name="configure.html",
-            context={"compass_data":None,"quadrants":quadrants,"quadrant_titles":quadrant_titles}
+            context={
+                "compass_data":None,
+                "quadrants":quadrants,
+                "quadrant_titles":quadrant_titles,
+                "sectors":sectors, 
+                "sector_titles":sector_titles
+            }
         )
     except IndexError as ex:
         print(f"IndexError: {ex}")
     except Exception as ex:
-        print(f"Exception: {ex}")
+        print(f"configure/new  Exception: {ex}")
 
 @app.get("/configure/{compass_id}/")
 async def configure(request: Request, compass_id: int):
@@ -128,10 +136,18 @@ async def configure(request: Request, compass_id: int):
         # I also need the current data for the various components so I can generate the dropdowns as well:
         quadrants = handlers.get_quadrants(engine=engine)
         quadrant_titles = handlers.get_quadrant_titles(engine=engine)
+        sectors = handlers.get_sectors(engine=engine)
+        sector_titles = handlers.get_sector_titles(engine=engine)
         return templates.TemplateResponse(
             request=request,
             name="configure.html",
-            context={"compass_data":compass_data,"quadrants":quadrants,"quadrant_titles":quadrant_titles}
+            context={
+                "compass_data":compass_data,
+                "quadrants":quadrants,
+                "quadrant_titles":quadrant_titles,
+                "sectors":sectors, 
+                "sector_titles":sector_titles
+            }
         )
     except IndexError as ex:
         print(f"IndexError: {ex}")
