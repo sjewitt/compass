@@ -1,13 +1,14 @@
 <html>
 <head>
 	<title>
-	Compass interactive: User edit
+	Compass Interactive: Manage Compass Data
 	</title>
 		<link type="text/css" href="/static/css/styles2.css" rel="stylesheet" />
 		<link href="/static/images/favicon.jpg" rel="icon" />
 </head>
 <body data-page="configure-summaries">
-<div id="flyout">
+
+<div id="flyout" class="flyout block">
 	<h1>
 		<div class="button inline_block">
 			<a href="/" title="Home">
@@ -20,15 +21,31 @@
 				<img src="/static/images/help-64.png" alt="Help" title="Help" />
 			</a>
 		</div>
-		Manage Compasses
+		Manage Compass Data
 	</h1>
 </div>
 
 	<!-- Ooohhh I really need to make semantic HTML here... -->
 
+<div class="panel ">
+TODO: Set these disabled until at least one quad, quad title, sector, sector title and competency are created!<br />
+Also, 
+</div>
+<div class="panel ">
+	<h2>Compass Components</h2>
+	<ul>
+		<li><a href="/configure/components/">Manage</a></li>
+	</ul>
+</div>
 
-<div class="panel offset_top">
+<div class="panel ">
+	<h2>Competencies</h2>
+	<ul>
+		<li><a href="/configure/competencies/">Manage</a></li>
+	</ul>
+</div>
 
+<div class="panel ">
 <!-- {{ compass_summaries }} -->
 	<h2>Current Compasses</h2>
 	<ul>
@@ -38,12 +55,11 @@
 	</ul>
 </div>
 
-<div class="panel offset_top">
+<div class="panel ">
 	<h2>New Compass</h2>
 	<ul>
-		<li><a href="/configure/new/">[create new]</a></li>
+		<li><a href="/configure/new/">Create new</a></li>
 	</ul>
-
 </div>
 
 
