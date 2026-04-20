@@ -95,7 +95,9 @@ class Quadrant(BaseModel):
     quadrant_summary: str = Field()
     quadrant_css_class:str = Field()
     quadrant_elem_coords:str = Field()
-    sectors:list[Sector] = Field(min_length=4, max_length=5,default_factory=list)
+    # sectors:list[Sector] = Field(min_length=4, max_length=5,default_factory=list)
+    # begin decouple data at higher level:
+    sectors:list[Sector] = Field(max_length=5,default_factory=list)
 
 class CompassSummary(BaseModel):
     id:int = Field()
@@ -121,10 +123,102 @@ class QuadrantDefinition(BaseModel):
     # This needs front-end logic to account for the first quadrant having 5...
     sectors:list[int] = Field(min_length=4, max_length=5)
 
+# map to actual database model:
 class CompassDefinition(BaseModel):
     name:str = Field(min_length=4, max_length=128)
-    # these are all ints (IDs of the relevant quadrants and sectors)
-    quadrants:list[QuadrantDefinition] = Field(min_length=4, max_length=4)
-    ratings:list[int] = Field(min_length=7, max_length=7)   # these are Ratig IDs
-    # titles: list[QuadrantTitles] = Field(min_length=4, max_length=4)
+    # TO CHECK:
+    # # these are all ints (IDs of the relevant quadrants and sectors)
+    # quadrants:list[QuadrantDefinition] = Field(min_length=4, max_length=4)
+    # ratings:list[int] = Field(min_length=7, max_length=7)   # these are Ratig IDs
+    # # titles: list[QuadrantTitles] = Field(min_length=4, max_length=4)
+
+    id:int = Field()
+    # Specify the quadrants (4)
+    quadrant_1 : int = Field()
+    quadrant_2 : int = Field()
+    quadrant_3 : int = Field()
+    quadrant_4 : int = Field()
+
+    # specify quadrant_title parts:
+    q1_tp1 : int = Field()
+    q1_tp2 : int = Field()
+    q2_tp1 : int = Field()
+    q2_tp2 : int = Field()
+    q3_tp1 : int = Field()
+    q3_tp2 : int = Field()
+    q4_tp1 : int = Field()
+    q4_tp2 : int = Field()
+
+    # specify the sectors per quadrant (5, 4, 4, 4)
+    quadrant_1_sector_1 : int = Field()
+    quadrant_1_sector_2 : int = Field()
+    quadrant_1_sector_3 : int = Field()
+    quadrant_1_sector_4 : int = Field()
+    quadrant_1_sector_5 : int = Field()
+
+    # specify q1 sector titles
+    q1_s1_tp1 : int = Field()
+    q1_s1_tp2 : int = Field()
+    q1_s2_tp1 : int = Field()
+    q1_s2_tp2 : int = Field()
+    q1_s3_tp1 : int = Field()
+    q1_s3_tp2 : int = Field()
+    q1_s4_tp1 : int = Field()
+    q1_s4_tp2 : int = Field()
+    q1_s5_tp1 : int = Field()
+    q1_s5_tp2 : int = Field()
+
+    quadrant_2_sector_1 : int = Field()
+    quadrant_2_sector_2 : int = Field()
+    quadrant_2_sector_3 : int = Field()
+    quadrant_2_sector_4 : int = Field()
+
+    # specify q2 sector titles
+    q2_s1_tp1 : int = Field()
+    q2_s1_tp2 : int = Field()
+    q2_s2_tp1 : int = Field()
+    q2_s2_tp2 : int = Field()
+    q2_s3_tp1 : int = Field()
+    q2_s3_tp2 : int = Field()
+    q2_s4_tp1 : int = Field()
+    q2_s4_tp2 : int = Field()
+
+    quadrant_3_sector_1 : int = Field()
+    quadrant_3_sector_2 : int = Field()
+    quadrant_3_sector_3 : int = Field()
+    quadrant_3_sector_4 : int = Field()
+
+    # specify q3 sector titles
+    q3_s1_tp1 : int = Field()
+    q3_s1_tp2 : int = Field()
+    q3_s2_tp1 : int = Field()
+    q3_s2_tp2 : int = Field()
+    q3_s3_tp1 : int = Field()
+    q3_s3_tp2 : int = Field()
+    q3_s4_tp1 : int = Field()
+    q3_s4_tp2 : int = Field()
+
+    quadrant_4_sector_1 : int = Field()
+    quadrant_4_sector_2 : int = Field()
+    quadrant_4_sector_3 : int = Field()
+    quadrant_4_sector_4 : int = Field()
+
+    # specify q4 sector titles
+    q4_s1_tp1 : int = Field()
+    q4_s1_tp2 : int = Field()
+    q4_s2_tp1 : int = Field()
+    q4_s2_tp2 : int = Field()
+    q4_s3_tp1 : int = Field()
+    q4_s3_tp2 : int = Field()
+    q4_s4_tp1 : int = Field()
+    q4_s4_tp2 : int = Field()
+
+    # and the Ratings (7!!):
+    rating_1 : int = Field()
+    rating_2 : int = Field()
+    rating_3 : int = Field()
+    rating_4 : int = Field()
+    rating_5 : int = Field()
+    rating_6 : int = Field()
+    rating_7 : int = Field()
 
