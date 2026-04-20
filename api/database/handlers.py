@@ -259,6 +259,10 @@ def update_user(engine, user:User) -> User|None:
         except:
             return None
 
+
+###########################################
+# QUADRANTS
+###########################################
 def add_quadrant(engine,quadrant:Quadrant) -> dict:
     with Session(engine) as session:
         try:
@@ -286,6 +290,14 @@ def add_quadrant(engine,quadrant:Quadrant) -> dict:
             print(ex)
             return {f"action":"quadrantcreate","message":"Failed: {ex}", "quadrantcreated":False}        
     return {"action":"quadrantcreate","message":"Failed", "quadrantcreated":False}
+
+def update_quadrant(engine,quadrant:Quadrant) -> Quadrant:
+    with Session(engine) as session:
+        _update_obj=session.query(DB_Quadrant).where(DB_Quadrant.id == quadrant.id).first()
+        # _update_obj.title = quadrant.title    # titles should be UNLINKED
+        _update_obj.quadrant_summary = quadrant.quadrant_summary
+        session.commit()
+        return _update_obj
 
 def get_quadrants(engine, include_titles=False) -> list[Quadrant]:
     with Session(engine) as session:
@@ -343,8 +355,11 @@ def get_quadrant(engine, id:int) -> Quadrant:
         )
         # now we can return a fully populated object:
         return res
-    
+
+###########################################
+# QUADRANT TITLES    
 # (test) this is fine...
+###########################################
 def get_quadrant_titles(engine) -> list[QuadrantTitles]:
     with Session(engine) as session:
         _z = []
@@ -358,6 +373,37 @@ def get_quadrant_titles(engine) -> list[QuadrantTitles]:
         except Exception as ex:
             print(ex)
         return _z
+
+def add_quadrant_title(engine, quadrant_title:QuadrantTitles) -> QuadrantTitles:
+    with Session(engine) as session:
+        try:
+            _qt = DB_QuadrantTitles(
+                title_part = quadrant_title.title_part,
+                coord_x = 0,
+                coord_y = 0,
+            )
+            session.add(_qt)
+            session.commit()
+            return quadrant_title
+        except Exception as ex:
+            print(ex)
+            raise ex
+        
+def update_quadrant_title(engine, quadrant_title:QuadrantTitles) -> QuadrantTitles:
+    with Session(engine) as session:
+        try:
+            _quad_title = session.query(DB_QuadrantTitles).where(DB_QuadrantTitles.id == quadrant_title.id).first()
+            _quad_title.title_part = quadrant_title.title_part
+            session.commit()
+            return quadrant_title
+        except Exception as ex:
+            print(ex)
+            raise ex
+
+
+###########################################
+# SECTORS
+###########################################
 
 def add_sector(engine,sector:Sector) -> dict:
     with Session(engine) as session:
@@ -429,6 +475,11 @@ def get_sector(engine,id:int) -> Sector:
         except Exception as ex:
             print(ex)
 
+
+###########################################
+# SECTOR TITLES
+###########################################
+
 def get_sector_titles(engine) -> list[SectorTitles]:
     ''' return all sector titles '''
     with Session(engine) as session:
@@ -444,6 +495,48 @@ def get_sector_titles(engine) -> list[SectorTitles]:
         )
         return _results
 
+def get_sector_title(engine, id:int)->SectorTitles:
+    with Session(engine) as session:
+        _dbresult = session.query(DB_SectorTitles).where(DB_SectorTitles.id == id).first()
+        _out = SectorTitles(
+            id = _dbresult.id,
+            title_part = _dbresult.title_part,
+            coord_x = 0,    # to remove
+            coord_y = 0,
+        )
+        return _out
+    
+def update_sector_title(engine, updated_sector_title:SectorTitles) -> SectorTitles:
+    ''' ## Update sector title\n\n
+      Update a sector title. returns updated sector title. '''
+    with Session(engine) as session:
+        # https://medium.com/@halpertln/session-queries-in-sqlalchemy-90233d455b12
+        # we get the object first, THEN update it, and SQLAlchemy magic happens...
+        _update_obj =  session.query(DB_SectorTitles).where(DB_SectorTitles.id == updated_sector_title.id).first()
+        _update_obj.title_part = updated_sector_title.title_part
+        session.commit()
+        return updated_sector_title # i.e. what we passed in. I couldrecreate from udpated DB object. Also add exception handling!
+
+def add_sector_titles(engine, sector_title_list:list[SectorTitles])->bool:
+    with Session(engine) as session:
+        try:
+            for sector_title in sector_title_list:
+                _st = DB_SectorTitles(
+                    # don't need ID...
+                    title_part = sector_title.title_part,
+                    coord_x = 0,    # to remove
+                    coord_y = 0,
+                )
+                session.add(_st)
+            session.commit()
+            return True
+        except Exception as ex:
+            print(ex)
+            return False
+
+###########################################
+# RATINGS
+###########################################
 def add_rating(engine, rating:Rating) -> bool:
     with Session(engine) as session:
         try:
@@ -488,6 +581,12 @@ def get_rating(engine, id:int) -> Rating:
             return _rating
         except Exception as ex:
             logging.warning(f"Failed to retrieve rating {id}: {ex}")
+
+
+
+###########################################
+# COMPASSES
+###########################################
 
 # get the lists of all configured data to use as dropdowns for compass assembly page:
 # (give it an API endpoint too)
@@ -687,6 +786,136 @@ def get_compass(engine, id:int) -> CompassData:
             # return CompassData()
             raise IndexError(f"No compass matching ID {id}")
 
+# generate compass data using extisting quadrants and sectors:
+# def set_compass(engine, definition:CompassDefinition) -> int:
+# so the MODEL needs to become ints matching the database model...
+def set_compass(engine, definition:CompassData) -> int:
+    # add new
+    with Session(engine) as session:
+
+        # add new compass definition:
+        # construct a DB model for the compass:
+        _compass = DB_CompassDefinition(
+            name = definition.name,
+            quadrant_1 = definition.quadrant_1,
+            quadrant_2 = definition.quadrant_2,
+            quadrant_3 = definition.quadrant_3,
+            quadrant_4 = definition.quadrant_4,
+            
+            # Quadrant title IDs (note FK-enforced second - how to handle? Special case?)
+            q1_tp1= definition.q1_tp1,
+            q1_tp2= definition.q1_tp2,
+            q2_tp1= definition.q2_tp1,
+            q2_tp2= definition.q2_tp2,
+            q3_tp1= definition.q3_tp1,
+            q3_tp2= definition.q3_tp2,
+            q4_tp1= definition.q4_tp1,
+            q4_tp2= definition.q4_tp2,
+
+            # Q1 Sectors:
+            quadrant_1_sector_1 = definition.quadrant_1_sector_1,
+            quadrant_1_sector_2 = definition.quadrant_1_sector_2,
+            quadrant_1_sector_3 = definition.quadrant_1_sector_3,
+            quadrant_1_sector_4 = definition.quadrant_1_sector_4,
+            quadrant_1_sector_5 = definition.quadrant_1_sector_4,
+
+            # Q1 Sector titles:
+            q1_s1_tp1=definition.q1_s1_tp1,
+            q1_s1_tp2=definition.q1_s1_tp2,
+            q1_s2_tp1=definition.q1_s2_tp1,
+            q1_s2_tp2=definition.q1_s2_tp2,
+            q1_s3_tp1=definition.q1_s3_tp1,
+            q1_s3_tp2=definition.q1_s3_tp2,
+            q1_s4_tp1=definition.q1_s4_tp1,
+            q1_s4_tp2=definition.q1_s4_tp2,
+            q1_s5_tp1=definition.q1_s5_tp1,
+            q1_s5_tp2=definition.q1_s5_tp2,
+
+            # Q2 Sectors:
+            quadrant_2_sector_1 = definition.quadrant_2_sector_1,
+            quadrant_2_sector_2 = definition.quadrant_2_sector_2,            
+            quadrant_2_sector_3 = definition.quadrant_2_sector_3,
+            quadrant_2_sector_4 = definition.quadrant_2_sector_4,
+
+            # Q2 Sector titles:
+            q2_s1_tp1=definition.q2_s1_tp1,
+            q2_s1_tp2=definition.q2_s1_tp2,
+            q2_s2_tp1=definition.q2_s2_tp1,
+            q2_s2_tp2=definition.q2_s2_tp2,
+            q2_s3_tp1=definition.q2_s3_tp1,
+            q2_s3_tp2=definition.q2_s3_tp2,
+            q2_s4_tp1=definition.q2_s4_tp1,
+            q2_s4_tp2=definition.q2_s4_tp2,
+
+            # Q3 Sectors:
+            quadrant_3_sector_1 = definition.quadrant_3_sector_1,
+            quadrant_3_sector_2 = definition.quadrant_3_sector_2,           
+            quadrant_3_sector_3 = definition.quadrant_3_sector_3,
+            quadrant_3_sector_4 = definition.quadrant_3_sector_4,
+
+            # Q3 Sector titles:
+            q3_s1_tp1=definition.q3_s1_tp1,
+            q3_s1_tp2=definition.q3_s1_tp2,
+            q3_s2_tp1=definition.q3_s2_tp1,
+            q3_s2_tp2=definition.q3_s2_tp2,
+            q3_s3_tp1=definition.q3_s3_tp1,
+            q3_s3_tp2=definition.q3_s3_tp2,
+            q3_s4_tp1=definition.q3_s4_tp1,
+            q3_s4_tp2=definition.q3_s4_tp2,
+
+            # Q4 Sectors:
+            quadrant_4_sector_1 = definition.quadrant_4_sector_1,
+            quadrant_4_sector_2 = definition.quadrant_4_sector_2,            
+            quadrant_4_sector_3 = definition.quadrant_4_sector_3,
+            quadrant_4_sector_4 = definition.quadrant_4_sector_4,
+
+            # Q4 Sector titles:
+            q4_s1_tp1=definition.q4_s1_tp1,
+            q4_s1_tp2=definition.q4_s1_tp2,
+            q4_s2_tp1=definition.q4_s2_tp1,
+            q4_s2_tp2=definition.q4_s2_tp2,
+            q4_s3_tp1=definition.q4_s3_tp1,
+            q4_s3_tp2=definition.q4_s3_tp2,
+            q4_s4_tp1=definition.q4_s4_tp1,
+            q4_s4_tp2=definition.q4_s4_tp2,
+
+            # Ratings
+            rating_1 = definition.rating_1,
+            rating_2 = definition.rating_2,
+            rating_3 = definition.rating_3,
+            rating_4 = definition.rating_4,
+            rating_5 = definition.rating_5,
+            rating_6 = definition.rating_6,
+            rating_7 = definition.rating_7,
+        )
+        try:
+            session.add(_compass)
+            session.flush()
+            # get ID:
+            new_compass_id = _compass.id
+            session.commit()
+            return new_compass_id
+        except Exception as ex:
+            print(f"Exception attempting to insert new compass definition: {ex}")
+        
+    # if fails:
+    return -2
+
+# generate compass data using extisting quadrants and sectors:
+def update_compass(engine, definition:CompassDefinition) -> int:
+    # update
+    with Session(engine) as session:
+        # get the matching CompassSummary:
+        _compass = session.query(DB_CompassDefinition).where(DB_CompassDefinition.id == definition.id).first()
+        if _compass:
+            # Now update the _compass object
+            for thing in definition:
+                print(f"{thing}")   # a tuple
+                
+            return
+        print(f"no matching compass for id {definition.id}")
+        raise Exception
+        
 
 def _get_quadrant_models_from_db_models(
         db_quadrant_model_list:list[DB_Quadrant],
@@ -792,70 +1021,6 @@ def _get_sector_title_parts(session,tp1:int, tp2:int) -> list[SectorTitles]:
 
 
 # TODO: Split handlers into modules mirroring the routers:
-
-# generate compass data using extisting quadrants and sectors:
-def set_compass(engine, definition:CompassDefinition,id:int = 0) -> int:
-    # if int, update, else add new
-    with Session(engine) as session:
-        if id:
-            # update:
-            return -1
-        else:
-            # add new compass definition:
-            # construct a DB model for the compass:
-            _compass = DB_CompassDefinition(
-                name = definition.name,
-                quadrant_1 = definition.quadrants[0].quadrant,
-                quadrant_2 = definition.quadrants[1].quadrant,
-                quadrant_3 = definition.quadrants[2].quadrant,
-                quadrant_4 = definition.quadrants[3].quadrant,
-                # Q1
-                quadrant_1_sector_1 = definition.quadrants[0].sectors[0],
-                quadrant_1_sector_2 = definition.quadrants[0].sectors[1],
-                quadrant_1_sector_3 = definition.quadrants[0].sectors[2],
-                quadrant_1_sector_4 = definition.quadrants[0].sectors[3],
-                quadrant_1_sector_5 = definition.quadrants[0].sectors[4],
-
-                # Q2
-                quadrant_2_sector_1 = definition.quadrants[1].sectors[0],
-                quadrant_2_sector_2 = definition.quadrants[1].sectors[1],            
-                quadrant_2_sector_3 = definition.quadrants[1].sectors[2],
-                quadrant_2_sector_4 = definition.quadrants[1].sectors[3],
-
-                # Q3
-                quadrant_3_sector_1 = definition.quadrants[2].sectors[0],
-                quadrant_3_sector_2 = definition.quadrants[2].sectors[1],            
-                quadrant_3_sector_3 = definition.quadrants[2].sectors[2],
-                quadrant_3_sector_4 = definition.quadrants[2].sectors[3],
-
-                # Q4
-                quadrant_4_sector_1 = definition.quadrants[3].sectors[0],
-                quadrant_4_sector_2 = definition.quadrants[3].sectors[1],            
-                quadrant_4_sector_3 = definition.quadrants[3].sectors[2],
-                quadrant_4_sector_4 = definition.quadrants[3].sectors[3],
-
-                # Ratings
-                rating_1 = definition.ratings[0],
-                rating_2 = definition.ratings[1],
-                rating_3 = definition.ratings[2],
-                rating_4 = definition.ratings[3],
-                rating_5 = definition.ratings[4],
-                rating_6 = definition.ratings[5],
-                rating_7 = definition.ratings[6],
-            )
-            try:
-                session.add(_compass)
-                session.flush()
-                # get ID:
-                new_compass_id = _compass.id
-                session.commit()
-                return new_compass_id
-            except Exception as ex:
-                print(f"Exception attempting to insert new compass definition: {ex}")
-        
-    # if fails:
-    return -2
-
 
 
 
