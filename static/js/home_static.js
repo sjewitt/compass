@@ -110,6 +110,10 @@ var engine = {
         }
     },
 
+    /** 
+     * short version uses single title per quad. Maybe revert, so I can use common JS?
+     * There's a risk of diverging different versions of the same function here...
+     */
     renderDisplayedTexts: function(){
         // I'm using index 1 because of the way the element IDs are named.
         for(let x=1; x<=4;x++){
@@ -218,7 +222,6 @@ var engine = {
                 }
             }
         }
-
     },
 
     // Cut down version just animates the compass:
@@ -265,12 +268,8 @@ var engine = {
                 }
             }
         }
-
     },
-
 };
-
-
 
 document.addEventListener("DOMContentLoaded",
     (evt) => {
