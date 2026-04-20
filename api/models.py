@@ -34,7 +34,6 @@ class Competency(BaseModel):
 
 # https://fastapi.tiangolo.com/it/tutorial/body-nested-models/#define-a-submodel
 class UserCompetencies(BaseModel):
-    # user:int    #orig
     user:User  # new
     competencies:list[Competency]
 
@@ -56,28 +55,6 @@ class Sector(BaseModel):
     summary:str=Field()
     description:str=Field()
 
-# TO REVISIT
-# This is exactly what the oreilly course described as the method for not showing the ID
-# on te response model when a DB is used
-
-# class _QuadrantTitlesId(BaseModel):
-#     id: int = Field()
-
-# class _QuadrantTitlesBase(BaseModel):
-#     title_part:str=Field()    
-
-# class QuadrantTitles(_QuadrantTitlesId,_QuadrantTitlesBase):
-#     def __repr__(self):
-#         return "<QuadrantTitles(ID='%s', title_part='%s')>" % (
-#             self.id,
-#             self.title_part
-#         )
-
-# class QuadrantTitlesIn(_QuadrantTitlesBase):
-#     def __repr__(self):
-#         return "<QuadrantTitles(title_part='%s')>" % (
-#             self.title_part
-#         )
 
 class QuadrantTitles(BaseModel):
     id: int = Field()   # I DO NOT NEED THIS!!
@@ -125,15 +102,6 @@ class CompassSummary(BaseModel):
     name:str = Field(min_length=4, max_length=128)
 
 
-# class Q0(Quadrant):
-#     sectors:list[Sector]=Field(min_length=5, max_length=5)
-# class Q1(Quadrant):
-#     sectors:list[Sector]=Field(min_length=4, max_length=4)
-# class Q2(Quadrant):
-#     sectors:list[Sector]=Field(min_length=4, max_length=4)
-# class Q3(Quadrant):
-#     sectors:list[Sector]=Field(min_length=4, max_length=4)
-
 class RatingIn(BaseModel):
     # ID?
     title:str = Field()
@@ -146,36 +114,12 @@ class CompassData(BaseModel):
     id:int=Field(default_factory=0)
     title:str=Field()
     data_quadrants: list[Quadrant] = Field(min_length=4, max_length=4)
-    # name:str = Field(min_length=4, max_length=128)
-    # quad_0:Quadrant = Q0
-    # quad_1:Quadrant = Q1
-    # quad_2:Quadrant = Q2
-    # quad_3:Quadrant = Q3
-    # quad_0:Q0 = Field()
-    # quad_1:Q1 = Field()
-    # quad_2:Q2 = Field()
-    # quad_3:Q3 = Field()
     rating_description_lookup: list[Rating] = Field(min_length=7, max_length=7)  # to account for the code using 1-indexed lookup (TO FIX)
 
 class QuadrantDefinition(BaseModel):
     quadrant:int=Field()
     # This needs front-end logic to account for the first quadrant having 5...
     sectors:list[int] = Field(min_length=4, max_length=5)
-
-# constants defining the Compass quadrant and sector titles,
-# the quadrant colours and the main quadrant title border coords:
-# class Coordinate(BaseModel):
-#     coord:list[int]=Field(min_length=2, max_length=2)
-
-# class TitleCoordinate(BaseModel):
-#     coordinates:list[Coordinate] = Field(min_length=1, max_length=2)
-
-# class QuadrantTitles(BaseModel):
-#     # define outer quad title borders
-#     points:list[int] = Field(min_length=8, max_length=8)
-#     title:TitleCoordinate = Field()
-#     sectors:list[TitleCoordinate] = Field(min_length=4, max_length=5)
-
 
 class CompassDefinition(BaseModel):
     name:str = Field(min_length=4, max_length=128)
