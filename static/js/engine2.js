@@ -155,6 +155,11 @@ var engine = {
                     // console.log(e);
                 })
             }
+            // and apply handler for submit button (accounts for add and update actions)
+            let btn_submit_compass_data = document.getElementById("btn_submit_compass_data");
+            if(btn_submit_compass_data){
+                btn_submit_compass_data.addEventListener("click",this.btnSubmitCompassData)
+            }
         }
 
         /** add event listener for the user dropdown: */
@@ -172,6 +177,66 @@ var engine = {
                 user_dropdown.addEventListener("change",() => {engine.selectAndLoadUser()});
             }
         }
+    },
+
+    btnSubmitCompassData: function(evt){
+        
+        // see e.g.: https://samtomashi.medium.com/html-an-easy-way-to-capture-all-input-values-from-a-form-7416ead028ab
+        // nope...
+        // const frm = document.getElementById("compass_wrapper");
+        // console.log(evt,frm)
+        // const formData = new FormData(frm);
+
+        // they are all dropdowns...
+        let elems = document.getElementsByTagName("select");
+        let compass_id = parseInt(document.getElementById("compass_id").value);
+        let compass_name = document.getElementById("compass_name").value;
+        let data = {}
+        // data["test"] = "fish";
+        for(let elem of elems){
+            console.log(elem.getAttribute("data-fieldname"),elem.value);
+            let field = elem.getAttribute("data-fieldname");
+            let value = elem.value;
+            // if(field === "name"){
+            //     data[field] = value;
+            // }
+            // else{
+                data[field] = parseInt(value);
+            // }
+            // data[elem.getAttribute("data-fieldname")] = elem.value,
+        }
+        data["id"] = compass_id;
+        data["name"] = compass_name;
+
+
+        // // test
+        // let userInputs = {}
+
+
+        // // get all data (no cs processing):
+        // const data = formData.keys();
+        // for(let thing of data){
+        //     console.log(thing);
+        // }
+        // console.log(JSON.stringify(data));
+    
+    // TEST
+    console.log(data);
+    if(data){
+            fetch('/compass/', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+            }).then(function (response) {
+                return response.json(); 
+                }).then(function (response) { 
+
+            });
+        }
+
     },
 
     tabHandler: function(evt,tablist){
