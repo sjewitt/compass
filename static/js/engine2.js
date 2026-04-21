@@ -160,6 +160,30 @@ var engine = {
             if(btn_submit_compass_data){
                 btn_submit_compass_data.addEventListener("click",this.btnSubmitCompassData)
             }
+        // handle tab selection AFTER the click handlers are applied...
+        console.log(window.location.hash);
+        console.log(window.location.pathname);
+        console.log(window.location.pathname.indexOf("/configure"));
+        if(window.location.pathname.indexOf("/configure")!==-1 && window.location.hash.length > 0 ){
+
+            elem = document.getElementById(window.location.hash.replace('#',''));
+            console.log(elem);
+            if(elem){
+                console.log("autoclicking?")
+                console.log(window.location.hash.replace('#',''));
+                // elem.click();   // hmm...
+                // https://medium.com/@python-javascript-php-html-css/javascript-to-emulate-a-click-on-the-first-button-in-a-list-9c61f408b4b5
+                let evt = new PointerEvent('click',{
+                    bubbles:true,
+                    cancelable:true,
+                    view:window,
+                    pointerType:'mouse',
+                });
+                console.log(evt);
+                elem.dispatchEvent(evt);
+            }
+        }
+
         }
 
         /** add event listener for the user dropdown: */
@@ -190,6 +214,9 @@ var engine = {
         // they are all dropdowns...
         let elems = document.getElementsByTagName("select");
         let compass_id = parseInt(document.getElementById("compass_id").value);
+        if(compass_id === NaN){
+            compass_id = null;
+        }
         let compass_name = document.getElementById("compass_name").value;
         let data = {}
         // data["test"] = "fish";
@@ -208,6 +235,7 @@ var engine = {
         data["id"] = compass_id;
         data["name"] = compass_name;
 
+        console.log(data)
 
         // // test
         // let userInputs = {}
@@ -222,8 +250,12 @@ var engine = {
     
     // TEST
     console.log(data);
+    let submitURL = '/compass/new/'
+    if(compass_id){
+        submitURL = '/compass/update/';
+    }
     if(data){
-            fetch('/compass/', {
+            fetch(submitURL, {
                 method: 'POST',
                 body: JSON.stringify(data),
                 headers: {
@@ -250,6 +282,8 @@ var engine = {
             if( x===parseInt(evt.srcElement.getAttribute("data-tabid"))-1 ){    // because '0' will do odd things...
                 tablist[x].classList.add("panel_selector_tab_selected");
                 panel_list[x].classList.remove("hidden");
+                // and add a hash to the URL:
+                window.location.hash = evt.srcElement.getAttribute("id");
             }
         }
     },
