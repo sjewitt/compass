@@ -110,6 +110,7 @@ async def compass_new(request: Request):
         quadrant_titles = handlers.get_quadrant_titles(engine=engine)
         sectors = handlers.get_sectors(engine=engine)
         sector_titles = handlers.get_sector_titles(engine=engine)
+        ratings = handlers.get_ratings(engine=engine)
         return templates.TemplateResponse(
             request=request,
             name="configure.html",
@@ -118,7 +119,8 @@ async def compass_new(request: Request):
                 "quadrants":quadrants,
                 "quadrant_titles":quadrant_titles,
                 "sectors":sectors, 
-                "sector_titles":sector_titles
+                "sector_titles":sector_titles,
+                "ratings":ratings,
             }
         )
     except IndexError as ex:
@@ -138,6 +140,7 @@ async def configure(request: Request, compass_id: int):
         quadrant_titles = handlers.get_quadrant_titles(engine=engine)
         sectors = handlers.get_sectors(engine=engine)
         sector_titles = handlers.get_sector_titles(engine=engine)
+        ratings = handlers.get_ratings(engine=engine)
         return templates.TemplateResponse(
             request=request,
             name="configure.html",
@@ -146,7 +149,8 @@ async def configure(request: Request, compass_id: int):
                 "quadrants":quadrants,
                 "quadrant_titles":quadrant_titles,
                 "sectors":sectors, 
-                "sector_titles":sector_titles
+                "sector_titles":sector_titles,
+                "ratings":ratings,
             }
         )
     except IndexError as ex:
