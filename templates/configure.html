@@ -41,8 +41,8 @@
 			{% endif %}
 		</h1>
 	</div>
-	<input type="text" data-fieldname="id" id="compass_id" disabled="disabled" value="{{compass_data.id}}">
-	<div class="panel">
+	
+	<!-- <div class="panel">
 {% if not compass_data %}
 		<div>New compass name:</div>
 		<div><input type="text" data-fieldname="name" id="compass_name" placeholder="New Compass name"></div>
@@ -50,20 +50,41 @@
 		<div>Compass name: {{ compass_data.title }}</div>
 		<div><input disabled="disabled" type="text" data-fieldname="name" id="compass_name" value="{{ compass_data.title }}"></div>
 {%endif%}
-</div>
+</div> -->
 	<div class="tabswrapper">
-		<div data-tabid="1" class="panel_selector_tab panel_selector_tab_selected" id="tab_1">Quadrant 1</div>
-		<div data-tabid="2" class="panel_selector_tab" id="tab_2">Quadrant 2</div>
-		<div data-tabid="3" class="panel_selector_tab" id="tab_3">Quadrant 3</div>
-		<div data-tabid="4" class="panel_selector_tab" id="tab_4">Quadrant 4</div>
-		<div data-tabid="5" class="panel_selector_tab" id="tab_5">Ratings</div>
+		<div data-tabid="1" class="panel_selector_tab panel_selector_tab_selected" id="tab_1">Compass general</div>
+		<div data-tabid="2" class="panel_selector_tab " id="tab_2">Quadrant 1</div>
+		<div data-tabid="3" class="panel_selector_tab" id="tab_3">Quadrant 2</div>
+		<div data-tabid="4" class="panel_selector_tab" id="tab_4">Quadrant 3</div>
+		<div data-tabid="5" class="panel_selector_tab" id="tab_5">Quadrant 4</div>
+		<div data-tabid="6" class="panel_selector_tab" id="tab_6">Ratings</div>
 	</div>
 
 <form id="compass_wrapper">
 
 	<div class="panelwrapper mt_minus_1">
-		<!-- Q1 edit -->
+
+	<!-- configure ratings -->
 		<div class="gutterpanel" data-panelid="1">
+			<h2>
+				<div class="button button-static inline_block ">
+					<!-- <img src="/static/images/one-quarter.svg" class="rotate_270" alt="Home"  -->
+					<img src="/static/images/gear-settings-icon_outline.png" alt="Basic settings" title="Basic settings" />
+				</div>
+				Basic settings
+			</h2>
+			<div>&nbsp;</div>
+			<div></div><input type="text" data-fieldname="id" id="compass_id" disabled="disabled" value="{{compass_data.id}}">
+			<div>Compass name</div><div><input type="text" data-fieldname="name" id="compass_name" value="{{ compass_data.title }}"></div>
+			<!-- row 3 -->
+			<div>Compass Description (TODO:)</div>
+			<div>
+				<textarea id="compass_description" class="full_width height_300px" datafield-name="compass_description"></textarea>
+			</div>
+		</div> 
+
+		<!-- Q1 edit -->
+		<div class="gutterpanel hidden" data-panelid="2">
 			<div>
 				<h2>
 					<div class="button button-static inline_block">
@@ -343,7 +364,7 @@
 		</div>
 
 		<!-- Q2 edit -->
-		<div class="gutterpanel hidden" data-panelid="2">
+		<div class="gutterpanel hidden" data-panelid="3">
 			<div>
 				<h2>
 					<div class="button button-static inline_block ">
@@ -578,7 +599,7 @@
 		</div>
 
 		<!-- Q3 edit -->
-		<div class="gutterpanel hidden" data-panelid="3">
+		<div class="gutterpanel hidden" data-panelid="4">
 			<div>
 				<h2>
 					<div class="button button-static inline_block ">
@@ -813,12 +834,12 @@
 		</div>
 
 		<!-- Q4 edit -->
-		<div class="gutterpanel hidden" data-panelid="4">
+		<div class="gutterpanel hidden" data-panelid="5">
 			<div>
 				<h2>
 					<div class="button button-static inline_block ">
-						<img src="/static/images/one-quarter_trans.png" class="rotate_270" alt="Home"
-							title="Quadrant 4" />
+						<!-- <img src="/static/images/one-quarter.svg" class="rotate_270" alt="Home"  -->
+						<img src="/static/images/one-quarter_trans.png" class="rotate_270" alt="Home" title="Quadrant 4" />
 					</div>
 					Quadrant 4
 				</h2>
@@ -1048,9 +1069,175 @@
 		</div>
 
 		<!-- configure ratings -->
-		<div class="gutterpanel hidden" data-panelid="5">
-			RATINGS
+		<div class="gutterpanel hidden" data-panelid="6">
+			<div>
+				<h2>
+					<div class="button button-static inline_block ">
+						<img src="/static/images/bar-chart-5-xxl.png" alt="Ratings configuration"
+							title="Ratings configuration" />
+					</div>
+					Ratings
+				</h2>
+			</div>
+			<div>
+				<h3>Configure Compass Ratings</h3>
+				<p>Here, you can specify which of the rating descriptions should be applied to each of the competency levels 
+				for this compass. Every Compass has seven competency levels and a Rating can be assigned to each from the 
+				pool of available Ratings.</p>
+				<p>
+					You can also configure additional Ratings <a href="#" title="Configure Ratings">here</a> if so required.
+				</p>
+				<!-- 
+				I can probably do something here with the description using template literals:
+				https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals 
+				and an onchange event listener on the dropdowns to collect the correct description (which
+				could be pushed to an array?) and push into the description field - or, could I attach it 
+				(suitably trimmed) to a tag attribute? TO INVESTIGATE
+				-->
+				<script>
+					var ratingDescriptionArray = [];
+					{% for rating in ratings %}
+					ratingDescriptionArray.push("{{rating.description}}");
+					{% endfor %}
+					console.log(ratingDescriptionArray)
+				</script>
+				<div class="gutterpanel">
+					<div>
+						<h4>Rating 1 (least)</h4>
+						<select name="rating_1" id="rating_1" data-fieldname="rating_1">
+							<option>[Select Rating]</option>
+							{% for rating in ratings %}
+							<option value="{{rating.id}}"
+							{% if rating.id  == ratings[0].id %}
+							selected="selected"
+							{% endif %}
+							>{{rating.title}}
+							</option>
+							{% endfor %}
+						</select>
+					</div>
 
+					<div>
+						<h4>Description</h4>
+					</div>
+					<div>
+						<h4>Rating 2</h4>
+						<select name="rating_2" id="rating_2" data-fieldname="rating_2">
+							<option>[Select Rating]</option>
+							{% for rating in ratings %}
+							<option value="{{rating.id}}"
+							{% if rating.id  == ratings[1].id %}
+							selected="selected"
+							{% endif %}
+							>{{rating.title}}
+							</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div>
+						<h4>Description</h4>
+					</div>
+
+					<div>
+						<h4>Rating 3</h4>
+						<select name="rating_3" id="rating_3" data-fieldname="rating_3">
+							<option>[Select Rating]</option>
+							{% for rating in ratings %}
+							<option value="{{rating.id}}"
+							{% if rating.id  == ratings[2].id %}
+							selected="selected"
+							{% endif %}
+							>{{rating.title}}
+							</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div>
+						<h4>Description</h4>
+					</div>
+
+
+					<div>
+						<h4>Rating 4</h4>
+						<select name="rating_4" id="rating_4" data-fieldname="rating_4">
+							<option>[Select Rating]</option>
+							{% for rating in ratings %}
+							<option value="{{rating.id}}"
+							{% if rating.id  == ratings[3].id %}
+							selected="selected"
+							{% endif %}
+							>{{rating.title}}
+							</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div>
+						<h4>Description</h4>
+					</div>
+
+					<div>
+						<h4>Rating 5</h4>
+						<select name="rating_5" id="rating_5" data-fieldname="rating_5">
+							<option>[Select Rating]</option>
+							{% for rating in ratings %}
+							<option value="{{rating.id}}"
+							{% if rating.id  == ratings[4].id %}
+							selected="selected"
+							{% endif %}
+							>{{rating.title}}
+							</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div>
+						<h4>Description</h4>
+					</div>
+
+					<div>
+						<h4>Rating 6</h4>
+						<select name="rating_6" id="rating_6" data-fieldname="rating_6">
+							<option>[Select Rating]</option>
+							{% for rating in ratings %}
+							<option value="{{rating.id}}"
+							{% if rating.id  == ratings[5].id %}
+							selected="selected"
+							{% endif %}
+							>{{rating.title}}
+							</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div>
+						<h4>Description</h4>
+					</div>
+
+					<div>
+						<h4>Rating 7 (most)</h4>
+						<select name="rating_7" id="rating_7" data-fieldname="rating_7">
+							<option>[Select Rating]</option>
+							{% for rating in ratings %}
+							<option value="{{rating.id}}"
+							{% if rating.id  == ratings[6].id %}
+							selected="selected"
+							{% endif %}
+							>{{rating.title}}
+							</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div>
+						<h4>Description</h4>
+					</div>
+
+
+
+
+
+				</div>
+			</div>
+			<div>
+
+			</div>
 		</div> 
 	</div>
 
@@ -1075,7 +1262,6 @@
 		<div></div>
 		<div id="message"></div>
 	</div>
-
 </body>
 <script src="/static/js/engine2.js"></script>
 
