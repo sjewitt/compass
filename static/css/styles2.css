@@ -25,12 +25,27 @@ body{
   width:100%;
 }
 
+/* main non-compass page layout */
 .gutterpanel{
   display: grid;
   grid-template-columns: 20% 70% ;
   grid-gap: 10px;
   width: 100%
 }
+
+/* layout for ratings select blocks, to allow for dropdown, 'current' indicator and longer description */
+.threecolpanel{
+  display: grid;
+  grid-template-columns: 20% 5% 65% ;
+  grid-gap: 10px;
+  width: 90%
+}
+
+.threecolpanel > div > h4{
+    margin-top: 5px;
+    margin-bottom: 0px;
+}
+
 
 .offset_top{
   position: relative;
@@ -100,8 +115,14 @@ body{
   transform: rotate(270deg)
 }
 
+/* remove from DOM */
 .hidden{
   display: none;
+}
+
+/* make non visible (space is still used) */
+.non_visible{
+  visibility:hidden;
 }
 
 .mt_minus_1{
@@ -163,6 +184,10 @@ body{
 }
 .height_400px{
   height: 400px;
+}
+
+.align_bottom{
+  align-content: end;
 }
 
 /* end utilities */
