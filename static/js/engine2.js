@@ -153,36 +153,52 @@ var engine = {
                     engine.tabHandler(e,tabber_elems);
                     // console.log(this);   // this is the script instance!
                     // console.log(e);
+                    console.log("other handler")
                 })
             }
+
             // and apply handler for submit button (accounts for add and update actions)
             let btn_submit_compass_data = document.getElementById("btn_submit_compass_data");
             if(btn_submit_compass_data){
+                console.log("applying button handler")
                 btn_submit_compass_data.addEventListener("click",this.btnSubmitCompassData)
             }
-        // handle tab selection AFTER the click handlers are applied...
-        console.log(window.location.hash);
-        console.log(window.location.pathname);
-        console.log(window.location.pathname.indexOf("/configure"));
-        if(window.location.pathname.indexOf("/configure")!==-1 && window.location.hash.length > 0 ){
 
-            elem = document.getElementById(window.location.hash.replace('#',''));
-            console.log(elem);
-            if(elem){
-                console.log("autoclicking?")
-                console.log(window.location.hash.replace('#',''));
-                // elem.click();   // hmm...
-                // https://medium.com/@python-javascript-php-html-css/javascript-to-emulate-a-click-on-the-first-button-in-a-list-9c61f408b4b5
-                let evt = new PointerEvent('click',{
-                    bubbles:true,
-                    cancelable:true,
-                    view:window,
-                    pointerType:'mouse',
-                });
-                console.log(evt);
-                elem.dispatchEvent(evt);
+            // add event listener to the ratings dropdowns, to handle onchange
+            // to display the long descriptions from jinja loaded array:
+            let dropdown_elems = document.querySelectorAll("[data-identifier='rating_dropdown']");
+            // let dropdown_elems = document.getElementsByClassName("select_rating");
+            console.log(dropdown_elems)
+            for(let x=0;x<dropdown_elems.length;x++){
+                let current_option_value = dropdown_elems[x].selectedIndex;   // initial value
+                console.log("applying handler:");
+                dropdown_elems[x].addEventListener("click",(e)=>{
+                    this.ratingSelectHandler(e, dropdown_elems, current_option_value, x);
+                })
             }
-        }
+
+            // handle tab selection AFTER the click handlers are applied...
+            console.log(window.location.hash);
+            console.log(window.location.pathname);
+            console.log(window.location.pathname.indexOf("/configure"));
+            if(window.location.pathname.indexOf("/configure")!==-1 && window.location.hash.length > 0 ){
+                elem = document.getElementById(window.location.hash.replace('#',''));
+                console.log(elem);
+                if(elem){
+                    console.log("autoclicking?")
+                    console.log(window.location.hash.replace('#',''));
+                    // elem.click();   // hmm...
+                    // https://medium.com/@python-javascript-php-html-css/javascript-to-emulate-a-click-on-the-first-button-in-a-list-9c61f408b4b5
+                    let evt = new PointerEvent('click',{
+                        bubbles:true,
+                        cancelable:true,
+                        view:window,
+                        pointerType:'mouse',
+                    });
+                    console.log(evt);
+                    elem.dispatchEvent(evt);
+                }
+            }
 
         }
 
@@ -271,6 +287,7 @@ var engine = {
 
     },
 
+    // handle configure tabber
     tabHandler: function(evt,tablist){
         console.log(tablist);
         console.log(evt.srcElement.getAttribute("data-tabid"));
@@ -287,6 +304,47 @@ var engine = {
             }
         }
     },
+
+    // handle configure ratings change (UI display only)
+    /**
+     * 
+     * @param {*} evt : event
+     * @param {*} selectlist : list of ratings select elements on page
+     * @param {*} current_option_value : current selection so we can indicate whether the selection has changed 
+     */
+    ratingSelectHandler: function(evt,selectlist,current_option_value, current_dropdown_index){
+        /**
+         * This function does not know from which dropdown it was called. Therefore we need to determine which one
+         * so we can identify which UI element to update
+         * I.E. we need to replace the hardcoded index zero below...
+         * So I'll use a data-attribute:
+         */
+        let id = selectlist[current_dropdown_index].id;
+        console.log(id);    //'rating_1' eg
+        // let current_dropdown_index = parseInt(document.getElementById(`${id}`).getAttribute("data-rating-index"));
+        // let current_dropdown_index = document.querySelectorAll("data-rating-index");    // FIX THIS!!
+        console.log(current_dropdown_index);    // from select elem attribute
+        // console.log(parseInt(current_dropdown_index));
+        console.log(evt, selectlist, current_option_value);
+        // if init_value and selectlist[0].selectedIndex are equal, we have not changed the option:
+        // document.getElementById(`rating_${elem_index}_description_changed`).classList.remove("hidden");
+
+        hideit = document.getElementById(`${id}_description_changed`);
+        console.log(hideit);
+        // get identifier number from data-attibute:
+        // init_value = 
+        if(hideit){
+            // hideit.classList.add("cheese");
+            hideit.innerText = ""
+            // if(current_option_value !== selectlist[0].selectedIndex){
+            if(current_option_value !== selectlist[current_dropdown_index].selectedIndex){
+                hideit.innerText = "*"
+            }
+        }
+        // apply description to display DIV:
+        // document.getElementById(`${id}_description`).innerText = document.getElementById(`rating_description_${selectlist[0].selectedIndex}`).innerText;
+        document.getElementById(`${id}_description`).innerText = document.getElementById(`rating_description_${selectlist[current_dropdown_index].selectedIndex}`).innerText;
+     },
 
     loadConstantData: function(data){
         console.log(data);
@@ -901,6 +959,11 @@ var engine = {
             target.appendChild(row);
         }
     },
+
+    test : function(arg){
+        console.log("IN FUNCTION LIB");
+        console.log(arg);
+    }
 };
 
 document.addEventListener("DOMContentLoaded",
@@ -940,6 +1003,7 @@ document.addEventListener("DOMContentLoaded",
                 })  
                 .catch(error => console.error('Failed to fetch constant data:', error)); 
         }
+        console.log("IN INIT")
         fetchJSONData(); 
         // test:
         // THIS NEEDS TO BE REPLACED WITH THE STATIC DATA RETURNED BY THE /compass/{id} ENDPOINT
