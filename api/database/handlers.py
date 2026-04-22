@@ -906,15 +906,116 @@ def update_compass(engine, definition:CompassDefinition) -> int:
     # update
     with Session(engine) as session:
         # get the matching CompassSummary:
-        _compass = session.query(DB_CompassDefinition).where(DB_CompassDefinition.id == definition.id).first()
-        if _compass:
-            # Now update the _compass object
-            for thing in definition:
-                print(f"{thing}")   # a tuple
-                
-            return
-        print(f"no matching compass for id {definition.id}")
-        raise Exception
+        _compass_to_update = session.query(DB_CompassDefinition).where(DB_CompassDefinition.id == definition.id).first()
+        if _compass_to_update:
+            # Now update the DB_CompassDefinition object from the incoming
+            # CompassDefinition object.
+            # I need to explicitly address each field - not sure I can enumerate and 
+            # dynamically use a fieldname...
+            _compass_to_update.name = definition.name
+
+            _compass_to_update.quadrant_1 = definition.quadrant_1
+            _compass_to_update.quadrant_2 = definition.quadrant_2
+            _compass_to_update.quadrant_3 = definition.quadrant_3
+            _compass_to_update.quadrant_4 = definition.quadrant_4
+            
+            # Quadrant title IDs (note FK-enforced second - how to handle? Special case?)
+            _compass_to_update.q1_tp1= definition.q1_tp1
+            _compass_to_update.q1_tp2= definition.q1_tp2
+            _compass_to_update.q2_tp1= definition.q2_tp1
+            _compass_to_update.q2_tp2= definition.q2_tp2
+            _compass_to_update.q3_tp1= definition.q3_tp1
+            _compass_to_update.q3_tp2= definition.q3_tp2
+            _compass_to_update.q4_tp1= definition.q4_tp1
+            _compass_to_update.q4_tp2= definition.q4_tp2
+
+            # Q1 Sectors:
+            _compass_to_update.quadrant_1_sector_1 = definition.quadrant_1_sector_1
+            _compass_to_update.quadrant_1_sector_2 = definition.quadrant_1_sector_2
+            _compass_to_update.quadrant_1_sector_3 = definition.quadrant_1_sector_3
+            _compass_to_update.quadrant_1_sector_4 = definition.quadrant_1_sector_4
+            _compass_to_update.quadrant_1_sector_5 = definition.quadrant_1_sector_4
+
+            # Q1 Sector titles:
+            _compass_to_update.q1_s1_tp1=definition.q1_s1_tp1
+            _compass_to_update.q1_s1_tp2=definition.q1_s1_tp2
+            _compass_to_update.q1_s2_tp1=definition.q1_s2_tp1
+            _compass_to_update.q1_s2_tp2=definition.q1_s2_tp2
+            _compass_to_update.q1_s3_tp1=definition.q1_s3_tp1
+            _compass_to_update.q1_s3_tp2=definition.q1_s3_tp2
+            _compass_to_update.q1_s4_tp1=definition.q1_s4_tp1
+            _compass_to_update.q1_s4_tp2=definition.q1_s4_tp2
+            _compass_to_update.q1_s5_tp1=definition.q1_s5_tp1
+            _compass_to_update.q1_s5_tp2=definition.q1_s5_tp2
+
+            # Q2 Sectors:
+            _compass_to_update.quadrant_2_sector_1 = definition.quadrant_2_sector_1
+            _compass_to_update.quadrant_2_sector_2 = definition.quadrant_2_sector_2            
+            _compass_to_update.quadrant_2_sector_3 = definition.quadrant_2_sector_3
+            _compass_to_update.quadrant_2_sector_4 = definition.quadrant_2_sector_4
+
+            # Q2 Sector titles:
+            _compass_to_update.q2_s1_tp1=definition.q2_s1_tp1
+            _compass_to_update.q2_s1_tp2=definition.q2_s1_tp2
+            _compass_to_update.q2_s2_tp1=definition.q2_s2_tp1
+            _compass_to_update.q2_s2_tp2=definition.q2_s2_tp2
+            _compass_to_update.q2_s3_tp1=definition.q2_s3_tp1
+            _compass_to_update.q2_s3_tp2=definition.q2_s3_tp2
+            _compass_to_update.q2_s4_tp1=definition.q2_s4_tp1
+            _compass_to_update.q2_s4_tp2=definition.q2_s4_tp2
+
+            # Q3 Sectors:
+            _compass_to_update.quadrant_3_sector_1 = definition.quadrant_3_sector_1
+            _compass_to_update.quadrant_3_sector_2 = definition.quadrant_3_sector_2           
+            _compass_to_update.quadrant_3_sector_3 = definition.quadrant_3_sector_3
+            _compass_to_update.quadrant_3_sector_4 = definition.quadrant_3_sector_4
+
+            # Q3 Sector titles:
+            _compass_to_update.q3_s1_tp1=definition.q3_s1_tp1
+            _compass_to_update.q3_s1_tp2=definition.q3_s1_tp2
+            _compass_to_update.q3_s2_tp1=definition.q3_s2_tp1
+            _compass_to_update.q3_s2_tp2=definition.q3_s2_tp2
+            _compass_to_update.q3_s3_tp1=definition.q3_s3_tp1
+            _compass_to_update.q3_s3_tp2=definition.q3_s3_tp2
+            _compass_to_update.q3_s4_tp1=definition.q3_s4_tp1
+            _compass_to_update.q3_s4_tp2=definition.q3_s4_tp2
+
+            # Q4 Sectors:
+            _compass_to_update.quadrant_4_sector_1 = definition.quadrant_4_sector_1
+            _compass_to_update.quadrant_4_sector_2 = definition.quadrant_4_sector_2            
+            _compass_to_update.quadrant_4_sector_3 = definition.quadrant_4_sector_3
+            _compass_to_update.quadrant_4_sector_4 = definition.quadrant_4_sector_4
+
+            # Q4 Sector titles:
+            _compass_to_update.q4_s1_tp1=definition.q4_s1_tp1
+            _compass_to_update.q4_s1_tp2=definition.q4_s1_tp2
+            _compass_to_update.q4_s2_tp1=definition.q4_s2_tp1
+            _compass_to_update.q4_s2_tp2=definition.q4_s2_tp2
+            _compass_to_update.q4_s3_tp1=definition.q4_s3_tp1
+            _compass_to_update.q4_s3_tp2=definition.q4_s3_tp2
+            _compass_to_update.q4_s4_tp1=definition.q4_s4_tp1
+            _compass_to_update.q4_s4_tp2=definition.q4_s4_tp2
+
+            # Ratings
+            _compass_to_update.rating_1 = definition.rating_1
+            _compass_to_update.rating_2 = definition.rating_2
+            _compass_to_update.rating_3 = definition.rating_3
+            _compass_to_update.rating_4 = definition.rating_4
+            _compass_to_update.rating_5 = definition.rating_5
+            _compass_to_update.rating_6 = definition.rating_6
+            _compass_to_update.rating_7 = definition.rating_7
+
+            # THIS doesn't work:
+            # for key in definition:
+            #     print(f"{key[0]}, {key[1]}")   # a tuple
+            #     definition[key[0]] = key[1]
+            session.commit()
+            return 1
+        else:
+            raise Exception
+        
+    print(f"no matching compass for id {definition.id}")
+    raise Exception
         
 
 def _get_quadrant_models_from_db_models(
