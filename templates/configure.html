@@ -1094,21 +1094,31 @@
 				could be pushed to an array?) and push into the description field - or, could I attach it 
 				(suitably trimmed) to a tag attribute? TO INVESTIGATE
 				-->
-				<script>
+				{{compass_data.rating_description_lookup}}
+				<!-- <script>
+					// maybe do this as hidden HTML elements? I'm beginning to see
+					// why that may be a thing in otehr webpages...
 					var ratingDescriptionArray = [];
 					{% for rating in ratings %}
-					ratingDescriptionArray.push("{{rating.description}}");
+					ratingDescriptionArray.push(`{{rating.description}}`);
 					{% endfor %}
-					console.log(ratingDescriptionArray)
-				</script>
-				<div class="gutterpanel">
+					/* pass this as arg to main function? */
+					console.log(ratingDescriptionArray);
+					// engine.test(ratingDescriptionArray);
+				</script> -->
+				<!-- see https://stackoverflow.com/questions/12145434/how-to-output-loop-counter-in-python-jinja-template -->
+				{% for rating in ratings %}
+				<div id="rating_description_{{loop.index}}" class="hidden">{{rating.description}}</div>
+				{% endfor %}
+				<div class="threecolpanel">
+					<!-- Rating 1 -->
 					<div>
 						<h4>Rating 1 (least)</h4>
-						<select name="rating_1" id="rating_1" data-fieldname="rating_1">
+						<select name="rating_1" id="rating_1" data-fieldname="rating_1" data-identifier="rating_dropdown">
 							<option>[Select Rating]</option>
 							{% for rating in ratings %}
 							<option value="{{rating.id}}"
-							{% if rating.id  == ratings[0].id %}
+							{% if rating.id  == compass_data.rating_description_lookup[0].id %}
 							selected="selected"
 							{% endif %}
 							>{{rating.title}}
@@ -1116,17 +1126,21 @@
 							{% endfor %}
 						</select>
 					</div>
-
+					<div id="rating_1_description_changed" class="align_bottom" title="Changed">
+					</div>
 					<div>
 						<h4>Description</h4>
+						<div class="inline_block" id="rating_1_description">{{ compass_data.rating_description_lookup[0].description }}</div>
 					</div>
+					
+					<!-- Rating 2 -->
 					<div>
 						<h4>Rating 2</h4>
-						<select name="rating_2" id="rating_2" data-fieldname="rating_2">
+						<select name="rating_2" id="rating_2" data-fieldname="rating_2" data-identifier="rating_dropdown">
 							<option>[Select Rating]</option>
 							{% for rating in ratings %}
 							<option value="{{rating.id}}"
-							{% if rating.id  == ratings[1].id %}
+							{% if rating.id  == compass_data.rating_description_lookup[1].id %}
 							selected="selected"
 							{% endif %}
 							>{{rating.title}}
@@ -1134,17 +1148,21 @@
 							{% endfor %}
 						</select>
 					</div>
+					<div id="rating_2_description_changed" class="align_bottom"  title="Changed">
+					</div>
 					<div>
 						<h4>Description</h4>
+						<div class="inline_block" id="rating_2_description">{{ compass_data.rating_description_lookup[1].description }}</div>
 					</div>
 
+					<!-- Rating 3 -->
 					<div>
 						<h4>Rating 3</h4>
-						<select name="rating_3" id="rating_3" data-fieldname="rating_3">
+						<select name="rating_3" id="rating_3" data-fieldname="rating_3" data-identifier="rating_dropdown">
 							<option>[Select Rating]</option>
 							{% for rating in ratings %}
 							<option value="{{rating.id}}"
-							{% if rating.id  == ratings[2].id %}
+							{% if rating.id  == compass_data.rating_description_lookup[2].id %}
 							selected="selected"
 							{% endif %}
 							>{{rating.title}}
@@ -1152,18 +1170,21 @@
 							{% endfor %}
 						</select>
 					</div>
+					<div id="rating_3_description_changed" class="align_bottom"  title="Changed">
+					</div>
 					<div>
 						<h4>Description</h4>
+						<div class="inline_block" id="rating_3_description">{{ compass_data.rating_description_lookup[2].description }}</div>
 					</div>
 
-
+					<!-- Rating 4 -->
 					<div>
 						<h4>Rating 4</h4>
-						<select name="rating_4" id="rating_4" data-fieldname="rating_4">
+						<select name="rating_4" id="rating_4" data-fieldname="rating_4" data-identifier="rating_dropdown">
 							<option>[Select Rating]</option>
 							{% for rating in ratings %}
 							<option value="{{rating.id}}"
-							{% if rating.id  == ratings[3].id %}
+							{% if rating.id  == compass_data.rating_description_lookup[3].id %}
 							selected="selected"
 							{% endif %}
 							>{{rating.title}}
@@ -1171,17 +1192,21 @@
 							{% endfor %}
 						</select>
 					</div>
+					<div id="rating_4_description_changed" class="align_bottom"  title="Changed">
+					</div>
 					<div>
 						<h4>Description</h4>
+						<div class="inline_block" id="rating_4_description">{{ compass_data.rating_description_lookup[3].description }}</div>
 					</div>
 
+					<!-- Rating 5 -->
 					<div>
 						<h4>Rating 5</h4>
-						<select name="rating_5" id="rating_5" data-fieldname="rating_5">
+						<select name="rating_5" id="rating_5" data-fieldname="rating_5" data-identifier="rating_dropdown">
 							<option>[Select Rating]</option>
 							{% for rating in ratings %}
 							<option value="{{rating.id}}"
-							{% if rating.id  == ratings[4].id %}
+							{% if rating.id  == compass_data.rating_description_lookup[4].id %}
 							selected="selected"
 							{% endif %}
 							>{{rating.title}}
@@ -1189,17 +1214,21 @@
 							{% endfor %}
 						</select>
 					</div>
+					<div id="rating_5_description_changed" class="align_bottom"  title="Changed">
+					</div>
 					<div>
 						<h4>Description</h4>
+						<div class="inline_block" id="rating_5_description">{{ compass_data.rating_description_lookup[4].description }}</div>
 					</div>
 
+					<!-- Rating 6 -->
 					<div>
 						<h4>Rating 6</h4>
-						<select name="rating_6" id="rating_6" data-fieldname="rating_6">
+						<select name="rating_6" id="rating_6" data-fieldname="rating_6" data-identifier="rating_dropdown">
 							<option>[Select Rating]</option>
 							{% for rating in ratings %}
 							<option value="{{rating.id}}"
-							{% if rating.id  == ratings[5].id %}
+							{% if rating.id  == compass_data.rating_description_lookup[5].id %}
 							selected="selected"
 							{% endif %}
 							>{{rating.title}}
@@ -1207,17 +1236,21 @@
 							{% endfor %}
 						</select>
 					</div>
+					<div id="rating_6_description_changed" class="align_bottom"  title="Changed">
+					</div>
 					<div>
 						<h4>Description</h4>
+						<div class="inline_block" id="rating_6_description">{{ compass_data.rating_description_lookup[5].description }}</div>
 					</div>
 
+					<!-- Rating 7 -->
 					<div>
 						<h4>Rating 7 (most)</h4>
-						<select name="rating_7" id="rating_7" data-fieldname="rating_7">
+						<select name="rating_7" id="rating_7" data-fieldname="rating_7" data-identifier="rating_dropdown">
 							<option>[Select Rating]</option>
 							{% for rating in ratings %}
 							<option value="{{rating.id}}"
-							{% if rating.id  == ratings[6].id %}
+							{% if rating.id  == compass_data.rating_description_lookup[6].id %}
 							selected="selected"
 							{% endif %}
 							>{{rating.title}}
@@ -1225,14 +1258,12 @@
 							{% endfor %}
 						</select>
 					</div>
+					<div id="rating_7_description_changed" class="align_bottom"  title="Changed">
+					</div>
 					<div>
 						<h4>Description</h4>
+						<div class="inline_block" id="rating_7_description">{{ compass_data.rating_description_lookup[6].description }}</div>
 					</div>
-
-
-
-
-
 				</div>
 			</div>
 			<div>
