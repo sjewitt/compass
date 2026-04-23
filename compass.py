@@ -64,15 +64,14 @@ Base.metadata.create_all(engine)
 # load_config_data()
 
 # test of jinja template function calling:
+# To move to imported lib
 class Funcs():
-    def test(arg="fish"):
-        print("TEST" + arg)
-        return("TEST" + arg)
     
     def replace_empty_string(str_in):
         if not str_in:
             return "[empty]"
         return str_in
+
 
 @app.get("/")
 async def root(request: Request):
