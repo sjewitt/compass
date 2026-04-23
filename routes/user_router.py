@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from api.database import handlers
 from api.models import User, Competency, CreateUser
 from api.database.engine import get_engine
@@ -8,6 +8,10 @@ from api.models import User, Competency, CreateUser
 from api.database import handlers
 from api.db_models import DB_User
 from api.exceptions import UserNotFound, CompetenciesForUserNotFound
+
+from fastapi.templating import Jinja2Templates
+
+templates = Jinja2Templates(directory="templates")
 
 router = APIRouter(
     prefix="/users",
@@ -60,10 +64,22 @@ async def update_user(user:User) -> User:
     ''' update user's competencies in database '''
     
     result = handlers.update_user(engine,user)
-    print(result)
+    # print(result)
     # return data to populate the form:
     return user
 
+# template rendering for add_user, rather than static, so I can pass in compass IDs
+# can I make an FK col that allows null???
+# retrieve compass data to pass in to the template
+# don't confuse with /users/add/ API endpoint!!
+# replaces static add user page:
+@router.get("/edit/new/")
+async def user_add(request: Request) -> User:
+    # get compass data:
+    _compasses = handlers.get_all_compasses(engine)
+    return templates.TemplateResponse(
+        request=request,name="user_add.html", context={"compasses":_compasses}
+    )
 
 @router.post("/new/")
 async def adduser(userdata:CreateUser) -> dict:    #translate this to a DB_User
@@ -72,6 +88,7 @@ async def adduser(userdata:CreateUser) -> dict:    #translate this to a DB_User
     if userdata.password == userdata.password_check:
         _user = DB_User(
             name=userdata.name, 
+            compass_id=userdata.compass_id,
             email=userdata.email, 
             username=userdata.username, 
             password=userdata.password)

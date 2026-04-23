@@ -63,9 +63,22 @@ Base.metadata.create_all(engine)
 # load JSON data on startup:
 # load_config_data()
 
+# test of jinja template function calling:
+# To move to imported lib
+class Funcs():
+    
+    def replace_empty_string(str_in):
+        if not str_in:
+            return "[empty]"
+        return str_in
+
+
 @app.get("/")
-async def root():
-    return RedirectResponse("/static/")
+async def root(request: Request):
+    # return RedirectResponse("/static/")
+    return templates.TemplateResponse(
+        request=request,name="home.html", context={}
+    )
 
 # template test:
 @app.get("/{user_id}")
@@ -79,8 +92,9 @@ async def template_test(request: Request,user_id:int):
 async def update_user(request: Request,user_id:int) -> User:
     ''' update user's competencies in database '''
     _user = handlers.get_user(engine, user_id)  # get current state of user
+    _compasses = handlers.get_all_compasses(engine)
     return templates.TemplateResponse(
-        request=request,name="user_edit.html", context={"user":_user}
+        request=request,name="user_edit.html", context={"user":_user,"compasses":_compasses}
     )
 
 # jumpoff page to select or create a compass definition
@@ -99,26 +113,62 @@ async def compass_summaries(request: Request):
 @app.get("/configure/new/")
 async def compass_new(request: Request):
     # retrieve data we need
-    # get empty configuration?
-    data = {"test":"testy"}
-    return templates.TemplateResponse(
-        request=request,
-        # name="new_compass.html",
-        name="dummy.html",
-        context={"data":data},
-    )
+    try:
+        # compass_data = handlers.get_compass(engine=engine) # to sort. we can't have hardcoded IDs floating about...
+        # I also need the current data for the various components so I can generate the dropdowns as well:
+        quadrants = handlers.get_quadrants(engine=engine)
+        quadrant_titles = handlers.get_quadrant_titles(engine=engine)
+        sectors = handlers.get_sectors(engine=engine)
+        sector_titles = handlers.get_sector_titles(engine=engine)
+        ratings = handlers.get_ratings(engine=engine)
+        return templates.TemplateResponse(
+            request=request,
+            name="configure.html",
+            context={
+                "compass_data":None,
+                "quadrants":quadrants,
+                "quadrant_titles":quadrant_titles,
+                "sectors":sectors, 
+                "sector_titles":sector_titles,
+                "ratings":ratings,
+                "funcs":Funcs,
+            }
+        )
+    except IndexError as ex:
+        print(f"IndexError: {ex}")
+    except Exception as ex:
+        print(f"configure/new  Exception: {ex}")
 
 @app.get("/configure/{compass_id}/")
 async def configure(request: Request, compass_id: int):
+
     # retrieve data we need
     print(compass_id)
-    compass_data = handlers.get_compass(engine=engine,id=compass_id) # to sort. we can't have hardcoded IDs floating about...
-    return templates.TemplateResponse(
-        request=request,
-        name="configure.html",
-        context={"compass_data":compass_data}
-    )
-
+    try:
+        compass_data = handlers.get_compass(engine=engine,id=compass_id) # to sort. we can't have hardcoded IDs floating about...
+        # I also need the current data for the various components so I can generate the dropdowns as well:
+        quadrants = handlers.get_quadrants(engine=engine)
+        quadrant_titles = handlers.get_quadrant_titles(engine=engine)
+        sectors = handlers.get_sectors(engine=engine)
+        sector_titles = handlers.get_sector_titles(engine=engine)
+        ratings = handlers.get_ratings(engine=engine)
+        return templates.TemplateResponse(
+            request=request,
+            name="configure.html",
+            context={
+                "compass_data":compass_data,
+                "quadrants":quadrants,
+                "quadrant_titles":quadrant_titles,
+                "sectors":sectors, 
+                "sector_titles":sector_titles,
+                "ratings":ratings,
+                "funcs":Funcs,
+            }
+        )
+    except IndexError as ex:
+        print(f"IndexError: {ex}")
+    except Exception as ex:
+        print(f"Exception: {ex}")
 
 
 @app.get("/{user_id}/data")

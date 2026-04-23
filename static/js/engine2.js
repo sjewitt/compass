@@ -11,8 +11,11 @@ var compass_rating;
 var engine = {
 
     // API_URL: "/static/data/display_data_rationalised.json",    // static JSON file
-    API_URL: "/compass/1/",    // retrieve JSON form database
-    // THIS NEEDS TO BE REPLACED WITH THE STATIC DATA RETURNED BY THE /compass/{id} ENDPOINT 
+    // This is the currently hardcoded URL of a configured compass data API endpoint.
+    // If there is no compass of this ID, the system currently breaks:
+    API_URL: "/compass/1/", 
+
+    // This is the coordiate lookup for the title positions:
     CONSTANTS_URL: "/static/data/compass_titles.json",
     /**
      * #47
@@ -78,8 +81,12 @@ var engine = {
     // pass in loaded data here 
     init: function (display_data) {
         // and set the properties of the object from the loaded data:
-        this.data_quadrants = display_data.data_quadrants;
-        this.rating_description_lookup = display_data.rating_description_lookup;
+        if(display_data){
+            this.data_quadrants = display_data.data_quadrants;
+            this.rating_description_lookup = display_data.rating_description_lookup;
+        }
+        
+        
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
         for (var _i = 0, _a = this.elems; _i < _a.length; _i++) {
             var id = _a[_i];
@@ -107,7 +114,6 @@ var engine = {
         };
 
         if (page === 'svg') {
-            
             this.loadAndBuildUserDropdown();
         }
 
@@ -138,6 +144,47 @@ var engine = {
             }
         }
 
+        if(page === "configure"){
+            // apply handler to tabs:
+            let tabber_elems = document.getElementsByClassName("panel_selector_tab");
+            for(let x=0;x<tabber_elems.length; x++){
+                tabber_elems[x].addEventListener("click",(e)=>{
+                    engine.tabHandler(e,tabber_elems);
+                })
+            }
+
+            // and apply handler for submit button (accounts for add and update actions)
+            let btn_submit_compass_data = document.getElementById("btn_submit_compass_data");
+            if(btn_submit_compass_data){
+                btn_submit_compass_data.addEventListener("click",this.btnSubmitCompassData)
+            }
+
+            // add event listener to the ratings dropdowns, to handle onchange
+            // to display the long descriptions from jinja loaded array:
+            let dropdown_elems = document.querySelectorAll("[data-identifier='rating_dropdown']");
+            for(let x=0;x<dropdown_elems.length;x++){
+                let current_option_value = dropdown_elems[x].selectedIndex;   // initial value
+                dropdown_elems[x].addEventListener("click",(e)=>{
+                    this.ratingSelectHandler(e, dropdown_elems, current_option_value, x);
+                })
+            }
+
+            // handle tab selection AFTER the click handlers are applied...
+            if(window.location.pathname.indexOf("/configure")!==-1 && window.location.hash.length > 0 ){
+                elem = document.getElementById(window.location.hash.replace('#',''));
+                if(elem){
+                    // https://medium.com/@python-javascript-php-html-css/javascript-to-emulate-a-click-on-the-first-button-in-a-list-9c61f408b4b5
+                    let evt = new PointerEvent('click',{
+                        bubbles:true,
+                        cancelable:true,
+                        view:window,
+                        pointerType:'mouse',
+                    });
+                    elem.dispatchEvent(evt);
+                }
+            }
+        }
+
         /** add event listener for the user dropdown: */
         var user_dropdown_btn = document.getElementById("select_user_button");
         var user_dropdown = document.getElementById("select_user");
@@ -155,8 +202,86 @@ var engine = {
         }
     },
 
+    btnSubmitCompassData: function(evt){
+        // they are all dropdowns...
+        let elems = document.getElementsByTagName("select");
+        let compass_id = parseInt(document.getElementById("compass_id").value);
+        if(compass_id === NaN){
+            compass_id = null;
+        }
+        let compass_name = document.getElementById("compass_name").value;
+        let data = {}
+        for(let elem of elems){
+            let field = elem.getAttribute("data-fieldname");
+            let value = elem.value;
+            data[field] = parseInt(value);
+        }
+        data["id"] = compass_id;
+        data["name"] = compass_name;
+        /** determine whether to add or update */
+        let submitURL = '/compass/';    // the add endpoint (if POST)
+        if(compass_id > 0){
+            submitURL = '/compass/update/';
+        }
+        if(data){
+            fetch(submitURL, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+            }).then(function (response) {
+                return response.json(); 
+                }).then(function (response) { 
+
+            });
+        }
+    },
+
+    // handle configure tabber
+    tabHandler: function(evt,tablist){
+        // we also need the list of panels to show/hide:
+        let panel_list = document.getElementsByClassName("gutterpanel");
+        for(x=0; x<tablist.length;x++){
+            tablist[x].classList.remove("panel_selector_tab_selected");
+            panel_list[x].classList.add("hidden");
+            if( x===parseInt(evt.srcElement.getAttribute("data-tabid"))-1 ){    // because '0' will do odd things...
+                tablist[x].classList.add("panel_selector_tab_selected");
+                panel_list[x].classList.remove("hidden");
+                // and add a hash to the URL:
+                window.location.hash = evt.srcElement.getAttribute("id");
+            }
+        }
+    },
+
+    // handle configure ratings change (UI display only)
+    /**
+     * 
+     * @param {*} evt : event
+     * @param {*} selectlist : list of ratings select elements on page
+     * @param {*} current_option_value : current selection so we can indicate whether the selection has changed 
+     */
+    ratingSelectHandler: function(evt,selectlist,current_option_value, current_dropdown_index){
+        /**
+         * This function does not know from which dropdown it was called. Therefore we need to determine which one
+         * so we can identify which UI element to update. See markup for further details.
+         */
+        let id = selectlist[current_dropdown_index].id;
+
+        // can probably make this more succinct:
+        hideit = document.getElementById(`${id}_description_changed`);
+        if(hideit){
+            hideit.innerText = ""
+            if(current_option_value !== selectlist[current_dropdown_index].selectedIndex){
+                hideit.innerText = "*"
+            }
+        }
+        // apply description to display DIV:
+        document.getElementById(`${id}_description`).innerText = document.getElementById(`rating_description_${selectlist[current_dropdown_index].selectedIndex}`).innerText;
+     },
+
     loadConstantData: function(data){
-        console.log(data);
         engine.coordinate_lookup = data;
     },
 
@@ -236,14 +361,11 @@ var engine = {
                 let _title = document.createElementNS("http://www.w3.org/2000/svg",'text');
                 _title.setAttribute('id',`svg_title_${qt+1}_${qtp+1}`);
                 // This replaces classname stored in database with auto-generated one:
-                console.log()
                 _title.setAttribute('class',`svg_quad_title svg_quadrant_${qt+1}`);
                 _title.setAttribute('font-size','24');
                 
                 // TODO:
                 // for #71/#72 here we would define a lookup for qt/qtp for specific coords 
-                
-                console.log(engine.coordinate_lookup.quadrants[qt].title, qt, qtp);
                 _title.setAttribute('x',engine.coordinate_lookup.quadrants[qt].title[qtp].coords[0]);
                 _title.setAttribute('y',engine.coordinate_lookup.quadrants[qt].title[qtp].coords[1]);
                 
@@ -302,19 +424,10 @@ var engine = {
 
             // now get the segment titles: we do a double loop to get each segment, and the lines array for each:
             for(let z=1;z<=current_words.sectors.length;z++){
-                // console.log(`ln 306 `)
-                console.log(current_words.sectors);
-                console.log(x,z)
-                console.log(z-1)
-                console.log(current_words.sectors[z-1].title.length)
                 for(let xx=1;xx<=current_words.sectors[z-1].title.length;xx++){
-                    console.log(xx)
                     let elem_id = `svg_sector_${x}_${z}_${xx}`;
-                    console.log(elem_id);
                     try{
                         let elem = document.getElementById(elem_id);
-                        console.log(elem);
-                        console.log(current_words.sectors[z-1].title);
                         let txt = document.createTextNode(current_words.sectors[z-1].title[xx-1].title_part);
                         elem.appendChild(txt);
                     }
@@ -334,6 +447,7 @@ var engine = {
         let submit = true;
         data={}
         data['username'] = document.getElementById("new_user_login").value;
+        data['compass_id'] = document.getElementById("compass_id").value;
         data['name'] = document.getElementById("new_user_name").value;
         data['email'] = document.getElementById("new_user_email").value;
         data['password'] = document.getElementById("new_user_pwd").value;
@@ -341,6 +455,7 @@ var engine = {
         if(data["password"] !== data["password_check"]){    // also checks on server
             submit = false;
         }
+        console.table(data);
         // TODO: Do blur/change handlers and alert in real-time 
         if(submit){
             fetch('/users/new/', {
@@ -357,7 +472,8 @@ var engine = {
                  * try with JS instead:
                  */
                 if(response.usercreated){
-                    document.location.href=`/static/?user_id=${response.user_id}`
+                    // document.location.href=`/static/?user_id=${response.user_id}`
+                    document.location.href=`/${response.user_id}`
                 }
             });
         }
@@ -368,9 +484,9 @@ var engine = {
         data={}
         data['username'] = document.getElementById("update_user_login").value;
         data['id'] = parseInt(document.getElementById("update_user_id").value);
+        data['compass_id'] = parseInt(document.getElementById("compass_id").value);
         data['name'] = document.getElementById("update_user_name").value;
         data['email'] = document.getElementById("update_user_email").value;
-
         /** 
          * TODO: check if pwds are present, then are the same, then match existing pwd 
          * This needs to call a back-end check so we don't have the old pwd on
@@ -546,41 +662,28 @@ var engine = {
             var sector_title = "";
             if (lookup[0] > -1) {
                 quad_description = engine.data_quadrants[lookup[0]].summary;
-                // quad_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].title_parts);
                 quad_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].title);
             }
             var sector_title_description = '';
             if (lookup[1] > -1) {
                 
-                // STATIC DATA
-                // sector_title_description = engine.data_quadrants[lookup[0]].sector_summaries[lookup[0]].description;
-                // sector_title = engine.data_quadrants[lookup[0]].sector_summaries[lookup[0]].title;
                 // DATABASE DATA
                 sector_title_description = engine.data_quadrants[lookup[0]].sectors[lookup[0]].description;
                 sector_title = engine.data_quadrants[lookup[0]].sectors[lookup[0]].title;
             }
             var sector_block_description = '';
             if (lookup[2] > -1) {
-                console.log(engine.data_quadrants[lookup[0]]);
-                // sector_title = engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].title;
                 sector_title = engine.data_quadrants[lookup[0]].sectors[lookup[0]].title;
                 sector_rating = parseInt(this.getAttribute('data-rating'));
                 this.current_rating = sector_rating;
-                // sector_block_description = engine.data_quadrants[lookup[0]].sector_descriptions[lookup[2]];
-                // TODO RENAME THIS FUNCTION!!
                 sector_block_description = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].sectors[lookup[2]].title);
-                               console.log(engine.data_quadrants[lookup[0]].sectors[lookup[2]]);
             }
             // special case for outer titles: TO SORT!
             if(lookup[1] > -1 && lookup[2]===-1){
                 try{
-                    // STATIC DATA:
-                    // sector_title =             engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].title;
-                    // sector_block_description = engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].description;
                     // DATABASE DATA:
                     sector_title =             engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].sectors[lookup[1]].title);
                     sector_block_description = engine.data_quadrants[lookup[0]].sectors[lookup[1]].description;
-
                 }
                 catch(e){
                     console.log(e);
@@ -765,6 +868,11 @@ var engine = {
             target.appendChild(row);
         }
     },
+
+    test : function(arg){
+        console.log("IN FUNCTION LIB");
+        console.log(arg);
+    }
 };
 
 document.addEventListener("DOMContentLoaded",
