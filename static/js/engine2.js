@@ -148,46 +148,31 @@ var engine = {
             // apply handler to tabs:
             let tabber_elems = document.getElementsByClassName("panel_selector_tab");
             for(let x=0;x<tabber_elems.length; x++){
-                console.log(tabber_elems[x].getAttribute("data-tabid"), tabber_elems[x]);
                 tabber_elems[x].addEventListener("click",(e)=>{
                     engine.tabHandler(e,tabber_elems);
-                    // console.log(this);   // this is the script instance!
-                    // console.log(e);
-                    console.log("other handler")
                 })
             }
 
             // and apply handler for submit button (accounts for add and update actions)
             let btn_submit_compass_data = document.getElementById("btn_submit_compass_data");
             if(btn_submit_compass_data){
-                console.log("applying button handler")
                 btn_submit_compass_data.addEventListener("click",this.btnSubmitCompassData)
             }
 
             // add event listener to the ratings dropdowns, to handle onchange
             // to display the long descriptions from jinja loaded array:
             let dropdown_elems = document.querySelectorAll("[data-identifier='rating_dropdown']");
-            // let dropdown_elems = document.getElementsByClassName("select_rating");
-            console.log(dropdown_elems)
             for(let x=0;x<dropdown_elems.length;x++){
                 let current_option_value = dropdown_elems[x].selectedIndex;   // initial value
-                console.log("applying handler:");
                 dropdown_elems[x].addEventListener("click",(e)=>{
                     this.ratingSelectHandler(e, dropdown_elems, current_option_value, x);
                 })
             }
 
             // handle tab selection AFTER the click handlers are applied...
-            console.log(window.location.hash);
-            console.log(window.location.pathname);
-            console.log(window.location.pathname.indexOf("/configure"));
             if(window.location.pathname.indexOf("/configure")!==-1 && window.location.hash.length > 0 ){
                 elem = document.getElementById(window.location.hash.replace('#',''));
-                console.log(elem);
                 if(elem){
-                    console.log("autoclicking?")
-                    console.log(window.location.hash.replace('#',''));
-                    // elem.click();   // hmm...
                     // https://medium.com/@python-javascript-php-html-css/javascript-to-emulate-a-click-on-the-first-button-in-a-list-9c61f408b4b5
                     let evt = new PointerEvent('click',{
                         bubbles:true,
@@ -195,11 +180,9 @@ var engine = {
                         view:window,
                         pointerType:'mouse',
                     });
-                    console.log(evt);
                     elem.dispatchEvent(evt);
                 }
             }
-
         }
 
         /** add event listener for the user dropdown: */
@@ -220,13 +203,6 @@ var engine = {
     },
 
     btnSubmitCompassData: function(evt){
-        
-        // see e.g.: https://samtomashi.medium.com/html-an-easy-way-to-capture-all-input-values-from-a-form-7416ead028ab
-        // nope...
-        // const frm = document.getElementById("compass_wrapper");
-        // console.log(evt,frm)
-        // const formData = new FormData(frm);
-
         // they are all dropdowns...
         let elems = document.getElementsByTagName("select");
         let compass_id = parseInt(document.getElementById("compass_id").value);
@@ -235,42 +211,19 @@ var engine = {
         }
         let compass_name = document.getElementById("compass_name").value;
         let data = {}
-        // data["test"] = "fish";
         for(let elem of elems){
-            console.log(elem.getAttribute("data-fieldname"),elem.value);
             let field = elem.getAttribute("data-fieldname");
             let value = elem.value;
-            // if(field === "name"){
-            //     data[field] = value;
-            // }
-            // else{
-                data[field] = parseInt(value);
-            // }
-            // data[elem.getAttribute("data-fieldname")] = elem.value,
+            data[field] = parseInt(value);
         }
         data["id"] = compass_id;
         data["name"] = compass_name;
-
-        console.log(data)
-
-        // // test
-        // let userInputs = {}
-
-
-        // // get all data (no cs processing):
-        // const data = formData.keys();
-        // for(let thing of data){
-        //     console.log(thing);
-        // }
-        // console.log(JSON.stringify(data));
-    
-    // TEST
-    console.log(data);
-    let submitURL = '/compass/new/'
-    if(compass_id){
-        submitURL = '/compass/update/';
-    }
-    if(data){
+        /** determine whether to add or update */
+        let submitURL = '/compass/';    // the add endpoint (if POST)
+        if(compass_id > 0){
+            submitURL = '/compass/update/';
+        }
+        if(data){
             fetch(submitURL, {
                 method: 'POST',
                 body: JSON.stringify(data),
@@ -284,13 +237,10 @@ var engine = {
 
             });
         }
-
     },
 
     // handle configure tabber
     tabHandler: function(evt,tablist){
-        console.log(tablist);
-        console.log(evt.srcElement.getAttribute("data-tabid"));
         // we also need the list of panels to show/hide:
         let panel_list = document.getElementsByClassName("gutterpanel");
         for(x=0; x<tablist.length;x++){
@@ -315,39 +265,23 @@ var engine = {
     ratingSelectHandler: function(evt,selectlist,current_option_value, current_dropdown_index){
         /**
          * This function does not know from which dropdown it was called. Therefore we need to determine which one
-         * so we can identify which UI element to update
-         * I.E. we need to replace the hardcoded index zero below...
-         * So I'll use a data-attribute:
+         * so we can identify which UI element to update. See markup for further details.
          */
         let id = selectlist[current_dropdown_index].id;
-        console.log(id);    //'rating_1' eg
-        // let current_dropdown_index = parseInt(document.getElementById(`${id}`).getAttribute("data-rating-index"));
-        // let current_dropdown_index = document.querySelectorAll("data-rating-index");    // FIX THIS!!
-        console.log(current_dropdown_index);    // from select elem attribute
-        // console.log(parseInt(current_dropdown_index));
-        console.log(evt, selectlist, current_option_value);
-        // if init_value and selectlist[0].selectedIndex are equal, we have not changed the option:
-        // document.getElementById(`rating_${elem_index}_description_changed`).classList.remove("hidden");
 
+        // can probably make this more succinct:
         hideit = document.getElementById(`${id}_description_changed`);
-        console.log(hideit);
-        // get identifier number from data-attibute:
-        // init_value = 
         if(hideit){
-            // hideit.classList.add("cheese");
             hideit.innerText = ""
-            // if(current_option_value !== selectlist[0].selectedIndex){
             if(current_option_value !== selectlist[current_dropdown_index].selectedIndex){
                 hideit.innerText = "*"
             }
         }
         // apply description to display DIV:
-        // document.getElementById(`${id}_description`).innerText = document.getElementById(`rating_description_${selectlist[0].selectedIndex}`).innerText;
         document.getElementById(`${id}_description`).innerText = document.getElementById(`rating_description_${selectlist[current_dropdown_index].selectedIndex}`).innerText;
      },
 
     loadConstantData: function(data){
-        console.log(data);
         engine.coordinate_lookup = data;
     },
 
@@ -432,7 +366,6 @@ var engine = {
                 
                 // TODO:
                 // for #71/#72 here we would define a lookup for qt/qtp for specific coords 
-                console.log(engine.coordinate_lookup.quadrants[qt].title, qt, qtp);
                 _title.setAttribute('x',engine.coordinate_lookup.quadrants[qt].title[qtp].coords[0]);
                 _title.setAttribute('y',engine.coordinate_lookup.quadrants[qt].title[qtp].coords[1]);
                 
@@ -491,19 +424,10 @@ var engine = {
 
             // now get the segment titles: we do a double loop to get each segment, and the lines array for each:
             for(let z=1;z<=current_words.sectors.length;z++){
-                // console.log(`ln 306 `)
-                console.log(current_words.sectors);
-                console.log(x,z)
-                console.log(z-1)
-                console.log(current_words.sectors[z-1].title.length)
                 for(let xx=1;xx<=current_words.sectors[z-1].title.length;xx++){
-                    console.log(xx)
                     let elem_id = `svg_sector_${x}_${z}_${xx}`;
-                    console.log(elem_id);
                     try{
                         let elem = document.getElementById(elem_id);
-                        console.log(elem);
-                        console.log(current_words.sectors[z-1].title);
                         let txt = document.createTextNode(current_words.sectors[z-1].title[xx-1].title_part);
                         elem.appendChild(txt);
                     }
@@ -556,7 +480,6 @@ var engine = {
     },
 
     submitUpdateUserDataHandler: function(){
-        console.log(document.getElementById("compass_id"));
         let submit = true;
         data={}
         data['username'] = document.getElementById("update_user_login").value;
@@ -564,7 +487,6 @@ var engine = {
         data['compass_id'] = parseInt(document.getElementById("compass_id").value);
         data['name'] = document.getElementById("update_user_name").value;
         data['email'] = document.getElementById("update_user_email").value;
-        console.log(data);
         /** 
          * TODO: check if pwds are present, then are the same, then match existing pwd 
          * This needs to call a back-end check so we don't have the old pwd on
@@ -740,41 +662,28 @@ var engine = {
             var sector_title = "";
             if (lookup[0] > -1) {
                 quad_description = engine.data_quadrants[lookup[0]].summary;
-                // quad_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].title_parts);
                 quad_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].title);
             }
             var sector_title_description = '';
             if (lookup[1] > -1) {
                 
-                // STATIC DATA
-                // sector_title_description = engine.data_quadrants[lookup[0]].sector_summaries[lookup[0]].description;
-                // sector_title = engine.data_quadrants[lookup[0]].sector_summaries[lookup[0]].title;
                 // DATABASE DATA
                 sector_title_description = engine.data_quadrants[lookup[0]].sectors[lookup[0]].description;
                 sector_title = engine.data_quadrants[lookup[0]].sectors[lookup[0]].title;
             }
             var sector_block_description = '';
             if (lookup[2] > -1) {
-                console.log(engine.data_quadrants[lookup[0]]);
-                // sector_title = engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].title;
                 sector_title = engine.data_quadrants[lookup[0]].sectors[lookup[0]].title;
                 sector_rating = parseInt(this.getAttribute('data-rating'));
                 this.current_rating = sector_rating;
-                // sector_block_description = engine.data_quadrants[lookup[0]].sector_descriptions[lookup[2]];
-                // TODO RENAME THIS FUNCTION!!
                 sector_block_description = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].sectors[lookup[2]].title);
-                               console.log(engine.data_quadrants[lookup[0]].sectors[lookup[2]]);
             }
             // special case for outer titles: TO SORT!
             if(lookup[1] > -1 && lookup[2]===-1){
                 try{
-                    // STATIC DATA:
-                    // sector_title =             engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].title;
-                    // sector_block_description = engine.data_quadrants[lookup[0]].sector_summaries[lookup[1]].description;
                     // DATABASE DATA:
                     sector_title =             engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].sectors[lookup[1]].title);
                     sector_block_description = engine.data_quadrants[lookup[0]].sectors[lookup[1]].description;
-
                 }
                 catch(e){
                     console.log(e);
@@ -1003,7 +912,6 @@ document.addEventListener("DOMContentLoaded",
                 })  
                 .catch(error => console.error('Failed to fetch constant data:', error)); 
         }
-        console.log("IN INIT")
         fetchJSONData(); 
         // test:
         // THIS NEEDS TO BE REPLACED WITH THE STATIC DATA RETURNED BY THE /compass/{id} ENDPOINT
