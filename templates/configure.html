@@ -13,7 +13,7 @@
 <body data-page="configure">
 
 	<!-- 
-	  'flyoput has position:fixed', so it overlies the image.
+	  'flyout has position:fixed', so it overlies the image.
 	  Therefore, I need to give it an inline-block override if 
 	  no compass big image:
 	-->
@@ -42,15 +42,6 @@
 		</h1>
 	</div>
 	
-	<!-- <div class="panel">
-{% if not compass_data %}
-		<div>New compass name:</div>
-		<div><input type="text" data-fieldname="name" id="compass_name" placeholder="New Compass name"></div>
-{% else %}
-		<div>Compass name: {{ compass_data.title }}</div>
-		<div><input disabled="disabled" type="text" data-fieldname="name" id="compass_name" value="{{ compass_data.title }}"></div>
-{%endif%}
-</div> -->
 	<div class="tabswrapper">
 		<div data-tabid="1" class="panel_selector_tab panel_selector_tab_selected" id="tab_1">Compass general</div>
 		<div data-tabid="2" class="panel_selector_tab " id="tab_2">Quadrant 1</div>
@@ -74,8 +65,18 @@
 				Basic settings
 			</h2>
 			<div>&nbsp;</div>
-			<div></div><input type="text" data-fieldname="id" id="compass_id" disabled="disabled" value="{{compass_data.id}}">
-			<div>Compass name</div><div><input type="text" data-fieldname="name" id="compass_name" value="{{ compass_data.title }}"></div>
+			<div></div><input type="text" data-fieldname="id" id="compass_id" disabled="disabled" 
+				{% if compass_data %}
+					value="{{compass_data.id}}"
+				{% else %}
+					value="-1"
+				{% endif %}
+			>
+			<div>Compass name</div><div><input type="text" data-fieldname="name" id="compass_name"
+				{% if compass_data %}
+				value="{{ compass_data.title }}"
+				{% endif %}	
+			></div>
 			<!-- row 3 -->
 			<div>Compass Description (TODO:)</div>
 			<div>
@@ -97,27 +98,27 @@
 				<div class="panelnested">
 					<div>Title #1</div>
 					<select data-fieldname="q1_tp1">
-						<option value="none">[not set]</option>
+						
 						{% for title_part in quadrant_titles %}
 						<option value="{{ title_part.id }}" {% if compass_data and
 							title_part.id==compass_data.data_quadrants[0].title[0].id %} selected="selected" {% endif
-							%}>{{ title_part.title_part }}</option>
+							%}>{{ funcs.replace_empty_string(title_part.title_part) }}</option>
 						{% endfor %}
 					</select>
 
 					<div>Title #2</div>
 					<select data-fieldname="q1_tp2">
-						<option value="none">[not set]</option>
+						
 						{% for title_part in quadrant_titles %}
 						<option value="{{ title_part.id }}" {% if compass_data and
 							title_part.id==compass_data.data_quadrants[0].title[1].id %} selected="selected" {% endif
-							%}>{{ title_part.title_part }}</option>
+							%}>{{ funcs.replace_empty_string(title_part.title_part) }}</option>
 						{% endfor %}
 					</select>
 
 					<div>Summary</div>
 					<select data-fieldname="quadrant_1">
-						<option value="none">[not set]</option>
+
 						{% for quadrant in quadrants %}
 						<option value="{{ quadrant.id }}" {% if compass_data and
 							quadrant.id==compass_data.data_quadrants[0].id %} selected="selected" {% endif %}>{{
@@ -132,13 +133,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q1_s1_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[0].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -146,13 +147,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q1_s1_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[0].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -162,7 +163,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_1_sector_1">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -172,7 +173,6 @@
 							</select>
 							Note this will select summary and longer description text.
 						</div>
-
 					</div>
 
 					<div>Sector 2</div>
@@ -180,13 +180,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q1_s2_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[1].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -194,13 +194,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q1_s2_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[1].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -209,7 +209,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_1_sector_2">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -226,13 +226,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q1_s3_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[2].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -240,13 +240,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q1_s3_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[2].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -256,7 +256,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_1_sector_3">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -273,13 +273,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q1_s4_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[3].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -287,13 +287,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q1_s4_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[3].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -302,7 +302,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_1_sector_4">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -319,13 +319,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q1_s5_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[4].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -333,13 +333,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q1_s5_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[4].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -348,7 +348,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_1_sector_5">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -378,27 +378,27 @@
 				<div class="panelnested">
 					<div>Title #1</div>
 					<select data-fieldname="q2_tp1">
-						<option value="none">[not set]</option>
+						
 						{% for title_part in quadrant_titles %}
 						<option value="{{ title_part.id }}" {% if compass_data and
 							title_part.id==compass_data.data_quadrants[1].title[0].id %} selected="selected" {% endif
-							%}>{{ title_part.title_part }}</option>
+							%}>{{ funcs.replace_empty_string(title_part.title_part) }}</option>
 						{% endfor %}
 					</select>
 
 					<div>Title #2</div>
 					<select data-fieldname="q2_tp2">
-						<option value="none">[not set]</option>
+						
 						{% for title_part in quadrant_titles %}
 						<option value="{{ title_part.id }}" {% if compass_data and
 							title_part.id==compass_data.data_quadrants[1].title[1].id %} selected="selected" {% endif
-							%}>{{ title_part.title_part }}</option>
+							%}>{{ funcs.replace_empty_string(title_part.title_part) }}</option>
 						{% endfor %}
 					</select>
 
 					<div>Summary</div>
 					<select data-fieldname="quadrant_2">
-						<option value="none">[not set]</option>
+						
 						{% for quadrant in quadrants %}
 						<option value="{{ quadrant.id }}" {% if compass_data and
 							quadrant.id==compass_data.data_quadrants[1].id %} selected="selected" {% endif %}>{{
@@ -413,13 +413,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q2_s1_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[0].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -427,13 +427,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q2_s1_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[0].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -443,7 +443,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_2_sector_1">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -461,13 +461,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q2_s2_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[1].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -475,13 +475,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q2_s2_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[1].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -490,7 +490,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_2_sector_2">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -507,13 +507,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q2_s3_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[2].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -521,13 +521,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q2_s3_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[2].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -537,7 +537,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_2_sector_3">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -554,13 +554,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q2_s4_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[3].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -568,13 +568,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q2_s4_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[3].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -583,7 +583,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_2_sector_4">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -613,27 +613,27 @@
 				<div class="panelnested">
 					<div>Title #1</div>
 					<select data-fieldname="q3_tp1">
-						<option value="none">[not set]</option>
+						
 						{% for title_part in quadrant_titles %}
 						<option value="{{ title_part.id }}" {% if compass_data and
 							title_part.id==compass_data.data_quadrants[2].title[0].id %} selected="selected" {% endif
-							%}>{{ title_part.title_part }}</option>
+							%}>{{ funcs.replace_empty_string(title_part.title_part) }}</option>
 						{% endfor %}
 					</select>
 
 					<div>Title #2</div>
 					<select data-fieldname="q3_tp2">
-						<option value="none">[not set]</option>
+						
 						{% for title_part in quadrant_titles %}
 						<option value="{{ title_part.id }}" {% if compass_data and
 							title_part.id==compass_data.data_quadrants[2].title[1].id %} selected="selected" {% endif
-							%}>{{ title_part.title_part }}</option>
+							%}>{{ funcs.replace_empty_string(title_part.title_part) }}</option>
 						{% endfor %}
 					</select>
 
 					<div>Summary</div>
 					<select data-fieldname="quadrant_3">
-						<option value="none">[not set]</option>
+						
 						{% for quadrant in quadrants %}
 						<option value="{{ quadrant.id }}" {% if compass_data and
 							quadrant.id==compass_data.data_quadrants[2].id %} selected="selected" {% endif %}>{{
@@ -648,13 +648,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q3_s1_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[2].sectors[0].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -662,13 +662,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q3_s1_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[2].sectors[0].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -678,7 +678,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_3_sector_1">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -696,13 +696,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q3_s2_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[2].sectors[1].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -710,13 +710,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q3_s2_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[2].sectors[1].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -725,7 +725,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_3_sector_2">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -742,13 +742,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q3_s3_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[2].sectors[2].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -756,13 +756,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q3_s3_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[2].sectors[2].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -772,7 +772,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_3_sector_3">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -789,13 +789,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q3_s4_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[2].sectors[3].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -803,13 +803,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q3_s4_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[2].sectors[3].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -818,7 +818,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_3_sector_4">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -848,27 +848,27 @@
 				<div class="panelnested">
 					<div>Title #1</div>
 					<select data-fieldname="q4_tp1">
-						<option value="none">[not set]</option>
+						
 						{% for title_part in quadrant_titles %}
 						<option value="{{ title_part.id }}" {% if compass_data and
 							title_part.id==compass_data.data_quadrants[3].title[0].id %} selected="selected" {% endif
-							%}>{{ title_part.title_part }}</option>
+							%}>{{ funcs.replace_empty_string(title_part.title_part) }}</option>
 						{% endfor %}
 					</select>
 
 					<div>Title #2</div>
 					<select data-fieldname="q4_tp2">
-						<option value="none">[not set]</option>
+						
 						{% for title_part in quadrant_titles %}
 						<option value="{{ title_part.id }}" {% if compass_data and
 							title_part.id==compass_data.data_quadrants[3].title[1].id %} selected="selected" {% endif
-							%}>{{ title_part.title_part }}</option>
+							%}>{{ funcs.replace_empty_string(title_part.title_part) }}</option>
 						{% endfor %}
 					</select>
 
 					<div>Summary</div>
 					<select data-fieldname="quadrant_4">
-						<option value="none">[not set]</option>
+						
 						{% for quadrant in quadrants %}
 						<option value="{{ quadrant.id }}" {% if compass_data and
 							quadrant.id==compass_data.data_quadrants[3].id %} selected="selected" {% endif %}>{{
@@ -883,13 +883,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q4_s1_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[3].sectors[0].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -897,13 +897,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q4_s1_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[3].sectors[0].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -913,7 +913,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_4_sector_1">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -931,13 +931,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q4_s2_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[3].sectors[1].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -945,13 +945,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q4_s2_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[3].sectors[1].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -960,7 +960,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_4_sector_2">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -977,13 +977,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q4_s3_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[3].sectors[2].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -991,13 +991,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q4_s3_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[3].sectors[2].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -1007,7 +1007,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_4_sector_3">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -1024,13 +1024,13 @@
 						<div>
 							Title #1
 							<select data-fieldname="q4_s4_tp1">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[3].sectors[3].title[0].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -1038,13 +1038,13 @@
 						<div>
 							Title #2
 							<select data-fieldname="q4_s4_tp2">
-								<option value="none">[not set]</option>
+								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[3].sectors[3].title[1].id %}
 								selected="selected" 
 								{% endif %}>
-								{{ title_part.title_part }}
+								{{ funcs.replace_empty_string(title_part.title_part) }}
 								</option>
 								{% endfor %}
 							</select>
@@ -1053,7 +1053,7 @@
 						<div> 
 							Text
 							<select data-fieldname="quadrant_4_sector_4">
-								<option value="none">[not set]</option>
+								
 								{% for sector in sectors %}
 								<option value="{{ sector.id }}" 
 								{% if compass_data and
@@ -1087,40 +1087,21 @@
 				<p>
 					You can also configure additional Ratings <a href="#" title="Configure Ratings">here</a> if so required.
 				</p>
-				<!-- 
-				I can probably do something here with the description using template literals:
-				https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals 
-				and an onchange event listener on the dropdowns to collect the correct description (which
-				could be pushed to an array?) and push into the description field - or, could I attach it 
-				(suitably trimmed) to a tag attribute? TO INVESTIGATE
-				-->
-				{{compass_data.rating_description_lookup}}
-				<!-- <script>
-					// maybe do this as hidden HTML elements? I'm beginning to see
-					// why that may be a thing in otehr webpages...
-					var ratingDescriptionArray = [];
-					{% for rating in ratings %}
-					ratingDescriptionArray.push(`{{rating.description}}`);
-					{% endfor %}
-					/* pass this as arg to main function? */
-					console.log(ratingDescriptionArray);
-					// engine.test(ratingDescriptionArray);
-				</script> -->
+	
 				<!-- see https://stackoverflow.com/questions/12145434/how-to-output-loop-counter-in-python-jinja-template -->
 				{% for rating in ratings %}
 				<div id="rating_description_{{loop.index}}" class="hidden">{{rating.description}}</div>
 				{% endfor %}
+
 				<div class="threecolpanel">
 					<!-- Rating 1 -->
 					<div>
 						<h4>Rating 1 (least)</h4>
 						<select name="rating_1" id="rating_1" data-fieldname="rating_1" data-identifier="rating_dropdown">
-							<option>[Select Rating]</option>
+							
 							{% for rating in ratings %}
 							<option value="{{rating.id}}"
-							{% if rating.id  == compass_data.rating_description_lookup[0].id %}
-							selected="selected"
-							{% endif %}
+							{% if compass_data and rating.id  == compass_data.rating_description_lookup[0].id %} selected="selected" {% endif %}
 							>{{rating.title}}
 							</option>
 							{% endfor %}
@@ -1130,17 +1111,19 @@
 					</div>
 					<div>
 						<h4>Description</h4>
-						<div class="inline_block" id="rating_1_description">{{ compass_data.rating_description_lookup[0].description }}</div>
+						<div class="inline_block" id="rating_1_description">
+							{% if compass_data and compass_data.rating_description_lookup[0] %}{{ compass_data.rating_description_lookup[0].description }}{% endif %}
+						</div>
 					</div>
 					
 					<!-- Rating 2 -->
 					<div>
 						<h4>Rating 2</h4>
 						<select name="rating_2" id="rating_2" data-fieldname="rating_2" data-identifier="rating_dropdown">
-							<option>[Select Rating]</option>
+							
 							{% for rating in ratings %}
 							<option value="{{rating.id}}"
-							{% if rating.id  == compass_data.rating_description_lookup[1].id %}
+							{% if compass_data and rating.id  == compass_data.rating_description_lookup[1].id %}
 							selected="selected"
 							{% endif %}
 							>{{rating.title}}
@@ -1152,17 +1135,19 @@
 					</div>
 					<div>
 						<h4>Description</h4>
-						<div class="inline_block" id="rating_2_description">{{ compass_data.rating_description_lookup[1].description }}</div>
+						<div class="inline_block" id="rating_2_description">
+							{% if compass_data and compass_data.rating_description_lookup[1] %}{{ compass_data.rating_description_lookup[1].description }}{% endif %}
+						</div>
 					</div>
 
 					<!-- Rating 3 -->
 					<div>
 						<h4>Rating 3</h4>
 						<select name="rating_3" id="rating_3" data-fieldname="rating_3" data-identifier="rating_dropdown">
-							<option>[Select Rating]</option>
+							
 							{% for rating in ratings %}
 							<option value="{{rating.id}}"
-							{% if rating.id  == compass_data.rating_description_lookup[2].id %}
+							{% if compass_data and rating.id  == compass_data.rating_description_lookup[2].id %}
 							selected="selected"
 							{% endif %}
 							>{{rating.title}}
@@ -1174,17 +1159,19 @@
 					</div>
 					<div>
 						<h4>Description</h4>
-						<div class="inline_block" id="rating_3_description">{{ compass_data.rating_description_lookup[2].description }}</div>
+						<div class="inline_block" id="rating_3_description">
+							{% if compass_data and compass_data.rating_description_lookup[2] %}{{ compass_data.rating_description_lookup[2].description }}{% endif %}
+						</div>
 					</div>
 
 					<!-- Rating 4 -->
 					<div>
 						<h4>Rating 4</h4>
 						<select name="rating_4" id="rating_4" data-fieldname="rating_4" data-identifier="rating_dropdown">
-							<option>[Select Rating]</option>
+							
 							{% for rating in ratings %}
 							<option value="{{rating.id}}"
-							{% if rating.id  == compass_data.rating_description_lookup[3].id %}
+							{% if compass_data and rating.id  == compass_data.rating_description_lookup[3].id %}
 							selected="selected"
 							{% endif %}
 							>{{rating.title}}
@@ -1196,17 +1183,19 @@
 					</div>
 					<div>
 						<h4>Description</h4>
-						<div class="inline_block" id="rating_4_description">{{ compass_data.rating_description_lookup[3].description }}</div>
+						<div class="inline_block" id="rating_4_description">
+							{% if compass_data and compass_data.rating_description_lookup[3] %}{{ compass_data.rating_description_lookup[3].description }}{% endif %}
+						</div>
 					</div>
 
 					<!-- Rating 5 -->
 					<div>
 						<h4>Rating 5</h4>
 						<select name="rating_5" id="rating_5" data-fieldname="rating_5" data-identifier="rating_dropdown">
-							<option>[Select Rating]</option>
+							
 							{% for rating in ratings %}
 							<option value="{{rating.id}}"
-							{% if rating.id  == compass_data.rating_description_lookup[4].id %}
+							{% if compass_data and rating.id  == compass_data.rating_description_lookup[4].id %}
 							selected="selected"
 							{% endif %}
 							>{{rating.title}}
@@ -1218,17 +1207,19 @@
 					</div>
 					<div>
 						<h4>Description</h4>
-						<div class="inline_block" id="rating_5_description">{{ compass_data.rating_description_lookup[4].description }}</div>
+						<div class="inline_block" id="rating_5_description">
+							{% if compass_data and compass_data.rating_description_lookup[4] %}{{ compass_data.rating_description_lookup[4].description }}{% endif %}
+						</div>
 					</div>
 
 					<!-- Rating 6 -->
 					<div>
 						<h4>Rating 6</h4>
 						<select name="rating_6" id="rating_6" data-fieldname="rating_6" data-identifier="rating_dropdown">
-							<option>[Select Rating]</option>
+							
 							{% for rating in ratings %}
 							<option value="{{rating.id}}"
-							{% if rating.id  == compass_data.rating_description_lookup[5].id %}
+							{% if compass_data and rating.id  == compass_data.rating_description_lookup[5].id %}
 							selected="selected"
 							{% endif %}
 							>{{rating.title}}
@@ -1240,17 +1231,19 @@
 					</div>
 					<div>
 						<h4>Description</h4>
-						<div class="inline_block" id="rating_6_description">{{ compass_data.rating_description_lookup[5].description }}</div>
+						<div class="inline_block" id="rating_6_description">
+							{% if compass_data and compass_data.rating_description_lookup[5] %}{{ compass_data.rating_description_lookup[5].description }}{% endif %}
+						</div>
 					</div>
 
 					<!-- Rating 7 -->
 					<div>
 						<h4>Rating 7 (most)</h4>
 						<select name="rating_7" id="rating_7" data-fieldname="rating_7" data-identifier="rating_dropdown">
-							<option>[Select Rating]</option>
+							
 							{% for rating in ratings %}
 							<option value="{{rating.id}}"
-							{% if rating.id  == compass_data.rating_description_lookup[6].id %}
+							{% if compass_data and rating.id  == compass_data.rating_description_lookup[6].id %}
 							selected="selected"
 							{% endif %}
 							>{{rating.title}}
@@ -1262,7 +1255,9 @@
 					</div>
 					<div>
 						<h4>Description</h4>
-						<div class="inline_block" id="rating_7_description">{{ compass_data.rating_description_lookup[6].description }}</div>
+						<div class="inline_block" id="rating_7_description">
+							{% if compass_data and compass_data.rating_description_lookup[6] %}{{ compass_data.rating_description_lookup[6].description }}{% endif %}
+						</div>
 					</div>
 				</div>
 			</div>
