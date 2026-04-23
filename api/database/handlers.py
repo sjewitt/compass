@@ -61,7 +61,6 @@ def add_user(engine,user:DB_User):
             # https://stackoverflow.com/questions/36014700/sqlalchemy-how-do-i-see-a-primary-key-id-for-a-newly-created-record
             session.flush()
             # we should have an ID now:
-            print(user.id)
             new_user_id = user.id
             session.commit()
             return {"action":"usercreate","usercreated":True, "id":new_user_id}
@@ -117,14 +116,7 @@ def get_users(engine) -> list[User]|None:
         result = []
         # need to convert the DB_User into a User, so th epydantic validation works
         for row in session.scalars(stmt):
-            # print(row.id,row.name,row.username,row.email)
-            # print(row.name)
-            # print(row.username)
-            # print(row.email)
-            # _usr = User(id=row.id,name=row.name,username=row.username, email=row.email)
-            # breakpoint()
-            print(isinstance(row,User))
-            print(isinstance(row,DB_User))
+
             _usr = User(
                 id=row.id,
                 compass_id=row.compass_id,
@@ -132,22 +124,18 @@ def get_users(engine) -> list[User]|None:
                 username=row.username,
                 email=row.email,
             )
-            print(isinstance(_usr,User))
-            # result.append(_usr)
 
             result.append(row)  # original code (a DB_User)
             
         if result:
-            # print("FOUND ", result[0])
-
             return result    # the first found user
+        
         logging.warning("no users found")
         # raise UserNotFound("user with id %s not found" % user_id)
         return []
 
 def get_user(engine, user_id:int) -> User|None:
     # eventually, this all needs to go in database.py
-    # print(engine)
     with Session(engine) as session:
         # https://docs.sqlalchemy.org/en/20/tutorial/data_select.html
         stmt = select(DB_User).where(DB_User.id == user_id)
@@ -162,7 +150,6 @@ def get_user(engine, user_id:int) -> User|None:
                 username=row.username, 
                 email=row.email)
             result.append(_usr)   # new: A User()
-            # result.append(row) # orig a DB_User()
         if result:
             return result[0]    # the first found user
         logging.warning(f"user with id {user_id} not found")
@@ -177,7 +164,6 @@ def get_user_data(engine, user_id:int) -> UserCompetencies: # to type!
                 competencies=[])
             _competencies = session.query(DB_Competency).where(DB_Competency.user_id == user_id).order_by(DB_Competency.quadrant).all()
             stmt = select(DB_Competency).where(DB_Competency.user_id == user_id)
-            # for row in session.scalars(stmt):
             for row in _competencies:
                 _competency = Competency(
                     user_id=user_id,
@@ -237,22 +223,7 @@ def update_user(engine, user:User) -> User|None:
                 result = session.execute(stmt)
                 session.commit()
                 # TODO: make testing for user more robust! i.e. GET the user first!
-                # # need to convert the DB_User into a User, so th epydantic validation works
-                # for row in session.scalars(stmt):
-                #     # print(row.id,row.name,row.username,row.email)
-                #     print(row.name)
-                #     print(row.username)
-                #     print(row.email)
-                #     _usr = User(name=row.name,username=row.username, email=row.email)
-                #     # breakpoint()
-                #     result.append(row)
 
-                # if result:
-                #     # print("FOUND ", result[0])
-                #     # print("FOUND ", result[0]["username"])
-
-                #     return result[0]    # the first found user
-                # print(f"user with id {user_id} not found")
                 # raise UserNotFound("user with id %s not found" % user_id)
                 return user
             raise UserNotFound
@@ -301,10 +272,8 @@ def update_quadrant(engine,quadrant:Quadrant) -> Quadrant:
 
 def get_quadrants(engine, include_titles=False) -> list[Quadrant]:
     with Session(engine) as session:
-        print("getting quads")
         result = []
         _quads = session.query(DB_Quadrant)
-        print(_quads)
         
         # get each quad's title parts:
         for _quad in _quads:
@@ -336,14 +305,7 @@ def get_quadrant(engine, id:int) -> Quadrant:
     ''' get a quadrant by database ID '''
     with Session(engine) as session:
         db_quad = session.query(DB_Quadrant).where(DB_Quadrant.id == id).first()
-        # db_quad_titles = session.query(DB_QuadrantTitles).where(DB_QuadrantTitles.quadrant_id==id).all()
         _titleparts=[]
-        # for title_part in db_quad_titles:
-        #     _x = QuadrantTitles(title_part = title_part.title_part)
-        #     # cannot do this in one step!:
-        #     # _titleparts.append(QuadrantTitles(title_part.title_part))
-        #     # need to do this:
-        #     _titleparts.append(_x)
 
         # build the final output as fully populated Quadrant:
         res = Quadrant(
@@ -358,7 +320,6 @@ def get_quadrant(engine, id:int) -> Quadrant:
 
 ###########################################
 # QUADRANT TITLES    
-# (test) this is fine...
 ###########################################
 def get_quadrant_titles(engine) -> list[QuadrantTitles]:
     with Session(engine) as session:
@@ -367,7 +328,6 @@ def get_quadrant_titles(engine) -> list[QuadrantTitles]:
             _x = session.query(DB_QuadrantTitles).all()
             
             for _y in _x:
-                print(_y) # db model
                 _z.append(QuadrantTitles(id=_y.id, title_part = _y.title_part, coord_x=_y.coord_x, coord_y=_y.coord_y)) # model
             return(_z)
         except Exception as ex:
@@ -409,7 +369,6 @@ def add_sector(engine,sector:Sector) -> dict:
     with Session(engine) as session:
         try:
             _s = DB_Sector(
-                # quadrant_id = sector.quadrant_id,
                 summary = sector.summary,
                 description = sector.description,
             )
@@ -420,7 +379,6 @@ def add_sector(engine,sector:Sector) -> dict:
             # I also don't need the sector ID because there is no FK relationship now...
             for sector_title_part in sector.title:
                 _t = DB_SectorTitles(
-                    # sector_id = new_sector_id,
                     title_part = sector_title_part.title_part,
                     coord_x = sector_title_part.coord_x,
                     coord_y = sector_title_part.coord_y,
@@ -615,10 +573,7 @@ def get_all_compasses(engine) -> list[CompassSummary]:
                 name = compass_summary.name,
             )
             returnval.append(_cs)
-        print(returnval)
         return returnval
-        # for compass_summary in result:
-        #     print(compass_summary)
     print("error")
     return []
 
@@ -767,19 +722,7 @@ def get_compass(engine, id:int) -> CompassData:
             ############################################################################
             # see https://stackoverflow.com/questions/55053618/sqlalchemy-return-filtered-table-and-corresponding-foreign-table-values
             ############################################################################
-            # stmt = select(DB_CompassDefinition).where(DB_CompassDefinition.id == id)
-            # result = []
-            # counter = 0
-            # for row in session.scalars(stmt):
-            #     # get the data for each ID
-            #     stmt = select(DB_Quadrant).where(DB_Quadrant.id==row.)
-            #     result.append()
-            #     if counter > 0:
-            #         break
-            #     counter+=1
-            # pass
-            print(_compass)
-            ## TODO: I meed to model the competency level data - this needs a new table
+
             return _compass
         else:
             print(f"No compass matching ID {id}")
