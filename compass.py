@@ -63,6 +63,17 @@ Base.metadata.create_all(engine)
 # load JSON data on startup:
 # load_config_data()
 
+# test of jinja template function calling:
+class Funcs():
+    def test(arg="fish"):
+        print("TEST" + arg)
+        return("TEST" + arg)
+    
+    def replace_empty_string(str_in):
+        if not str_in:
+            return "[empty]"
+        return str_in
+
 @app.get("/")
 async def root(request: Request):
     # return RedirectResponse("/static/")
@@ -121,6 +132,7 @@ async def compass_new(request: Request):
                 "sectors":sectors, 
                 "sector_titles":sector_titles,
                 "ratings":ratings,
+                "funcs":Funcs,
             }
         )
     except IndexError as ex:
@@ -151,6 +163,7 @@ async def configure(request: Request, compass_id: int):
                 "sectors":sectors, 
                 "sector_titles":sector_titles,
                 "ratings":ratings,
+                "funcs":Funcs,
             }
         )
     except IndexError as ex:
