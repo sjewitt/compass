@@ -27,3 +27,15 @@ SQLAlchemy (general):
 
  -  https://www.linkedin.com/pulse/mapping-pydantic-models-sqlalchemy-other-orm-alembic-herman-varzari-fnspf
  - https://github.com/sqlalchemy/sqlalchemy/discussions/11372 (default factory discussion - useful?)
+ 
+ related to #117
+ 
+ #116 #73 #1
+ 
+ DO I EVEN NEED TEH QUADRANT DATABASE OBJECTS AT ALL????? We don't actually use them to construct the compass any more? Justhe sectors and titles...
+ 
+ YES. A legacy is that the quad ID is needed - so I must ensure that at least one??? quad is inserted, thoughthe compass_definition will override any and all nested props against it.
+ 
+ THIS NEEDS SORTING!!
+ 
+ OH FFS!! OF COURSE I NEED THE QUADRANTS! FOR THE TITLES ETC!!!

@@ -308,3 +308,22 @@ insert into compass_definition values (
 `.env` usage
 
 https://stackoverflow.com/questions/58602833/flask-app-config-settings-from-env-flaskenv-in-mod-wsgi
+
+
+## #113: pydantic models to use subclasses to prevent unnecessary ID field in create endpoints
+
+see branch `61/smeg/models_to_not_require_ids_on_create_IN_and_OUT_models`
+
+This is already minimally implemented for `Rating` with `RatingIn` model. (and Competency??)
+ - Where create endpoints exist, apply this same model.  This will not alter the underlying functionality, but WILL remove the confusing and unnecessary (in fact, it's ignored) ID fields for create endpoints...
+ - Thee are also instances where the models indicate a nested array of sub-objects are needed - they are NOT, they are a legacy of Models with SubModel properties. This also should be addressed in this issue 
+ - as part of this, rationalising the API handler module/modules and the router(s) may also occur.
+
+ ### Add endpoints to update
+
+  - `/compass/`		- OK
+  - `/compass/quadrant/` (also, nested arrays!) - OK added third model to account
+  - `/compass/quadrant/title/`	- OK
+  - `/compass/sectors/` (badly named, its adding only one. Also, nested arrays!) - OK
+  - `/compass/sectors/titles/` (maybe add a `../title` (singular) as well?)
+
