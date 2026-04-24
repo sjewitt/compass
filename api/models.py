@@ -77,7 +77,7 @@ class QuadrantIn(BaseModel):
 # exclude the optional sector and title list:
 class QuadrantBase(QuadrantIn):
     id: int = Field()
-
+# TODO: Better document WHY I have three models here.
 class Quadrant(QuadrantIn):
     id: int = Field()
     # https://stackoverflow.com/questions/63793662/how-to-give-a-pydantic-list-field-a-default-value
