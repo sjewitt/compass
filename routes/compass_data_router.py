@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
-from api.models import Quadrant, QuadrantTitles, Sector, \
-        SectorTitles,CompassData, CompassDefinition, CompassSummary, \
+from api.models import Quadrant, QuadrantIn, QuadrantBase, QuadrantTitles, \
+        QuadrantTitlesIn, Sector, SectorIn, \
+        SectorTitles,SectorTitlesIn,CompassData, CompassDefinition, CompassDefinitionIn, CompassSummary, \
         Rating, RatingIn
 # from api.db_models import DB_Quadrant, DB_QuadrantTitles,\
 #         DB_Sector,DB_SectorTitles, DB_Rating
@@ -45,7 +46,7 @@ def get_data(id:int) -> CompassData:
         return None
 
 @router.post("/")
-def set_data(definition:CompassDefinition) -> CompassSummary:
+def set_data(definition:CompassDefinitionIn) -> CompassSummary:
     result = handlers.set_compass(engine,definition)
     return CompassSummary(id=result,name=definition.name)
 
@@ -58,12 +59,12 @@ def update_data(definition:CompassDefinition) -> CompassSummary: # TODO: Update 
 # QUADRANTS
 ################
 @router.post("/quadrant/")
-def add_quadrant(quadrant:Quadrant):
+def add_quadrant(quadrant:QuadrantIn):
     result = handlers.add_quadrant(engine,quadrant)
     return result
 
 @router.post("/quadrant/update/")
-def update_quadrant(quadrant:Quadrant):
+def update_quadrant(quadrant:QuadrantBase):
     ''' 
     ** Update a quadrant\n
      The sector array can be empty (API will be updated to not require this at all at some point - models are in flux...)
@@ -88,7 +89,7 @@ def get_quadrants()->list[Quadrant]:
 # retrieve all quadrant titles (as list, not assigned (rename this endpoint?))
 
 @router.post("/quadrants/title/")
-def add_quadrant_title(quadrant_title:QuadrantTitles) -> QuadrantTitles:
+def add_quadrant_title(quadrant_title:QuadrantTitlesIn) -> QuadrantTitles:
     ''' get all quadrant titles in the database '''
     result = handlers.add_quadrant_title(engine,quadrant_title)
     return result
@@ -106,8 +107,8 @@ def get_quadrant_titles() -> list[QuadrantTitles]:
     result = handlers.get_quadrant_titles(engine)
     return result
 
-@router.get("/quadrants/{id}/", response_model=Quadrant)
-def get_quadrant(id:int)->Quadrant:
+@router.get("/quadrants/{id}/", response_model=QuadrantBase)
+def get_quadrant(id:int)->QuadrantBase:
     result = handlers.get_quadrant(engine,id)
     return result
 
@@ -136,7 +137,7 @@ def update_sector_title(updated_sector_title:SectorTitles) -> SectorTitles:
     return result
 
 @router.post("/sectors/titles/")
-def add_sector_titles(sectortitles:list[SectorTitles]) -> bool:
+def add_sector_titles(sectortitles:list[SectorTitlesIn]) -> bool:
     '''
       ## Add one or more sector title\n 
       Expects a list of SectorTitles
@@ -148,7 +149,7 @@ def add_sector_titles(sectortitles:list[SectorTitles]) -> bool:
 # SECTORS
 ################
 @router.post("/sectors/")
-def add_sector(sector:Sector):
+def add_sector(sector:SectorIn):
     result = handlers.add_sector(engine,sector)
     return result
 
@@ -158,8 +159,6 @@ def get_sectors()->list[Sector]:
     result = handlers.get_sectors(engine)
     return result
 
-
-    return result
 
 @router.get("/sectors/{id}/")
 def get_sector(id:int)->Sector:
