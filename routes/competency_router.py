@@ -25,10 +25,11 @@ async def add_competency(competency:Competency):
     ''' WIP:<br />
     TODO: Add a user competency to database. Note this includes a user_id, so we end up
      with a 1:many relationship. This should fail if an unknown user_id is passed, and if the various
-      indices for the values are out of bounds or if this competency is already applied
-      to specified user. '''
+      indices for the values are out of bounds. It DOES need to account for the compass applied to user! '''
     _competency = DB_Competency(user_id=competency.user_id,quadrant=competency.quadrant, sector=competency.sector, rating=competency.rating)
     result = handlers.add_competency(engine,_competency)
+    # I think the competency applied should be BOUND TO THE COMPASS - because it is specific TO that compass... This implies that the competency
+    # table should be extended to include compass ID as well.
     return result
 
 # TODO: This needs to use the loaded data, not the python mapper
