@@ -110,6 +110,14 @@ async def compass_summaries(request: Request):
         context={"compass_summaries":compass_summaries}
     )
 
+@app.get("/configure/components/")
+async def compass_summaries(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="compass_components.html",
+        context={} ## TODO:
+    )
+
 @app.get("/configure/new/")
 async def compass_new(request: Request):
     # retrieve data we need
