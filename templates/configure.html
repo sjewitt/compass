@@ -30,10 +30,10 @@
 				</a>
 			</div>
 			<div class="button inline_block">
-			<a href="/configure/" title="Configure Compass">
-				<img src="/static/images/gear-settings-64.png" alt="Settings gear icon" title="Configure Compass" />
-			</a>
-		</div>
+				<a href="/configure/" title="Configure Compass">
+					<img src="/static/images/gear-settings-64.png" alt="Settings gear icon" title="Configure Compass" />
+				</a>
+			</div>
 			{% if compass_data %}
 			Configure Compass '{{compass_data.title}}'
 			{% else %}
@@ -108,7 +108,6 @@
 
 					<div>Title #2</div>
 					<select data-fieldname="q1_tp2">
-						
 						{% for title_part in quadrant_titles %}
 						<option value="{{ title_part.id }}" {% if compass_data and
 							title_part.id==compass_data.data_quadrants[0].title[1].id %} selected="selected" {% endif
@@ -116,9 +115,8 @@
 						{% endfor %}
 					</select>
 
-					<div>Summary</div>
+					<div>Summary (THIS is why we need a pool of Quadrants)</div>
 					<select data-fieldname="quadrant_1">
-
 						{% for quadrant in quadrants %}
 						<option value="{{ quadrant.id }}" {% if compass_data and
 							quadrant.id==compass_data.data_quadrants[0].id %} selected="selected" {% endif %}>{{
@@ -133,7 +131,6 @@
 						<div>
 							Title #1
 							<select data-fieldname="q1_s1_tp1">
-								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[0].title[0].id %}
@@ -147,7 +144,6 @@
 						<div>
 							Title #2
 							<select data-fieldname="q1_s1_tp2">
-								
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
 								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[0].title[1].id %}
