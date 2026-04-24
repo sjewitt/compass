@@ -1,6 +1,7 @@
 # up three levels to api:
-from api.models import User, Competency, UserCompetencies, Quadrant, QuadrantTitles, \
-    Sector, SectorTitles, CompassData, CompassDefinition, CompassSummary, Rating
+from api.models import User, Competency, UserCompetencies, Quadrant, QuadrantIn, QuadrantBase, QuadrantTitles, \
+    QuadrantTitlesIn, SectorIn, \
+    Sector, SectorTitles, SectorTitlesIn, CompassData, CompassDefinition, CompassSummary, Rating
 from api.db_models import DB_Competency, DB_User, DB_Quadrant, DB_QuadrantTitles,  \
     DB_Sector, DB_SectorTitles, DB_CompassDefinition, DB_Rating
 from api.exceptions import UserNotFound, CompetencyNotFound, CompetenciesForUserNotFound
@@ -230,31 +231,23 @@ def update_user(engine, user:User) -> User|None:
         except:
             return None
 
-
 ###########################################
 # QUADRANTS
 ###########################################
-def add_quadrant(engine,quadrant:Quadrant) -> dict:
+# This should probably return the Quadrant object:
+def add_quadrant(engine,quadrant:QuadrantIn) -> dict:
     with Session(engine) as session:
         try:
             _q = DB_Quadrant(
-                children=[],
                 quadrant_summary=quadrant.quadrant_summary,
-                quadrant_css_class=quadrant.quadrant_css_class,
-                quadrant_elem_coords=quadrant.quadrant_elem_coords, # these will be constants?
+                quadrant_css_class="Q",
+                quadrant_elem_coords="R",
             )
             session.add(_q)
             # https://stackoverflow.com/questions/36014700/sqlalchemy-how-do-i-see-a-primary-key-id-for-a-newly-created-record
             session.flush()
             # we should have an ID now:
             new_quadrant_id = _q.id
-            # and add title parts:
-            for quad_title_part in quadrant.title:
-                _t = DB_QuadrantTitles(
-                    title_part=quad_title_part.title_part,
-                    quadrant_id=_q.id,
-                )
-                session.add(_t)
             session.commit()
             return {"action":"quadrantcreate","quadrantcreated":True, "id":new_quadrant_id}
         except Exception as ex:
@@ -262,10 +255,9 @@ def add_quadrant(engine,quadrant:Quadrant) -> dict:
             return {f"action":"quadrantcreate","message":"Failed: {ex}", "quadrantcreated":False}        
     return {"action":"quadrantcreate","message":"Failed", "quadrantcreated":False}
 
-def update_quadrant(engine,quadrant:Quadrant) -> Quadrant:
+def update_quadrant(engine,quadrant:QuadrantBase) -> Quadrant:
     with Session(engine) as session:
         _update_obj=session.query(DB_Quadrant).where(DB_Quadrant.id == quadrant.id).first()
-        # _update_obj.title = quadrant.title    # titles should be UNLINKED
         _update_obj.quadrant_summary = quadrant.quadrant_summary
         session.commit()
         return _update_obj
@@ -301,7 +293,7 @@ def get_quadrants(engine, include_titles=False) -> list[Quadrant]:
                 print(ex)
         return result
 
-def get_quadrant(engine, id:int) -> Quadrant:
+def get_quadrant(engine, id:int) -> QuadrantBase:
     ''' get a quadrant by database ID '''
     with Session(engine) as session:
         db_quad = session.query(DB_Quadrant).where(DB_Quadrant.id == id).first()
@@ -310,10 +302,7 @@ def get_quadrant(engine, id:int) -> Quadrant:
         # build the final output as fully populated Quadrant:
         res = Quadrant(
             id=db_quad.id,
-            title=_titleparts,
             quadrant_summary=db_quad.quadrant_summary,
-            quadrant_css_class=db_quad.quadrant_css_class,
-            quadrant_elem_coords=db_quad.quadrant_elem_coords,
         )
         # now we can return a fully populated object:
         return res
@@ -334,17 +323,20 @@ def get_quadrant_titles(engine) -> list[QuadrantTitles]:
             print(ex)
         return _z
 
-def add_quadrant_title(engine, quadrant_title:QuadrantTitles) -> QuadrantTitles:
+def add_quadrant_title(engine, quadrant_title_in:QuadrantTitlesIn) -> QuadrantTitles:
     with Session(engine) as session:
         try:
             _qt = DB_QuadrantTitles(
-                title_part = quadrant_title.title_part,
-                coord_x = 0,
-                coord_y = 0,
+                title_part = quadrant_title_in.title_part,
+                coord_x = 0,    # TO REMOVE FROM DATABASE
+                coord_y = 0,    # TO REMOVE FROM DATABASE
             )
             session.add(_qt)
+            session.flush()
+
+            # we should have an ID now:
             session.commit()
-            return quadrant_title
+            return QuadrantTitles(id=_qt.id,title_part=_qt.title_part)
         except Exception as ex:
             print(ex)
             raise ex
@@ -365,7 +357,7 @@ def update_quadrant_title(engine, quadrant_title:QuadrantTitles) -> QuadrantTitl
 # SECTORS
 ###########################################
 
-def add_sector(engine,sector:Sector) -> dict:
+def add_sector(engine,sector:SectorIn) -> dict:
     with Session(engine) as session:
         try:
             _s = DB_Sector(
@@ -375,15 +367,6 @@ def add_sector(engine,sector:Sector) -> dict:
             session.add(_s) 
             session.flush() # this gives us the ID, which we need to append the title parts:
             new_sector_id = _s.id
-            # to update: redirect to a new add title method (which will need an API endpoint too)
-            # I also don't need the sector ID because there is no FK relationship now...
-            for sector_title_part in sector.title:
-                _t = DB_SectorTitles(
-                    title_part = sector_title_part.title_part,
-                    coord_x = sector_title_part.coord_x,
-                    coord_y = sector_title_part.coord_y,
-                )
-                session.add(_t)
             session.commit()
             return {"action":"sectorcreate","sectorcreated":True, "id":new_sector_id}
         except Exception as ex:
@@ -475,7 +458,7 @@ def update_sector_title(engine, updated_sector_title:SectorTitles) -> SectorTitl
         session.commit()
         return updated_sector_title # i.e. what we passed in. I couldrecreate from udpated DB object. Also add exception handling!
 
-def add_sector_titles(engine, sector_title_list:list[SectorTitles])->bool:
+def add_sector_titles(engine, sector_title_list:list[SectorTitlesIn])->bool:
     with Session(engine) as session:
         try:
             for sector_title in sector_title_list:
