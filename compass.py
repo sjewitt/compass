@@ -97,20 +97,9 @@ async def update_user(request: Request,user_id:int) -> User:
         request=request,name="user_edit.html", context={"user":_user,"compasses":_compasses}
     )
 
-# jumpoff page to select or create a compass definition
-# so here, we need to pass in the compass list only
-@app.get("/configure/")
-async def compass_summaries(request: Request):
-    # retrieve data we need
 
-    compass_summaries = handlers.get_all_compasses(engine=engine) # to sort. we can't have hardcoded IDs floating about...
-    return templates.TemplateResponse(
-        request=request,
-        name="compass_summaries.html",
-        context={"compass_summaries":compass_summaries}
-    )
 
-@app.get("/configure/components/")
+@app.get("/configure/components")
 async def compass_summaries(request: Request):
     return templates.TemplateResponse(
         request=request,
@@ -118,7 +107,7 @@ async def compass_summaries(request: Request):
         context={} ## TODO:
     )
 
-@app.get("/configure/new/")
+@app.get("/configure/new")
 async def compass_new(request: Request):
     # retrieve data we need
     try:
@@ -132,6 +121,7 @@ async def compass_new(request: Request):
         return templates.TemplateResponse(
             request=request,
             name="configure.html",
+            # name="dummy.html",
             context={
                 "compass_data":None,
                 "quadrants":quadrants,
@@ -147,7 +137,7 @@ async def compass_new(request: Request):
     except Exception as ex:
         print(f"configure/new  Exception: {ex}")
 
-@app.get("/configure/{compass_id}/")
+@app.get("/configure/{compass_id}")
 async def configure(request: Request, compass_id: int):
 
     # retrieve data we need
@@ -177,6 +167,20 @@ async def configure(request: Request, compass_id: int):
         print(f"IndexError: {ex}")
     except Exception as ex:
         print(f"Exception: {ex}")
+
+
+# jumpoff page to select or create a compass definition
+# so here, we need to pass in the compass list only
+@app.get("/configure/")
+async def compass_summaries(request: Request):
+    # retrieve data we need
+
+    compass_summaries = handlers.get_all_compasses(engine=engine) # to sort. we can't have hardcoded IDs floating about...
+    return templates.TemplateResponse(
+        request=request,
+        name="compass_summaries.html",
+        context={"compass_summaries":compass_summaries}
+    )
 
 
 @app.get("/{user_id}/data")

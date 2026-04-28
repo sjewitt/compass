@@ -13,7 +13,7 @@ var engine = {
     // API_URL: "/static/data/display_data_rationalised.json",    // static JSON file
     // This is the currently hardcoded URL of a configured compass data API endpoint.
     // If there is no compass of this ID, the system currently breaks:
-    API_URL: "/compass/1/", 
+    API_URL: "/compass/1", 
 
     // This is the coordiate lookup for the title positions:
     CONSTANTS_URL: "/static/data/compass_titles.json",
@@ -162,10 +162,21 @@ var engine = {
             // add event listener to the ratings dropdowns, to handle onchange
             // to display the long descriptions from jinja loaded array:
             let dropdown_elems = document.querySelectorAll("[data-identifier='rating_dropdown']");
+            // let dropdown_elems = document.querySelectorAll("[data-identifier]");
             for(let x=0;x<dropdown_elems.length;x++){
                 let current_option_value = dropdown_elems[x].selectedIndex;   // initial value
                 dropdown_elems[x].addEventListener("click",(e)=>{
-                    this.ratingSelectHandler(e, dropdown_elems, current_option_value, x);
+                    // this.ratingSelectHandler(e, dropdown_elems, current_option_value, x);
+                    this.selectHandler(e, dropdown_elems, current_option_value, x, "rating");
+                })
+            }
+
+            let dropdown_elems_sectors = document.querySelectorAll("[data-identifier='sector_dropdown']");
+            for(let x=0;x<dropdown_elems_sectors.length;x++){
+                let current_option_value = dropdown_elems_sectors[x].selectedIndex;   // initial value
+                dropdown_elems_sectors[x].addEventListener("click",(e)=>{
+                    // this.sectorSelectHandler(e, dropdown_elems_sectors, current_option_value, x);
+                    this.selectHandler(e, dropdown_elems_sectors, current_option_value, x, "sector");
                 })
             }
 
@@ -218,6 +229,7 @@ var engine = {
         }
         data["id"] = compass_id;
         data["name"] = compass_name;
+        console.log(data);
         /** determine whether to add or update */
         let submitURL = '/compass/';    // the add endpoint (if POST)
         if(compass_id > 0){
@@ -255,31 +267,79 @@ var engine = {
         }
     },
 
-    // handle configure ratings change (UI display only)
+    // // handle configure ratings change (UI display only)
+    // /**
+    //  * 
+    //  * @param {*} evt : event
+    //  * @param {*} selectlist : list of ratings select elements on page
+    //  * @param {*} current_option_value : current selection so we can indicate whether the selection has changed 
+    //  */
+    // ratingSelectHandler: function(evt,selectlist,current_option_value, current_dropdown_index){
+    //     /**
+    //      * This function does not know from which dropdown it was called. Therefore we need to determine which one
+    //      * so we can identify which UI element to update. See markup for further details.
+    //      * 
+    //      * >>>>>> I MAY NEED TO REWORK SO I DONT USE A COUNTER FOR THE IDs!!!!!! <<<<<<<<
+    //      */
+    //     let id = selectlist[current_dropdown_index].id;
+
+    //     // can probably make this more succinct:
+    //     hideit = document.getElementById(`${id}_description_changed`);
+    //     if(hideit){
+    //         hideit.innerText = ""
+    //         if(current_option_value !== selectlist[current_dropdown_index].selectedIndex){
+    //             hideit.innerText = "*"
+    //         }
+    //     }
+    //     // apply description to display DIV:
+    //     console.log(`rating_description_${selectlist[current_dropdown_index].selectedIndex+1}`);
+    //     document.getElementById(`${id}_description`).innerText = document.getElementById(`rating_description_${selectlist[current_dropdown_index].selectedIndex+1}`).innerText;
+    // },
+
+    // sectorSelectHandler: function(evt,selectlist,current_option_value, current_dropdown_index){
+    //     let id = selectlist[current_dropdown_index].id;
+        
+    //     hideit = document.getElementById(`${id}_description_changed`);
+    //     if(hideit){
+    //         hideit.innerText = ""
+    //         if(current_option_value !== selectlist[current_dropdown_index].selectedIndex){
+    //             hideit.innerText = "*"
+    //         }
+    //     }
+    //     // apply description to display DIV:
+    //     let target =  document.getElementById(`${id}_description`);
+
+    //     // where are we getting the other data from?
+    //     document.getElementById(`${id}_description`).innerText = document.getElementById(`sector_description_${selectlist[current_dropdown_index].selectedIndex+1}`).innerText;
+    // },
+
     /**
      * 
-     * @param {*} evt : event
-     * @param {*} selectlist : list of ratings select elements on page
-     * @param {*} current_option_value : current selection so we can indicate whether the selection has changed 
+     * @param {*} evt - the DOM event ('click' etc.)
+     * @param {*} selectlist - all possible selects for this type
+     * @param {*} current_option_value - str, the text value
+     * @param {*} current_dropdown_index - int, which of the possible items is it?
+     * @param {*} prefix - str, determine type of dropdown (ENUM!!!) - sector or rating
+     * Push the description of the selected thing into the corresponding DIV. Depends HEAVILY
+     * on the correct DOM structure!!
+     * OK... I render the list of descriptions in a named list of DOM elements (hidden) and
+     * when a rating or sector is selected, the title is shown in the dropdown, but we need
+     * to get the descriprion for the one we select from the hidden list of DOM elements that 
+     * contain the descriptions for ALL the ratings or sectors that have been defined.
+     * The specifics of the DOM element attributes allow identification and mapping of the
+     * thing to its corresponding description. Trust me, it makes sense...
      */
-    ratingSelectHandler: function(evt,selectlist,current_option_value, current_dropdown_index){
-        /**
-         * This function does not know from which dropdown it was called. Therefore we need to determine which one
-         * so we can identify which UI element to update. See markup for further details.
-         */
-        let id = selectlist[current_dropdown_index].id;
-
-        // can probably make this more succinct:
-        hideit = document.getElementById(`${id}_description_changed`);
-        if(hideit){
-            hideit.innerText = ""
-            if(current_option_value !== selectlist[current_dropdown_index].selectedIndex){
-                hideit.innerText = "*"
-            }
+    selectHandler: function(evt,selectlist,current_option_value, current_dropdown_index, prefix){
+        // let id = selectlist[current_dropdown_index].id;
+        console.log(`${selectlist[current_dropdown_index].id}_description_changed`);
+        document.getElementById(`${selectlist[current_dropdown_index].id}_description_changed`).innerText = ""
+        if(current_option_value !== selectlist[current_dropdown_index].selectedIndex){
+            document.getElementById(`${selectlist[current_dropdown_index].id}_description_changed`).innerText = "*"
         }
         // apply description to display DIV:
-        document.getElementById(`${id}_description`).innerText = document.getElementById(`rating_description_${selectlist[current_dropdown_index].selectedIndex}`).innerText;
-     },
+        document.getElementById(`${selectlist[current_dropdown_index].id}_description`).innerText = document.getElementById(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex+1}`).innerText;
+    },
+
 
     loadConstantData: function(data){
         engine.coordinate_lookup = data;

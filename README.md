@@ -327,3 +327,5 @@ This is already minimally implemented for `Rating` with `RatingIn` model. (and C
   - `/compass/sectors/` (badly named, its adding only one. Also, nested arrays!) - OK
   - `/compass/sectors/titles/` (maybe add a `../title` (singular) as well?)
 
+
+I thinkj I need to sequentially number the sector description dropdowns - 1 -> 17

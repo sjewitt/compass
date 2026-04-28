@@ -133,6 +133,10 @@ body{
   padding-top:8px;
 }
 
+.min_width_170{
+  min-width:170px;
+}
+
 .block{
   display: inline-block;
   position:relative;
@@ -140,6 +144,11 @@ body{
 
 .inline_block{
   display: inline-block;
+}
+
+
+.inline{
+  display: inline;
 }
 
 .full_width{
