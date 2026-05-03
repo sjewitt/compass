@@ -5,9 +5,10 @@ from sqlalchemy.orm import sessionmaker
 # DATABASE_URI = "sqlite:///./database/db.sqlite"
 # DATABASE_URI = "sqlite:///./database/test.sqlite"
 # DATABASE_URI = "sqlite:///./database/test2.sqlite"
-DATABASE_URI = "sqlite:///./database/test3.sqlite"    # CURRENT SCHEMA
+# DATABASE_URI = "sqlite:///./database/test3.sqlite"    # CURRENT SCHEMA
 # DATABASE_URI = "sqlite:///./database/test4.sqlite"
 # DATABASE_URI = "sqlite:///./database/test5.sqlite" # EMPTY
+DATABASE_URI = "sqlite:///./database/test6.sqlite"  # schema v2 
 engine = create_engine(DATABASE_URI, echo=False)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
