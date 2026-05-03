@@ -34,17 +34,21 @@ class DB_Competency(Base):
     sector = mapped_column(Integer)
     rating = mapped_column(Integer)
     user:Mapped["DB_User"] = relationship(back_populates="competencies")
-
+    def __repr__(self):
+        return "<DB_Competency(id='%s', user_id='%s', quadrant='%s', sector='%s', rating='%s')>" % (
+            self.id, self.user_id, self.quadrant, self.sector, self.rating
+        )
 
 class DB_Quadrant(Base):
     __tablename__ = "quadrants"
     id : Mapped[int] = mapped_column(primary_key=True)
     quadrant_summary: Mapped[str] = mapped_column(String)
-    quadrant_css_class: Mapped[str] = mapped_column(String)
-    quadrant_elem_coords: Mapped[str] = mapped_column(String)   # not needed
+    quadrant_description: Mapped[str] = mapped_column(String)
+    # quadrant_css_class: Mapped[str] = mapped_column(String)
+    # quadrant_elem_coords: Mapped[str] = mapped_column(String)   # not needed
     def __repr__(self):
-        return "<DB_Quadrant(id='%s', quadrant_summary='%s', quadrant_css_class='%s', quadrant_elem_coords='%s')>" % (
-            self.id, self.quadrant_summary, self.quadrant_css_class, self.quadrant_elem_coords
+        return "<DB_Quadrant(id='%s', quadrant_summary='%s', quadrant_description='%s')>" % (
+            self.id, self.quadrant_summary, self.quadrant_description
         )
 
 
@@ -52,8 +56,8 @@ class DB_QuadrantTitles(Base):
     __tablename__ = "quadrant_titles"
     id : Mapped[int] = mapped_column(primary_key=True)
     title_part : Mapped[str] = mapped_column(String)
-    coord_x :  Mapped[int] = mapped_column(Integer)
-    coord_y :  Mapped[int] = mapped_column(Integer)
+    # coord_x :  Mapped[int] = mapped_column(Integer)
+    # coord_y :  Mapped[int] = mapped_column(Integer)
     def __repr__(self):
         return "<DB_QuadrantTitles(id='%s', title_part='%s')>" % (
             self.id, self.title_part
@@ -75,11 +79,11 @@ class DB_SectorTitles(Base):
     __tablename__ = "sector_titles"
     id : Mapped[int] = mapped_column(primary_key=True)
     title_part : Mapped[str] = mapped_column(String)
-    coord_x :  Mapped[int] = mapped_column(Integer)
-    coord_y :  Mapped[int] = mapped_column(Integer)
+    # coord_x :  Mapped[int] = mapped_column(Integer)
+    # coord_y :  Mapped[int] = mapped_column(Integer)
     def __repr__(self):
-        return "<DB_SectorTitles(id='%s', title_part='%s', coord_x='%s', coord_y='%s')>" % (
-            self.id, self.title_part, self.coord_x, self.coord_y
+        return "<DB_SectorTitles(id='%s', title_part='%s')>" % (
+            self.id, self.title_part
         )
 
 
@@ -88,13 +92,16 @@ class DB_Rating(Base):
     id : Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String)  # max length?
     description: Mapped[str] = mapped_column(String)
-
+    def __repr__(self):
+        return "<DB_Rating(id='%s', title='%s', description='%s')>" % (
+            self.id, self.title, self.description
+        )
 
 class DB_CompassDefinition(Base):
     __tablename__ = "compass_definition"
     id : Mapped[int] = mapped_column(primary_key=True)
-    # give the compass a title:
     name : Mapped[str] = mapped_column(String)
+    description : Mapped[str] = mapped_column(String)
 
     # Specify the quadrants (4)
     quadrant_1 : Mapped[int] = mapped_column(ForeignKey("quadrants.id"))
