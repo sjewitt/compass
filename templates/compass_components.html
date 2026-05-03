@@ -6,42 +6,103 @@
 		<link type="text/css" href="/static/css/styles2.css" rel="stylesheet" />
 		<link href="/static/images/favicon.jpg" rel="icon" />
 </head>
-<body data-page="configure-summaries">
-
-<div id="flyout" class="flyout block">
-	<h1>
-		<div class="button inline_block">
-			<a href="/" title="Home">
-				<img src="/static/images/home-2-64.png" alt="Home" title="Home" />
-			</a>
+<body data-page="configure">
+	<div id="flyout" class="flyout block">
+		<h1>
+			<div class="button inline_block">
+				<a href="/" title="Home">
+					<img src="/static/images/home-2-64.png" alt="Home" title="Home" />
+				</a>
+			</div>
+			<div class="button inline_block">
+				<a href="#" title="Help">
+					<img src="/static/images/help-64.png" alt="Help" title="Help" />
+				</a>
+			</div>
+			<div class="button inline_block">
+				<a href="/configure/" title="Configure Compass">
+					<img src="/static/images/gear-settings-64.png" alt="Settings gear icon" title="Configure Compass" />
+				</a>
+			</div>
+			Manage Compass Components
+		</h1>
+	</div>
+	<div class="tabswrapper">
+		<div data-tabid="1" class="panel_selector_tab panel_selector_tab_selected" id="tab_1">Quadrants</div>
+		<div data-tabid="2" class="panel_selector_tab " id="tab_2">Quadrant Titles</div>
+		<div data-tabid="3" class="panel_selector_tab" id="tab_3">Sectors</div>
+		<div data-tabid="4" class="panel_selector_tab" id="tab_4">Sector Titles</div>
+	</div>
+	<div class="panelwrapper mt_minus_1">
+		<div class="gutterpanel" data-panelid="1">
+			<div>
+				<h2>
+					<div class="button button-static inline_block">
+						<img src="/static/images/one-quarter_trans.png" alt="Home" title="Quadrant 1" />
+					</div>
+					Quadrants
+				</h2>
+				[TODO: Have a dropdown of quads etc., and a simple form. If we select one, the form is 
+				filled (and a hidden ID) and we can UPDATE that thing]. Otherwise, we create a NEW thing.
+				The submit buttons will be specific to each TAB, and will ONLY add/update that thing.
+			</div>
+			<div>
+				<div class="panelnested">
+					{{quadrants}}
+				</div>
+			</div>
 		</div>
 
-		<div class="button inline_block">
-			<a href="#" title="Help">
-				<img src="/static/images/help-64.png" alt="Help" title="Help" />
-			</a>
+		<div class="gutterpanel hidden" data-panelid="2">
+			<div>
+				<h2>
+					<div class="button button-static inline_block">
+						<img src="/static/images/one-quarter_trans.png" alt="Home" title="Quadrant 1" />
+					</div>
+					Quadrant titles
+				</h2>
+			</div>
+			<div>
+				<div class="panelnested">
+				{{quadrant_titles}}
+				</div>
+			</div>
+			
 		</div>
-        <div class="button inline_block">
-            <a href="/configure/" title="Configure Compass">
-                <img src="/static/images/gear-settings-64.png" alt="Settings gear icon" title="Configure Compass" />
-            </a>
-        </div>
-		Manage Compass Components
-	</h1>
-</div>
 
-	<!-- Ooohhh I really need to make semantic HTML here... -->
+		<div class="gutterpanel hidden" data-panelid="2">
+			<div>
+				<h2>
+					<div class="button button-static inline_block">
+						<img src="/static/images/one-quarter_trans.png" alt="Home" title="Quadrant 1" />
+					</div>
+					Sectors
+				</h2>
+			</div>
+			<div>
+				<div class="panelnested">
+				{{sectors}}
+				</div>
+			</div>
+		</div>
 
-<div class="panel ">
-	<h2>Compass Components</h2>
-	<ul>
-		<li>Quadrants</li>
-        <li>Quadrant titles</li>
-        <li>Sectors</li>
-        <li>Sector titles</li>
-	</ul>
-</div>
+		<div class="gutterpanel hidden" data-panelid="2">
+						<div>
+				<h2>
+					<div class="button button-static inline_block">
+						<img src="/static/images/one-quarter_trans.png" alt="Home" title="Quadrant 1" />
+					</div>
+					Sector titles
+				</h2>
+			</div>
+			<div>
+				<div class="panelnested">
+				{{sector_titles}}
+				</div>
+			</div>
+		</div>
 
+	</div>
 
 
 </body>
