@@ -101,10 +101,20 @@ async def update_user(request: Request,user_id:int) -> User:
 
 @app.get("/configure/components")
 async def compass_summaries(request: Request):
+    quadrants = handlers.get_quadrants(engine=engine)
+    quadrant_titles = handlers.get_quadrant_titles(engine=engine)
+    sectors = handlers.get_sectors(engine=engine)
+    sector_titles = handlers.get_sector_titles(engine=engine)
     return templates.TemplateResponse(
         request=request,
         name="compass_components.html",
-        context={} ## TODO:
+        context={
+            "quadrants":quadrants,
+            "quadrant_titles":quadrant_titles,
+            "sectors":sectors, 
+            "sector_titles":sector_titles,
+            "funcs":Funcs,
+        }
     )
 
 @app.get("/configure/new")
