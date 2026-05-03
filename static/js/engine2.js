@@ -180,9 +180,26 @@ var engine = {
                 })
             }
 
+            let dropdown_elems_quadrants = document.querySelectorAll("[data-identifier='quadrant_dropdown']");
+            for(let x=0;x<dropdown_elems_quadrants.length;x++){
+                let current_option_value = dropdown_elems_quadrants[x].selectedIndex;   // initial value
+                dropdown_elems_quadrants[x].addEventListener("click",(e)=>{
+                    this.selectHandler(e, dropdown_elems_quadrants, current_option_value, x, "quadrant");
+                })
+            }
+
+            // HOVER HANDLERS FOR DESCRIPTIONS:
+            let ratings_descriptions = document.querySelectorAll("[data-identifier='rating_description'], [data-identifier='sector_description'], [data-identifier='quadrant_description']");
+            for(let x=0;x<ratings_descriptions.length;x++){
+                ratings_descriptions[x].addEventListener("mouseover",(e)=>{
+                    this.descriptionHoverHandler(e);
+                })
+            }
+
             // handle tab selection AFTER the click handlers are applied...
             if(window.location.pathname.indexOf("/configure")!==-1 && window.location.hash.length > 0 ){
-                elem = document.getElementById(window.location.hash.replace('#',''));
+                // NOTE: I modified the hash so it wouldn't actually be a DOM ID, so we didn't get the anchor jump...
+                elem = document.getElementById(window.location.hash.replace('#','').replace("_selected",""));
                 if(elem){
                     // https://medium.com/@python-javascript-php-html-css/javascript-to-emulate-a-click-on-the-first-button-in-a-list-9c61f408b4b5
                     let evt = new PointerEvent('click',{
@@ -221,6 +238,7 @@ var engine = {
             compass_id = null;
         }
         let compass_name = document.getElementById("compass_name").value;
+        let compass_description = document.getElementById("compass_description").value;
         let data = {}
         for(let elem of elems){
             let field = elem.getAttribute("data-fieldname");
@@ -229,6 +247,7 @@ var engine = {
         }
         data["id"] = compass_id;
         data["name"] = compass_name;
+        data["description"] = compass_description;
         console.log(data);
         /** determine whether to add or update */
         let submitURL = '/compass/';    // the add endpoint (if POST)
@@ -262,7 +281,12 @@ var engine = {
                 tablist[x].classList.add("panel_selector_tab_selected");
                 panel_list[x].classList.remove("hidden");
                 // and add a hash to the URL:
-                window.location.hash = evt.srcElement.getAttribute("id");
+                // NOTE: I added arbitrary string to the end of the hash to prevent
+                // the annoying - in this instance - browser scroll-to-anchor
+                // action. The code elsewhere that selected the tab based on the hash
+                // in the URL acounts for this addition, but the page doesn't jump any
+                // more because there is no anchor of this name in the markup...
+                window.location.hash = evt.srcElement.getAttribute("id")+"_selected";
             }
         }
     },
@@ -340,6 +364,10 @@ var engine = {
         document.getElementById(`${selectlist[current_dropdown_index].id}_description`).innerText = document.getElementById(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex+1}`).innerText;
     },
 
+    descriptionHoverHandler: function(evt){
+        console.log(evt);
+        evt.srcElement.setAttribute("title",evt.srcElement.innerText);
+    },
 
     loadConstantData: function(data){
         engine.coordinate_lookup = data;
