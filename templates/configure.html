@@ -52,6 +52,10 @@
 		<div id="rating_description_{{loop.index}}" class="hidden">{{rating.description}}</div>
 	{% endfor %}
 
+	{% for quadrant in quadrants %}
+		<div id="quadrant_description_{{loop.index}}" class="hidden">{{quadrant.quadrant_description}}</div>
+	{% endfor %}
+
 	<div class="panelwrapper mt_minus_1">
 
 	<!-- configure ratings -->
@@ -76,9 +80,11 @@
 				{% endif %}	
 			></div>
 			<!-- row 3 -->
-			<div>Compass Description (TODO:)</div>
+			<div>Compass Description</div>
 			<div>
-				<textarea id="compass_description" class="full_width height_300px" datafield-name="compass_description"></textarea>
+				<textarea id="compass_description" class="full_width height_300px" datafield-name="compass_description">
+{{ compass_data.description }}
+				</textarea>
 			</div>
 		</div> 
 
@@ -94,7 +100,7 @@
 			</div>
 			<div>
 				<div class="panelnested">
-					<div>Title #1</div>
+					<div>Title 1</div>
 					<select data-fieldname="q1_tp1">
 						{% for title_part in quadrant_titles %}
 						<option value="{{ title_part.id }}" {% if compass_data and
@@ -103,7 +109,7 @@
 						{% endfor %}
 					</select>
 
-					<div>Title #2</div>
+					<div>Title 2</div>
 					<select data-fieldname="q1_tp2">
 						{% for title_part in quadrant_titles %}
 						<option value="{{ title_part.id }}" {% if compass_data and
@@ -111,19 +117,34 @@
 							%}>{{ funcs.replace_empty_string(title_part.title_part) }}</option>
 						{% endfor %}
 					</select>
-
+					<!-- LAYOUT TO SORT!! -->
 					<div>Summary</div>
-					<select data-fieldname="quadrant_1">
-						{% for quadrant in quadrants %}
-						<option value="{{ quadrant.id }}" {% if compass_data and
-							quadrant.id==compass_data.data_quadrants[0].id %} selected="selected" {% endif %}>{{
-							quadrant.quadrant_summary }}</option>
-						{% endfor %}
-					</select>
+					<div class="threecolpanel">
+						<div class="min_width_170">
+							<select data-fieldname="quadrant_1" id="quadrant_1" data-identifier="quadrant_dropdown">
+								{% for quadrant in quadrants %}
+								<option value="{{ quadrant.id }}" {% if compass_data and quadrant.id==compass_data.data_quadrants[0].id %} selected="selected" {% endif %}>
+									{{ quadrant.quadrant_summary }}
+								</option>
+								{% endfor %}
+							</select>
+						</div>
+						
+						<div id="quadrant_1_description_changed" class="align_bottom"  title="Changed">
+						<!-- Dynamically filled -->
+						</div>
+						
+						<div>
+							<div class="inline_block ellipsis_100pc" id="quadrant_1_description" data-identifier="quadrant_description">
+								{% if compass_data %}
+								{{ compass_data.data_quadrants[0].quadrant_description }}
+								{% endif %}
+							</div>
+						</div>
+					</div>
 				</div>
-<hr /><!-- maybe... -->
+				<hr /><!-- maybe... -->
 				<div class="panelnested">
-
 					<div>Sector 1</div>
 					<div>
 						<div>
@@ -170,7 +191,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_1_description">
+								<div class="inline_block ellipsis_100pc" id="sector_1_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[0].sectors[0].description }}
 									{% endif %}
@@ -225,7 +246,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_2_description">
+								<div class="inline_block ellipsis_100pc" id="sector_2_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[0].sectors[1].description }}
 									{% endif %}
@@ -281,7 +302,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_3_description">
+								<div class="inline_block ellipsis_100pc" id="sector_3_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[0].sectors[2].description }}
 									{%endif%}
@@ -336,7 +357,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_4_description">
+								<div class="inline_block ellipsis_100pc" id="sector_4_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[0].sectors[3].description }}
 									{%endif%}
@@ -391,7 +412,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_5_description">
+								<div class="inline_block ellipsis_100pc" id="sector_5_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[0].sectors[4].description }}
 									{%endif%}
@@ -435,13 +456,36 @@
 					</select>
 
 					<div>Summary</div>
-					<select data-fieldname="quadrant_2">
+					<!-- <select data-fieldname="quadrant_2">
 						{% for quadrant in quadrants %}
 						<option value="{{ quadrant.id }}" {% if compass_data and
 							quadrant.id==compass_data.data_quadrants[1].id %} selected="selected" {% endif %}>{{
 							quadrant.quadrant_summary }}</option>
 						{% endfor %}
-					</select>
+					</select> -->
+					<div class="threecolpanel">
+					<div class="min_width_170">
+						<select data-fieldname="quadrant_2" id="quadrant_2" data-identifier="quadrant_dropdown">
+							{% for quadrant in quadrants %}
+							<option value="{{ quadrant.id }}" {% if compass_data and quadrant.id==compass_data.data_quadrants[1].id %} selected="selected" {% endif %}>
+								{{ quadrant.quadrant_summary }}
+							</option>
+							{% endfor %}
+						</select>
+					</div>
+					
+					<div id="quadrant_2_description_changed" class="align_bottom"  title="Changed">
+					<!-- Dynamically filled -->
+					</div>
+					
+					<div>
+						<div class="inline_block ellipsis_100pc" id="quadrant_2_description" data-identifier="quadrant_description">
+							{% if compass_data %}
+							{{ compass_data.data_quadrants[1].quadrant_description }}
+							{% endif %}
+						</div>
+					</div>
+				</div>
 				</div>
 
 				<div class="panelnested">
@@ -492,7 +536,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_6_description">
+								<div class="inline_block ellipsis_100pc" id="sector_6_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[1].sectors[0].description }}
 								{%endif%}
@@ -548,7 +592,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_7_description">
+								<div class="inline_block ellipsis_100pc" id="sector_7_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[1].sectors[1].description }}
 									{%endif%}
@@ -604,7 +648,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_8_description">
+								<div class="inline_block ellipsis_100pc" id="sector_8_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[1].sectors[2].description }}
 								{%endif%}
@@ -659,7 +703,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_9_description">
+								<div class="inline_block ellipsis_100pc" id="sector_9_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[1].sectors[3].description }}
 								{%endif%}
@@ -703,13 +747,36 @@
 					</select>
 
 					<div>Summary</div>
-					<select data-fieldname="quadrant_3">
+					<!-- <select data-fieldname="quadrant_3">
 						{% for quadrant in quadrants %}
 						<option value="{{ quadrant.id }}" {% if compass_data and
 							quadrant.id==compass_data.data_quadrants[2].id %} selected="selected" {% endif %}>{{
 							quadrant.quadrant_summary }}</option>
 						{% endfor %}
-					</select>
+					</select> -->
+					<div class="threecolpanel">
+	<div class="min_width_170">
+		<select data-fieldname="quadrant_3" id="quadrant_3" data-identifier="quadrant_dropdown">
+			{% for quadrant in quadrants %}
+			<option value="{{ quadrant.id }}" {% if compass_data and quadrant.id==compass_data.data_quadrants[2].id %} selected="selected" {% endif %}>
+				{{ quadrant.quadrant_summary }}
+			</option>
+			{% endfor %}
+		</select>
+	</div>
+	
+	<div id="quadrant_3_description_changed" class="align_bottom"  title="Changed">
+	<!-- Dynamically filled -->
+	</div>
+	
+	<div>
+		<div class="inline_block ellipsis_100pc" id="quadrant_3_description" data-identifier="quadrant_description">
+			{% if compass_data %}
+			{{ compass_data.data_quadrants[2].quadrant_description }}
+			{% endif %}
+		</div>
+	</div>
+</div>
 				</div>
 
 				<div class="panelnested">
@@ -760,7 +827,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_10_description">
+								<div class="inline_block ellipsis_100pc" id="sector_10_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[2].sectors[0].description }}
 								{%endif%}
@@ -815,7 +882,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_11_description">
+								<div class="inline_block ellipsis_100pc" id="sector_11_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[2].sectors[1].description }}
 								{%endif%}
@@ -871,7 +938,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_12_description">
+								<div class="inline_block ellipsis_100pc" id="sector_12_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[2].sectors[2].description }}
 								{%endif%}
@@ -926,7 +993,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_13_description">
+								<div class="inline_block ellipsis_100pc" id="sector_13_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[2].sectors[3].description }}
 								{%endif%}
@@ -970,13 +1037,36 @@
 					</select>
 
 					<div>Summary</div>
-					<select data-fieldname="quadrant_4">
+					<!-- <select data-fieldname="quadrant_4">
 						{% for quadrant in quadrants %}
 						<option value="{{ quadrant.id }}" {% if compass_data and
 							quadrant.id==compass_data.data_quadrants[3].id %} selected="selected" {% endif %}>{{
 							quadrant.quadrant_summary }}</option>
 						{% endfor %}
-					</select>
+					</select> -->
+					<div class="threecolpanel">
+	<div class="min_width_170">
+		<select data-fieldname="quadrant_4" id="quadrant_4" data-identifier="quadrant_dropdown">
+			{% for quadrant in quadrants %}
+			<option value="{{ quadrant.id }}" {% if compass_data and quadrant.id==compass_data.data_quadrants[3].id %} selected="selected" {% endif %}>
+				{{ quadrant.quadrant_summary }}
+			</option>
+			{% endfor %}
+		</select>
+	</div>
+	
+	<div id="quadrant_4_description_changed" class="align_bottom"  title="Changed">
+	<!-- Dynamically filled -->
+	</div>
+	
+	<div>
+		<div class="inline_block ellipsis_100pc" id="quadrant_4_description" data-identifier="quadrant_description">
+			{% if compass_data %}
+			{{ compass_data.data_quadrants[3].quadrant_description }}
+			{% endif %}
+		</div>
+	</div>
+</div>
 				</div>
 
 				<div class="panelnested">
@@ -1027,7 +1117,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_14_description">
+								<div class="inline_block ellipsis_100pc" id="sector_14_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[3].sectors[0].description }}
 								{%endif%}
@@ -1083,7 +1173,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_15_description">
+								<div class="inline_block ellipsis_100pc" id="sector_15_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[3].sectors[1].description }}
 								{%endif%}
@@ -1139,7 +1229,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_16_description">
+								<div class="inline_block ellipsis_100pc" id="sector_16_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[3].sectors[2].description }}
 								{%endif%}
@@ -1195,7 +1285,7 @@
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block" id="sector_17_description">
+								<div class="inline_block ellipsis_100pc" id="sector_17_description" data-identifier="sector_description">
 									{% if compass_data %}
 									{{ compass_data.data_quadrants[3].sectors[3].description }}
 									{%endif%}
@@ -1244,7 +1334,7 @@
 					</div>
 					<div>
 						<h4>Description</h4>
-						<div class="inline_block" id="rating_1_description">
+						<div class="inline_block ellipsis_100pc" id="rating_1_description" data-identifier="rating_description">
 							{% if compass_data and compass_data.rating_description_lookup[0] %}{{ compass_data.rating_description_lookup[0].description }}{% endif %}
 						</div>
 					</div>
@@ -1267,7 +1357,7 @@
 					</div>
 					<div>
 						<h4>Description</h4>
-						<div class="inline_block" id="rating_2_description">
+						<div class="inline_block ellipsis_100pc" id="rating_2_description" data-identifier="rating_description">
 							{% if compass_data and compass_data.rating_description_lookup[1] %}{{ compass_data.rating_description_lookup[1].description }}{% endif %}
 						</div>
 					</div>
@@ -1290,7 +1380,7 @@
 					</div>
 					<div>
 						<h4>Description</h4>
-						<div class="inline_block" id="rating_3_description">
+						<div class="inline_block ellipsis_100pc" id="rating_3_description" data-identifier="rating_description">
 							{% if compass_data and compass_data.rating_description_lookup[2] %}{{ compass_data.rating_description_lookup[2].description }}{% endif %}
 						</div>
 					</div>
@@ -1313,7 +1403,7 @@
 					</div>
 					<div>
 						<h4>Description</h4>
-						<div class="inline_block" id="rating_4_description">
+						<div class="inline_block ellipsis_100pc" id="rating_4_description" data-identifier="rating_description">
 							{% if compass_data and compass_data.rating_description_lookup[3] %}{{ compass_data.rating_description_lookup[3].description }}{% endif %}
 						</div>
 					</div>
@@ -1336,7 +1426,7 @@
 					</div>
 					<div>
 						<h4>Description</h4>
-						<div class="inline_block" id="rating_5_description">
+						<div class="inline_block ellipsis_100pc" id="rating_5_description" data-identifier="rating_description">
 							{% if compass_data and compass_data.rating_description_lookup[4] %}{{ compass_data.rating_description_lookup[4].description }}{% endif %}
 						</div>
 					</div>
@@ -1359,7 +1449,7 @@
 					</div>
 					<div>
 						<h4>Description</h4>
-						<div class="inline_block" id="rating_6_description">
+						<div class="inline_block ellipsis_100pc" id="rating_6_description"  data-identifier="rating_description">
 							{% if compass_data and compass_data.rating_description_lookup[5] %}{{ compass_data.rating_description_lookup[5].description }}{% endif %}
 						</div>
 					</div>
@@ -1382,7 +1472,7 @@
 					</div>
 					<div>
 						<h4>Description</h4>
-						<div class="inline_block" id="rating_7_description">
+						<div class="inline_block ellipsis_100pc" id="rating_7_description" data-identifier="rating_description">
 							{% if compass_data and compass_data.rating_description_lookup[6] %}{{ compass_data.rating_description_lookup[6].description }}{% endif %}
 						</div>
 					</div>
