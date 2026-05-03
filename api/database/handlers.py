@@ -240,8 +240,9 @@ def add_quadrant(engine,quadrant:QuadrantIn) -> dict:
         try:
             _q = DB_Quadrant(
                 quadrant_summary=quadrant.quadrant_summary,
-                quadrant_css_class="Q",
-                quadrant_elem_coords="R",
+                quadrant_description=quadrant.quadrant_description,
+                # quadrant_css_class="Q",
+                # quadrant_elem_coords="R",
             )
             session.add(_q)
             # https://stackoverflow.com/questions/36014700/sqlalchemy-how-do-i-see-a-primary-key-id-for-a-newly-created-record
@@ -259,6 +260,7 @@ def update_quadrant(engine,quadrant:QuadrantBase) -> Quadrant:
     with Session(engine) as session:
         _update_obj=session.query(DB_Quadrant).where(DB_Quadrant.id == quadrant.id).first()
         _update_obj.quadrant_summary = quadrant.quadrant_summary
+        _update_obj.quadrant_description = quadrant.quadrant_description
         session.commit()
         return _update_obj
 
@@ -285,8 +287,9 @@ def get_quadrants(engine, include_titles=False) -> list[Quadrant]:
                     id=_quad.id,
                     title=_titles,
                     quadrant_summary=_quad.quadrant_summary,
-                    quadrant_css_class=_quad.quadrant_css_class,
-                    quadrant_elem_coords=_quad.quadrant_elem_coords,
+                    quadrant_description = _quad.quadrant_description,
+                    # quadrant_css_class=_quad.quadrant_css_class,
+                    # quadrant_elem_coords=_quad.quadrant_elem_coords,
                     )
                 result.append(_res)
             except Exception as ex:
@@ -303,6 +306,7 @@ def get_quadrant(engine, id:int) -> QuadrantBase:
         res = Quadrant(
             id=db_quad.id,
             quadrant_summary=db_quad.quadrant_summary,
+            quadrant_description=db_quad.quadrant_description,
         )
         # now we can return a fully populated object:
         return res
@@ -317,7 +321,8 @@ def get_quadrant_titles(engine) -> list[QuadrantTitles]:
             _x = session.query(DB_QuadrantTitles).all()
             
             for _y in _x:
-                _z.append(QuadrantTitles(id=_y.id, title_part = _y.title_part, coord_x=_y.coord_x, coord_y=_y.coord_y)) # model
+                # _z.append(QuadrantTitles(id=_y.id, title_part = _y.title_part, coord_x=_y.coord_x, coord_y=_y.coord_y)) # model
+                _z.append(QuadrantTitles(id=_y.id, title_part = _y.title_part)) # model
             return(_z)
         except Exception as ex:
             print(ex)
@@ -328,8 +333,8 @@ def add_quadrant_title(engine, quadrant_title_in:QuadrantTitlesIn) -> QuadrantTi
         try:
             _qt = DB_QuadrantTitles(
                 title_part = quadrant_title_in.title_part,
-                coord_x = 0,    # TO REMOVE FROM DATABASE
-                coord_y = 0,    # TO REMOVE FROM DATABASE
+                # coord_x = 0,    # TO REMOVE FROM DATABASE
+                # coord_y = 0,    # TO REMOVE FROM DATABASE
             )
             session.add(_qt)
             session.flush()
@@ -430,8 +435,8 @@ def get_sector_titles(engine) -> list[SectorTitles]:
             _results.append(SectorTitles(
                 id=_dbresult.id,
                 title_part=_dbresult.title_part, 
-                coord_x=_dbresult.coord_x,
-                coord_y=_dbresult.coord_y,
+                # coord_x=_dbresult.coord_x,
+                # coord_y=_dbresult.coord_y,
             )
         )
         return _results
@@ -442,8 +447,8 @@ def get_sector_title(engine, id:int)->SectorTitles:
         _out = SectorTitles(
             id = _dbresult.id,
             title_part = _dbresult.title_part,
-            coord_x = 0,    # to remove
-            coord_y = 0,
+            # coord_x = 0,    # to remove
+            # coord_y = 0,
         )
         return _out
     
@@ -465,8 +470,8 @@ def add_sector_titles(engine, sector_title_list:list[SectorTitlesIn])->bool:
                 _st = DB_SectorTitles(
                     # don't need ID...
                     title_part = sector_title.title_part,
-                    coord_x = 0,    # to remove
-                    coord_y = 0,
+                    # coord_x = 0,    # to remove
+                    # coord_y = 0,
                 )
                 session.add(_st)
             session.commit()
@@ -681,6 +686,7 @@ def get_compass(engine, id:int) -> CompassData:
                 _compass = CompassData(
                     id = _db_compass_def.id,
                     title = _db_compass_def.name,
+                    description = _db_compass_def.description,
                     data_quadrants = _quadrants,
                     # and we need the `ratings_description_lookup` field too:
                     rating_description_lookup = _ratings,
@@ -723,6 +729,7 @@ def set_compass(engine, definition:CompassData) -> int:
         # construct a DB model for the compass:
         _compass = DB_CompassDefinition(
             name = definition.name,
+            description = definition.description,
             quadrant_1 = definition.quadrant_1,
             quadrant_2 = definition.quadrant_2,
             quadrant_3 = definition.quadrant_3,
@@ -839,6 +846,7 @@ def update_compass(engine, definition:CompassDefinition) -> int:
             # I need to explicitly address each field - not sure I can enumerate and 
             # dynamically use a fieldname...
             _compass_to_update.name = definition.name
+            _compass_to_update.description = definition.description
 
             _compass_to_update.quadrant_1 = definition.quadrant_1
             _compass_to_update.quadrant_2 = definition.quadrant_2
@@ -960,8 +968,8 @@ def _get_quadrant_models_from_db_models(
                 QuadrantTitles(
                     id=title_part.id,
                     title_part=title_part.title_part,
-                    coord_x=title_part.coord_x,
-                    coord_y=title_part.coord_y,
+                    # coord_x=title_part.coord_x,
+                    # coord_y=title_part.coord_y,
                 )
             )
         try:
@@ -970,8 +978,9 @@ def _get_quadrant_models_from_db_models(
                     id = db_quadrant_model.id,
                     title = _titles,
                     quadrant_summary = db_quadrant_model.quadrant_summary,
-                    quadrant_css_class = db_quadrant_model.quadrant_css_class,
-                    quadrant_elem_coords = db_quadrant_model.quadrant_elem_coords,
+                    quadrant_description = db_quadrant_model.quadrant_description,
+                    # quadrant_css_class = db_quadrant_model.quadrant_css_class,
+                    # quadrant_elem_coords = db_quadrant_model.quadrant_elem_coords,
                     sectors = sector_models_list[_counter],
                 )
             )
@@ -993,8 +1002,8 @@ def _get_sector_models_from_db_models(quadrant_id:int, db_sector_model_list:list
                 SectorTitles(
                     id=title_part.id,
                     title_part=title_part.title_part,
-                    coord_x=title_part.coord_x,
-                    coord_y=title_part.coord_y,
+                    # coord_x=title_part.coord_x,
+                    # coord_y=title_part.coord_y,
                )
             )
             
