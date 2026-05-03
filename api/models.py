@@ -73,10 +73,12 @@ class QuadrantTitles(QuadrantTitlesIn):
 # We also DO NOT need the CSS and coords as these are handled as constants (also, ties in with DB changes TODO:)
 class QuadrantIn(BaseModel):
     quadrant_summary: str = Field()
+    quadrant_description: str = Field()
 
 # exclude the optional sector and title list:
 class QuadrantBase(QuadrantIn):
     id: int = Field()
+
 # TODO: Better document WHY I have three models here.
 class Quadrant(QuadrantIn):
     id: int = Field()
@@ -101,6 +103,7 @@ class Rating(RatingIn):
 class CompassData(BaseModel):
     id:int=Field(default_factory=0)
     title:str=Field()
+    description:str=Field()
     data_quadrants: list[Quadrant] = Field(min_length=4, max_length=4)
     rating_description_lookup: list[Rating] = Field(min_length=7, max_length=7)  # to account for the code using 1-indexed lookup (TO FIX)
 
@@ -112,6 +115,8 @@ class QuadrantDefinition(BaseModel):
 # map to actual database model:
 class CompassDefinitionIn(BaseModel):
     name:str = Field(min_length=4, max_length=128)
+    description:str = Field()
+
     # Specify the quadrants (4)
     quadrant_1 : int = Field()
     quadrant_2 : int = Field()
