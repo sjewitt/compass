@@ -105,6 +105,7 @@ async def compass_summaries(request: Request):
     quadrant_titles = handlers.get_quadrant_titles(engine=engine)
     sectors = handlers.get_sectors(engine=engine)
     sector_titles = handlers.get_sector_titles(engine=engine)
+    ratings = handlers.get_ratings(engine=engine)
     return templates.TemplateResponse(
         request=request,
         name="compass_components.html",
@@ -113,6 +114,7 @@ async def compass_summaries(request: Request):
             "quadrant_titles":quadrant_titles,
             "sectors":sectors, 
             "sector_titles":sector_titles,
+            "ratings":ratings,
             "funcs":Funcs,
         }
     )
