@@ -6,7 +6,7 @@
 		<link type="text/css" href="/static/css/styles2.css" rel="stylesheet" />
 		<link href="/static/images/favicon.jpg" rel="icon" />
 </head>
-<body data-page="configure">
+<body data-page="components">
 	<div id="flyout" class="flyout block">
 		<h1>
 			<div class="button inline_block">
@@ -27,11 +27,39 @@
 			Manage Compass Components
 		</h1>
 	</div>
+
+	<!-- as for the compass, I need a store for the current data as hidden DIVs. 
+	 It MIGHT be better to directly use the database IDs to build the DOM IDs -->
+	{% for sector in sectors %}
+		<div id="sector_summary_{{sector.id}}" class="hidden">{{sector.summary}}</div>
+		<div id="sector_description_{{sector.id}}" class="hidden">{{sector.description}}</div>		
+	{% endfor %}
+
+	{% for sector_title in sector_titles %}
+		<div id="sector_title_part_{{sector_title.id}}" class="hiddexxn">{{sector_title.title_part}}</div>
+	{% endfor %}
+
+	{% for rating in ratings %}
+		<div id="rating_summary_{{rating.id}}" class="hidden">{{rating.summary}}</div>
+		<div id="rating_description_{{rating.id}}" class="hidden">{{rating.description}}</div>
+	{% endfor %}
+
+	{% for quadrant in quadrants %}
+		<div id="quadrant_summary_{{quadrant.id}}" class="hidden">{{quadrant.quadrant_summary}}</div>
+		<div id="quadrant_description_{{quadrant.id}}" class="hidden">{{quadrant.quadrant_description}}</div>
+	{% endfor %}
+
+	{% for quadrant_title in quadrant_titles %}
+		<div id="quadrant_title_part_{{quadrant_title.id}}" class="hidden">{{quadrant_title.title_part}}</div>
+	{% endfor %}
+
+
 	<div class="tabswrapper">
 		<div data-tabid="1" class="panel_selector_tab panel_selector_tab_selected" id="tab_1">Quadrants</div>
 		<div data-tabid="2" class="panel_selector_tab " id="tab_2">Quadrant Titles</div>
 		<div data-tabid="3" class="panel_selector_tab" id="tab_3">Sectors</div>
 		<div data-tabid="4" class="panel_selector_tab" id="tab_4">Sector Titles</div>
+		<div data-tabid="5" class="panel_selector_tab" id="tab_5">Ratings</div>
 	</div>
 	<div class="panelwrapper mt_minus_1">
 		<div class="gutterpanel" data-panelid="1">
@@ -42,13 +70,26 @@
 					</div>
 					Quadrants
 				</h2>
-				[TODO: Have a dropdown of quads etc., and a simple form. If we select one, the form is 
-				filled (and a hidden ID) and we can UPDATE that thing]. Otherwise, we create a NEW thing.
-				The submit buttons will be specific to each TAB, and will ONLY add/update that thing.
 			</div>
 			<div>
-				<div class="panelnested">
-					{{quadrants}}
+				<div class="threecolpanel" id="manage_quadrants">
+					<div>
+						<select name="manage_quadrants_select" id="manage_quadrants_select" data-identifier="quadrant">
+							<option value="-1">[Add New]</option>
+							{% for quadrant in quadrants %}
+							<option value="{{quadrant.id}}">{{quadrant.quadrant_summary}}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div>X</div>
+					<div>
+						<form id="manage_quadrants_form" name="manage_quadrants_form">
+							<input type="text" id="quadrant_id" value="-1">
+							<textarea id="quadrant_summary" rows="2" cols="80"></textarea><!-- restrict to x chars as per database table -->
+							<textarea id="quadrant_description" rows="10" cols="80"></textarea>
+							<input type="button" id="quadrant_component_submit" value="Create new quadrant"/>
+						</form>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -63,14 +104,29 @@
 				</h2>
 			</div>
 			<div>
-				<div class="panelnested">
-				{{quadrant_titles}}
+				<div class="threecolpanel" id="manage_quadrant_titles">
+					<div>
+						<select name="manage_quadrant_titles_select" id="manage_quadrant_titles_select" data-identifier="quadrant_title">
+							<option value="-1">[Add New]</option>
+							{% for quadrant_title in quadrant_titles %}
+							<option value="{{quadrant_title.id}}">{{quadrant_title.title_part}}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div>X</div>
+					<div>
+						<form id="manage_quadrants_form" name="manage_quadrants_form">
+							<input type="text" id="quadrant_title_id" value="-1">
+							<input type="text" id="quadrant_title_part" value="">
+							<input type="button" id="quadrant_title_component_submit" value="Create new quadrant title"/>
+						</form>
+					</div>
 				</div>
 			</div>
 			
 		</div>
 
-		<div class="gutterpanel hidden" data-panelid="2">
+		<div class="gutterpanel hidden" data-panelid="3">
 			<div>
 				<h2>
 					<div class="button button-static inline_block">
@@ -80,13 +136,29 @@
 				</h2>
 			</div>
 			<div>
-				<div class="panelnested">
-				{{sectors}}
+				<div class="threecolpanel" id="manage_sectors">
+					<div>
+						<select name="manage_sectors_select" id="manage_sectors_select" data-identifier="sector">
+							<option value="-1">[Add New]</option>
+							{% for sector in sectors %}
+							<option value="{{sector.id}}">{{sector.summary}}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div>X</div>
+					<div>
+						<form id="manage_sectors_form" name="manage_sectors_form">
+							<input type="text" id="sector_id" value="-1">
+							<textarea id="sector_summary" rows="2" cols="80"></textarea><!-- restrict to x chars as per database table -->
+							<textarea id="sector_description" rows="10" cols="80"></textarea>
+							<input type="button" id="sector_component_submit" value="Create new sector"/>
+						</form>
+					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="gutterpanel hidden" data-panelid="2">
+		<div class="gutterpanel hidden" data-panelid="4">
 						<div>
 				<h2>
 					<div class="button button-static inline_block">
@@ -96,8 +168,39 @@
 				</h2>
 			</div>
 			<div>
+				<div class="threecolpanel" id="manage_sector_titles">
+					<div>
+						<select name="manage_sector_titles_select" id="manage_sector_titles_select" data-identifier="sector_title">
+							<option value="-1">[Add New]</option>
+							{% for sector_title in sector_titles %}
+							<option value="{{sector_title.id}}">{{sector_title.title_part}}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div>X</div>
+					<div>
+						<form id="manage_sectors_form" name="manage_sector_titles_form">
+							<input type="text" id="sector_title_id" value="-1">
+							<input type="text" id="sector_title_part" value="">
+							<input type="button" id="sector_title_component_submit" value="Create new sector title"/>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="gutterpanel hidden" data-panelid="5">
+			<div>
+				<h2>
+					<div class="button button-static inline_block">
+						<img src="/static/images/one-quarter_trans.png" alt="Home" title="Quadrant 1" />
+					</div>
+					Ratings
+				</h2>
+			</div>
+			<div>
 				<div class="panelnested">
-				{{sector_titles}}
+				{{ratings}}
 				</div>
 			</div>
 		</div>
