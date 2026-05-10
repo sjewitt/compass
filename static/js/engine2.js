@@ -161,6 +161,7 @@ var engine = {
 
             // add event listener to the ratings dropdowns, to handle onchange
             // to display the long descriptions from jinja loaded array:
+            // why am I doing a querySelectorAll()???
             let dropdown_elems = document.querySelectorAll("[data-identifier='rating_dropdown']");
             // let dropdown_elems = document.querySelectorAll("[data-identifier]");
             for(let x=0;x<dropdown_elems.length;x++){
@@ -212,6 +213,91 @@ var engine = {
                 }
             }
         }
+        // RATIONALISE THIS - the JS needs to be broken apart and simplified. I can afford to
+        // split into multiple JS files I think
+        if(page==="components"){
+            let submitBtnQuadrant = document.getElementById("quadrant_component_submit");
+            submitBtnQuadrant.addEventListener("click",(e)=>{
+                // we also use this DOM ID to select from a lookup object of endpoints
+                // because we will use the same handler for all add/update actions:
+                this.submitComponent(e,"manage_quadrants_select");  
+            });
+
+            let submitBtnQuadrantTitle = document.getElementById("quadrant_title_component_submit");
+            submitBtnQuadrantTitle.addEventListener("click",(e)=>{
+                this.submitComponent(e,"manage_quadrant_titles_select");
+            });
+            
+            let submitBtnSector = document.getElementById("sector_component_submit");
+            submitBtnSector.addEventListener("click",(e)=>{
+                this.submitComponent(e,"manage_sectors_select");  
+            });
+
+            let submitBtnSectorTitle = document.getElementById("sector_title_component_submit");
+            console.log(submitBtnSectorTitle)
+            submitBtnSectorTitle.addEventListener("click",(e)=>{
+                this.submitComponent(e,"manage_sector_titles_select");  
+            });
+            
+            // apply handler to tabs:
+            let tabber_elems = document.getElementsByClassName("panel_selector_tab");
+            for(let x=0;x<tabber_elems.length; x++){
+                tabber_elems[x].addEventListener("click",(e)=>{
+                    engine.tabHandler(e,tabber_elems);
+                })
+            }
+
+            // handle tab selection AFTER the click handlers are applied...
+            if(window.location.pathname.indexOf("/configure")!==-1 && window.location.hash.length > 0 ){
+                // NOTE: I modified the hash so it wouldn't actually be a DOM ID, so we didn't get the anchor jump...
+                elem = document.getElementById(window.location.hash.replace('#','').replace("_selected",""));
+                if(elem){
+                    // https://medium.com/@python-javascript-php-html-css/javascript-to-emulate-a-click-on-the-first-button-in-a-list-9c61f408b4b5
+                    let evt = new PointerEvent('click',{
+                        bubbles:true,
+                        cancelable:true,
+                        view:window,
+                        pointerType:'mouse',
+                    });
+                    elem.dispatchEvent(evt);
+                }
+            }
+
+            // now add the bits that are specific to the component configure page:
+            let dropdown_elems_quadrants = document.querySelectorAll("[data-identifier='quadrant']");
+            for(let x=0;x<dropdown_elems_quadrants.length;x++){
+                let current_option_value = dropdown_elems_quadrants[x].selectedIndex;   // initial value
+                dropdown_elems_quadrants[x].addEventListener("click",(e)=>{
+                    this.selectHandlerQuadrants(e, dropdown_elems_quadrants, current_option_value, x, "quadrant",submitBtnQuadrant);
+                })
+            }
+
+            let dropdown_elems_quadrant_titles = document.querySelectorAll("[data-identifier='quadrant_title']");
+            console.log(dropdown_elems_quadrant_titles);
+            for(let x=0;x<dropdown_elems_quadrant_titles.length;x++){
+                let current_option_value = dropdown_elems_quadrant_titles[x].selectedIndex;   // initial value
+                dropdown_elems_quadrant_titles[x].addEventListener("click",(e)=>{
+                    this.selectHandlerQuadrantTitles(e, dropdown_elems_quadrant_titles, current_option_value, x, "quadrant_title",submitBtnQuadrantTitle);
+                })
+            }
+
+            let dropdown_elems_sectors = document.querySelectorAll("[data-identifier='sector']");
+            for(let x=0;x<dropdown_elems_sectors.length;x++){
+                let current_option_value = dropdown_elems_sectors[x].selectedIndex;   // initial value
+                dropdown_elems_sectors[x].addEventListener("click",(e)=>{
+                    this.selectHandlerSectors(e, dropdown_elems_sectors, current_option_value, x, "sector",submitBtnSector);
+                })
+            }
+            
+            let dropdown_elems_sector_titles = document.querySelectorAll("[data-identifier='sector_title']");
+            console.log(dropdown_elems_sector_titles);
+            for(let x=0;x<dropdown_elems_sector_titles.length;x++){
+                let current_option_value = dropdown_elems_sector_titles[x].selectedIndex;   // initial value
+                dropdown_elems_sector_titles[x].addEventListener("click",(e)=>{
+                    this.selectHandlerSectorTitles(e, dropdown_elems_sector_titles, current_option_value, x, "sector_title",submitBtnSectorTitle);
+                })
+            }
+        }
 
         /** add event listener for the user dropdown: */
         var user_dropdown_btn = document.getElementById("select_user_button");
@@ -228,6 +314,30 @@ var engine = {
                 user_dropdown.addEventListener("change",() => {engine.selectAndLoadUser()});
             }
         }
+    },
+
+    /** 
+     * Because I want the same javascript handler for each type of component update,
+     * I wand a simple way to map the form elements being submitted and the endpoint
+     * to which they go. Therefore, I map the dropdown element ID to the endpoint.
+     * Further, the code below decides whether it's an update or a new component by
+     * virtue of the selected option value (-1, or positive integer) 
+     */
+    ENDPOINT_MAPPER:  {
+        "manage_quadrants_select"       : "/compass/quadrant/",
+        "manage_quadrant_titles_select" : "/compass/quadrants/titles/",
+        "manage_sectors_select"         : "/compass/sectors/",
+        "manage_sector_titles_select"   : "/compass/sectors/titles/"
+    }, 
+    submitComponent: function(e,srcElemId){
+        console.log("trying...")
+        let component_id = parseInt(document.getElementById(srcElemId).value);
+        // and use the above as a key to determine which endpoint we send to...
+        let endpoint = engine.ENDPOINT_MAPPER[srcElemId];
+        if(component_id !== -1){
+            endpoint += "update/"; 
+        }
+        console.log(component_id, endpoint);
     },
 
     btnSubmitCompassData: function(evt){
@@ -291,51 +401,6 @@ var engine = {
         }
     },
 
-    // // handle configure ratings change (UI display only)
-    // /**
-    //  * 
-    //  * @param {*} evt : event
-    //  * @param {*} selectlist : list of ratings select elements on page
-    //  * @param {*} current_option_value : current selection so we can indicate whether the selection has changed 
-    //  */
-    // ratingSelectHandler: function(evt,selectlist,current_option_value, current_dropdown_index){
-    //     /**
-    //      * This function does not know from which dropdown it was called. Therefore we need to determine which one
-    //      * so we can identify which UI element to update. See markup for further details.
-    //      * 
-    //      * >>>>>> I MAY NEED TO REWORK SO I DONT USE A COUNTER FOR THE IDs!!!!!! <<<<<<<<
-    //      */
-    //     let id = selectlist[current_dropdown_index].id;
-
-    //     // can probably make this more succinct:
-    //     hideit = document.getElementById(`${id}_description_changed`);
-    //     if(hideit){
-    //         hideit.innerText = ""
-    //         if(current_option_value !== selectlist[current_dropdown_index].selectedIndex){
-    //             hideit.innerText = "*"
-    //         }
-    //     }
-    //     // apply description to display DIV:
-    //     console.log(`rating_description_${selectlist[current_dropdown_index].selectedIndex+1}`);
-    //     document.getElementById(`${id}_description`).innerText = document.getElementById(`rating_description_${selectlist[current_dropdown_index].selectedIndex+1}`).innerText;
-    // },
-
-    // sectorSelectHandler: function(evt,selectlist,current_option_value, current_dropdown_index){
-    //     let id = selectlist[current_dropdown_index].id;
-        
-    //     hideit = document.getElementById(`${id}_description_changed`);
-    //     if(hideit){
-    //         hideit.innerText = ""
-    //         if(current_option_value !== selectlist[current_dropdown_index].selectedIndex){
-    //             hideit.innerText = "*"
-    //         }
-    //     }
-    //     // apply description to display DIV:
-    //     let target =  document.getElementById(`${id}_description`);
-
-    //     // where are we getting the other data from?
-    //     document.getElementById(`${id}_description`).innerText = document.getElementById(`sector_description_${selectlist[current_dropdown_index].selectedIndex+1}`).innerText;
-    // },
 
     /**
      * 
@@ -363,6 +428,108 @@ var engine = {
         // apply description to display DIV:
         document.getElementById(`${selectlist[current_dropdown_index].id}_description`).innerText = document.getElementById(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex+1}`).innerText;
     },
+
+    // dropdown handler for manage components page. We are populaing a form, so it is different to the 
+    // full compass one above] The key is the lokup data in the hidden DOM elements 
+
+    selectHandlerQuadrants: function(evt,selectlist,current_option_value, current_dropdown_index, prefix, submitBtn){
+        console.log("separating...")
+        document.getElementById(`${prefix}_id`).value = evt.srcElement[evt.srcElement.selectedIndex].value;
+        if(parseInt(evt.srcElement[evt.srcElement.selectedIndex].value) !== -1){
+            document.getElementById('quadrant_id').value = evt.srcElement[evt.srcElement.selectedIndex].value;
+            document.getElementById(`${prefix}_summary`).innerText = document.getElementById(`${prefix}_summary_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
+            document.getElementById(`${prefix}_description`).innerText = document.getElementById(`${prefix}_description_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
+            // can get this with a prefix value for ID:
+            submitBtn.value=`Update existing ${prefix.replace('_',' ')}`;
+        }
+        else{
+            document.getElementById(`${prefix}_summary`).innerText = "";
+            document.getElementById(`${prefix}_description`).innerText = "";
+            submitBtn.value=`Create new ${prefix.replace('_',' ')}`
+        }
+    },
+
+    selectHandlerQuadrantTitles: function(evt,selectlist,current_option_value, current_dropdown_index, prefix, submitBtn){
+        document.getElementById(`${prefix}_id`).value = evt.srcElement[evt.srcElement.selectedIndex].value;
+        if(parseInt(evt.srcElement[evt.srcElement.selectedIndex].value) !== -1){
+            document.getElementById(`${prefix}_part`).value = document.getElementById(`${prefix}_part_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
+            submitBtn.value=`Update existing ${prefix.replace('_',' ')}`;
+        }
+        else{
+            document.getElementById(`${prefix}_part`).value = "";
+            submitBtn.value=`Create new ${prefix.replace('_',' ')}`
+        }
+    },
+    
+    selectHandlerSectors: function(evt,selectlist,current_option_value, current_dropdown_index, prefix, submitBtn){
+        console.log("separating...")
+        document.getElementById(`${prefix}_id`).value = evt.srcElement[evt.srcElement.selectedIndex].value;
+        if(parseInt(evt.srcElement[evt.srcElement.selectedIndex].value) !== -1){
+            document.getElementById('quadrant_id').value = evt.srcElement[evt.srcElement.selectedIndex].value;
+            document.getElementById(`${prefix}_summary`).innerText = document.getElementById(`${prefix}_summary_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
+            document.getElementById(`${prefix}_description`).innerText = document.getElementById(`${prefix}_description_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
+            // can get this with a prefix value for ID:
+            submitBtn.value=`Update existing ${prefix.replace('_',' ')}`;
+        }
+        else{
+            document.getElementById(`${prefix}_summary`).innerText = "";
+            document.getElementById(`${prefix}_description`).innerText = "";
+            submitBtn.value=`Create new ${prefix.replace('_',' ')}`
+        }
+    },
+
+    selectHandlerSectorTitles: function(evt,selectlist,current_option_value, current_dropdown_index, prefix, submitBtn){
+        document.getElementById(`${prefix}_id`).value = evt.srcElement[evt.srcElement.selectedIndex].value;
+        if(parseInt(evt.srcElement[evt.srcElement.selectedIndex].value) !== -1){
+            document.getElementById(`${prefix}_part`).value = document.getElementById(`${prefix}_part_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
+            submitBtn.value=`Update existing ${prefix.replace('_',' ')}`;
+        }
+        else{
+            document.getElementById(`${prefix}_part`).value = "";
+            submitBtn.value=`Create new ${prefix.replace('_',' ')}`
+        }
+    },
+
+    
+    // // This is getting out of hand. Lets separate and try an rationalise later on
+    // selectHandler_Manage: function(evt,selectlist,current_option_value, current_dropdown_index, prefix, submitBtn){
+    //     /** Retrieve data from the hidden elements holding the data, in hidden elems!! */
+    //     // set ID field:
+    //     console.log(prefix)
+    //     document.getElementById(`${prefix}_id`).value = evt.srcElement[evt.srcElement.selectedIndex].value;
+
+
+    //     // let submitBtn = document.getElementById("quadrant_component_submit");
+    //     // is this the right stuff:
+    //     // and account for the '-1' add new value:
+    //     // I'm not sure about the lookup model branching here - it should be possible to assign the
+    //     // SAME model, so I don't need to branch at all. 
+    //     if(parseInt(evt.srcElement[evt.srcElement.selectedIndex].value) !== -1){
+    //         if(prefix.indexOf("_title") !== -1){
+    //             document.getElementById(`${prefix}_part`).value = document.getElementById(`${prefix}_part_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
+    //         }
+    //         else{
+    //             // and apply the value to the textareas:
+    //             document.getElementById(`${prefix}_summary`).innerText = document.getElementById(`${prefix}_summary_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
+    //             document.getElementById(`${prefix}_description`).innerText = document.getElementById(`${prefix}_description_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
+    //         }
+    //         submitBtn.value=`Update existing ${prefix.replace('_',' ')}`;
+    //     }
+    //     else{
+    //         console.log("adding new");
+    //         if(prefix.indexOf("_title") !== -1){
+    //             document.getElementById(`${prefix}_part`).value = "";
+    //         }
+    //         else{
+    //             document.getElementById(`${prefix}_summary`).innerText = "";
+    //             document.getElementById(`${prefix}_description`).innerText = "";
+    //         }
+    //         submitBtn.value=`Create new ${prefix.replace('_',' ')}`
+            
+    //     }
+        
+    //     // console.log(evt,selectlist,current_option_value, current_dropdown_index, prefix)
+    // },
 
     descriptionHoverHandler: function(evt){
         console.log(evt);
