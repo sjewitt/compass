@@ -40,6 +40,9 @@ body{
   grid-gap: 10px;
   width: 100%
 }
+#manage_quadrants select{
+  width:190px;
+}
 
 .threecolpanel > div > h4{
     margin-top: 5px;
