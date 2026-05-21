@@ -147,6 +147,11 @@ var engine = {
         // RATIONALISE THIS - the JS needs to be broken apart and simplified. I can afford to
         // split into multiple JS files I think
         if(page==="components"){
+
+            /** 
+             * Hmm - avn I do this within the handler function itself? It seems a bit redundant to 
+             * declare them all separately here 
+             * */
             let submitBtnQuadrant = document.getElementById("quadrant_component_submit");
             submitBtnQuadrant.addEventListener("click",(e)=>{
                 // we also use this DOM ID to select from a lookup object of endpoints
@@ -196,41 +201,43 @@ var engine = {
 
             // now add the bits that are specific to the component configure page:
             // Can probably rationalise this...
+            // NOTE: The data-identifier should be unique!
             let dropdown_elem_quadrants = document.querySelector("[data-identifier='quadrant']");
             console.log(dropdown_elem_quadrants)
-            let current_option_value = dropdown_elem_quadrants.selectedIndex;   // initial value
+            // let current_option_value = dropdown_elem_quadrants.selectedIndex;   // initial value
             dropdown_elem_quadrants.addEventListener("click",(e)=>{
-                this.selectHandlerQuadrants(e, dropdown_elem_quadrants, current_option_value, x, "quadrant",submitBtnQuadrant);
+                this.selectHandlerQuadrants(e, "quadrant",submitBtnQuadrant);
             })
 
-            let dropdown_elems_quadrant_titles = document.querySelectorAll("[data-identifier='quadrant_title']");
-            console.log(dropdown_elems_quadrant_titles);
-            for(let x=0;x<dropdown_elems_quadrant_titles.length;x++){
-                let current_option_value = dropdown_elems_quadrant_titles[x].selectedIndex;   // initial value
-                dropdown_elems_quadrant_titles[x].addEventListener("click",(e)=>{
-                    this.selectHandlerQuadrantTitles(e, dropdown_elems_quadrant_titles, current_option_value, x, "quadrant_title",submitBtnQuadrantTitle);
+            let dropdown_elem_quadrant_titles = document.querySelector("[data-identifier='quadrant_title']");
+            console.log(dropdown_elem_quadrant_titles);
+            // for(let x=0;x<dropdown_elems_quadrant_titles.length;x++){
+                // let current_option_value = dropdown_elem_quadrant_titles.selectedIndex;   // initial value
+                dropdown_elem_quadrant_titles.addEventListener("click",(e)=>{
+                    // this.selectHandlerQuadrantTitles(e, dropdown_elems_quadrant_titles, current_option_value, x, "quadrant_title",submitBtnQuadrantTitle);
+                    this.selectHandlerQuadrantTitles(e,  "quadrant_title",submitBtnQuadrantTitle);
                 })
-            }
+            // }
 
-            let dropdown_elems_sectors = document.querySelectorAll("[data-identifier='sector']");
-            for(let x=0;x<dropdown_elems_sectors.length;x++){
-                let current_option_value = dropdown_elems_sectors[x].selectedIndex;   // initial value
-                dropdown_elems_sectors[x].addEventListener("click",(e)=>{
-                    this.selectHandlerSectors(e, dropdown_elems_sectors, current_option_value, x, "sector",submitBtnSector);
+            let dropdown_elem_sectors = document.querySelector("[data-identifier='sector']");
+            // for(let x=0;x<dropdown_elems_sectors.length;x++){
+                // let current_option_value = dropdown_elems_sectors[x].selectedIndex;   // initial value
+                dropdown_elem_sectors.addEventListener("click",(e)=>{
+                    this.selectHandlerSectors(e, "sector",submitBtnSector);
                 })
-            }
+            // }
             
-            let dropdown_elems_sector_titles = document.querySelectorAll("[data-identifier='sector_title']");
-            console.log(dropdown_elems_sector_titles);
-            for(let x=0;x<dropdown_elems_sector_titles.length;x++){
-                let current_option_value = dropdown_elems_sector_titles[x].selectedIndex;   // initial value
-                dropdown_elems_sector_titles[x].addEventListener("click",(e)=>{
-                    this.selectHandlerSectorTitles(e, dropdown_elems_sector_titles, current_option_value, x, "sector_title",submitBtnSectorTitle);
+            let dropdown_elem_sector_titles = document.querySelector("[data-identifier='sector_title']");
+            console.log(dropdown_elem_sector_titles);
+            // for(let x=0;x<dropdown_elems_sector_titles.length;x++){
+                let current_option_value = dropdown_elem_sector_titles.selectedIndex;   // initial value
+                dropdown_elem_sector_titles.addEventListener("click",(e)=>{
+                    this.selectHandlerSectorTitles(e, "sector_title",submitBtnSectorTitle);
                 })
-            }
+            // }
         }
 
-        /** The main compass definition. Used when a full compass is assembled from the bits defined in the 
+        /** The main compass definition page. Use to assemble a full compass from the bits defined in the 
          * "components" page
          */
         if(page === "configure"){
@@ -461,46 +468,25 @@ var engine = {
     // dropdown handler for manage components page. We are populaing a form, so it is different to the 
     // full compass one above] The key is the lookup data in the hidden DOM elements 
 
-    selectHandlerQuadrants: function(evt,selectlist,current_option_value, current_dropdown_index, prefix, submitBtn){
-        console.log("separating...")
+    // selectHandlerQuadrants: function(evt,selectlist,current_option_value, current_dropdown_index, prefix, submitBtn){
+    selectHandlerQuadrants: function(evt, prefix, submitBtn){
+
         document.getElementById(`${prefix}_id`).value = evt.srcElement[evt.srcElement.selectedIndex].value;
         if(parseInt(evt.srcElement[evt.srcElement.selectedIndex].value) !== -1){
-            console.log("retrieve data from hidden DOM elements")
-            // this works:
             document.getElementById('quadrant_id').value = evt.srcElement[evt.srcElement.selectedIndex].value;
-            console.log("IDs: target=",`${prefix}_summary`,`hidden source: ${prefix}_summary_${evt.srcElement[evt.srcElement.selectedIndex].value}`);
-            console.log(`VALUE: ${document.getElementById(`${prefix}_summary_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText}`)
-            
-            console.log(document.getElementById(`${prefix}_summary`).innerText);
-            // test with .value:
             document.getElementById(`${prefix}_summary`).value = document.getElementById(`${prefix}_summary_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
-
-            // document.getElementById(`${prefix}_summary`).innerText = document.getElementById(`${prefix}_summary_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
-            // document.getElementById(`${prefix}_description`).innerText = document.getElementById(`${prefix}_description_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
             document.getElementById(`${prefix}_description`).value = document.getElementById(`${prefix}_description_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
-            // can get this with a prefix value for ID:
             submitBtn.value=`Update existing ${prefix.replace('_',' ')}`;
         }
         else{
-            console.log("new, so blank the fields")
-            // REALLY FUCKING WEIRD!! If I change the text in the textarea, it is STILL reported as the original, 
-            // AND does not get updated! WTF??????
-            // can I hold the values in-memory??
-            // OK using .value works. Can I do a logic like if(cc.value)
-            // can I just retrieve them as I need them???
-            console.log(document.getElementById(`${prefix}_summary`));
             document.getElementById(`${prefix}_summary`).value = "";
-            
-            // document.getElementById(`${prefix}_summary`).innerText = "";
-
-            // document.getElementById(`${prefix}_description`).innerText = "";
             document.getElementById(`${prefix}_description`).value = "";
-            console.log(document.getElementById(`${prefix}_summary`));
             submitBtn.value=`Create new ${prefix.replace('_',' ')}`
         }
     },
 
-    selectHandlerQuadrantTitles: function(evt,selectlist,current_option_value, current_dropdown_index, prefix, submitBtn){
+    // selectHandlerQuadrantTitles: function(evt,selectlistXXX,current_option_valueXXX, current_dropdown_indexXXX, prefix, submitBtn){
+    selectHandlerQuadrantTitles: function(evt, prefix, submitBtn){
         document.getElementById(`${prefix}_id`).value = evt.srcElement[evt.srcElement.selectedIndex].value;
         if(parseInt(evt.srcElement[evt.srcElement.selectedIndex].value) !== -1){
             document.getElementById(`${prefix}_part`).value = document.getElementById(`${prefix}_part_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
@@ -512,24 +498,24 @@ var engine = {
         }
     },
     
-    selectHandlerSectors: function(evt,selectlist,current_option_value, current_dropdown_index, prefix, submitBtn){
+    selectHandlerSectors: function(evt, prefix, submitBtn){
         console.log("separating...")
         document.getElementById(`${prefix}_id`).value = evt.srcElement[evt.srcElement.selectedIndex].value;
         if(parseInt(evt.srcElement[evt.srcElement.selectedIndex].value) !== -1){
             document.getElementById('quadrant_id').value = evt.srcElement[evt.srcElement.selectedIndex].value;
-            document.getElementById(`${prefix}_summary`).innerText = document.getElementById(`${prefix}_summary_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
-            document.getElementById(`${prefix}_description`).innerText = document.getElementById(`${prefix}_description_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
+            document.getElementById(`${prefix}_summary`).value = document.getElementById(`${prefix}_summary_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
+            document.getElementById(`${prefix}_description`).value = document.getElementById(`${prefix}_description_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
             // can get this with a prefix value for ID:
             submitBtn.value=`Update existing ${prefix.replace('_',' ')}`;
         }
         else{
-            document.getElementById(`${prefix}_summary`).innerText = "";
-            document.getElementById(`${prefix}_description`).innerText = "";
+            document.getElementById(`${prefix}_summary`).value = "";
+            document.getElementById(`${prefix}_description`).value = "";
             submitBtn.value=`Create new ${prefix.replace('_',' ')}`
         }
     },
 
-    selectHandlerSectorTitles: function(evt,selectlist,current_option_value, current_dropdown_index, prefix, submitBtn){
+    selectHandlerSectorTitles: function(evt, prefix, submitBtn){
         document.getElementById(`${prefix}_id`).value = evt.srcElement[evt.srcElement.selectedIndex].value;
         if(parseInt(evt.srcElement[evt.srcElement.selectedIndex].value) !== -1){
             document.getElementById(`${prefix}_part`).value = document.getElementById(`${prefix}_part_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
