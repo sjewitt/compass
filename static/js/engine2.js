@@ -203,38 +203,24 @@ var engine = {
             // Can probably rationalise this...
             // NOTE: The data-identifier should be unique!
             let dropdown_elem_quadrants = document.querySelector("[data-identifier='quadrant']");
-            console.log(dropdown_elem_quadrants)
-            // let current_option_value = dropdown_elem_quadrants.selectedIndex;   // initial value
             dropdown_elem_quadrants.addEventListener("click",(e)=>{
                 this.selectHandlerQuadrants(e, "quadrant",submitBtnQuadrant);
             })
 
             let dropdown_elem_quadrant_titles = document.querySelector("[data-identifier='quadrant_title']");
-            console.log(dropdown_elem_quadrant_titles);
-            // for(let x=0;x<dropdown_elems_quadrant_titles.length;x++){
-                // let current_option_value = dropdown_elem_quadrant_titles.selectedIndex;   // initial value
-                dropdown_elem_quadrant_titles.addEventListener("click",(e)=>{
-                    // this.selectHandlerQuadrantTitles(e, dropdown_elems_quadrant_titles, current_option_value, x, "quadrant_title",submitBtnQuadrantTitle);
-                    this.selectHandlerQuadrantTitles(e,  "quadrant_title",submitBtnQuadrantTitle);
-                })
-            // }
+            dropdown_elem_quadrant_titles.addEventListener("click",(e)=>{
+                this.selectHandlerQuadrantTitles(e,  "quadrant_title",submitBtnQuadrantTitle);
+            })
 
             let dropdown_elem_sectors = document.querySelector("[data-identifier='sector']");
-            // for(let x=0;x<dropdown_elems_sectors.length;x++){
-                // let current_option_value = dropdown_elems_sectors[x].selectedIndex;   // initial value
-                dropdown_elem_sectors.addEventListener("click",(e)=>{
+            dropdown_elem_sectors.addEventListener("click",(e)=>{
                     this.selectHandlerSectors(e, "sector",submitBtnSector);
-                })
-            // }
+            })
             
             let dropdown_elem_sector_titles = document.querySelector("[data-identifier='sector_title']");
-            console.log(dropdown_elem_sector_titles);
-            // for(let x=0;x<dropdown_elems_sector_titles.length;x++){
-                let current_option_value = dropdown_elem_sector_titles.selectedIndex;   // initial value
-                dropdown_elem_sector_titles.addEventListener("click",(e)=>{
-                    this.selectHandlerSectorTitles(e, "sector_title",submitBtnSectorTitle);
-                })
-            // }
+            dropdown_elem_sector_titles.addEventListener("click",(e)=>{
+                this.selectHandlerSectorTitles(e, "sector_title",submitBtnSectorTitle);
+            })
         }
 
         /** The main compass definition page. Use to assemble a full compass from the bits defined in the 
