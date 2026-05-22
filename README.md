@@ -2,6 +2,12 @@
 
 ## Simple setup (not prod!!)
 
+### Container debugging
+
+`~$ uid=$(id -u ${USER}) gid=$(id -g ${USER}) docker compose up`
+
+So the database file can be edited outside the container!
+
 ### python http.server
 
 To view the compass, and save stuff to localdata (ATM) just run python3 

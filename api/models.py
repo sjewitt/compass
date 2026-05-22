@@ -53,7 +53,7 @@ class SectorIn(BaseModel):
 
 class Sector(SectorIn):
     id:int = Field()
-    title : list[SectorTitles] = Field(max_length=2, default_factory=list)
+    title : list[SectorTitles] = Field(max_length=2, default_factory=list)  # probably don't need this
 
 
 class QuadrantTitlesIn(BaseModel):

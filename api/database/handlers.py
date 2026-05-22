@@ -1,6 +1,6 @@
 # up three levels to api:
-from api.models import User, Competency, UserCompetencies, Quadrant, QuadrantIn, QuadrantBase, QuadrantTitles, \
-    QuadrantTitlesIn, SectorIn, \
+from api.models import User, Competency, UserCompetencies, Quadrant, QuadrantIn, QuadrantBase, \
+    QuadrantTitles, QuadrantTitlesIn, SectorIn, \
     Sector, SectorTitles, SectorTitlesIn, CompassData, CompassDefinition, CompassSummary, Rating
 from api.db_models import DB_Competency, DB_User, DB_Quadrant, DB_QuadrantTitles,  \
     DB_Sector, DB_SectorTitles, DB_CompassDefinition, DB_Rating
@@ -42,7 +42,7 @@ def check_user_exists(engine, user_id:int) -> bool:
     return False
 
 def check_competency_is_applied_to_user_already(engine,competency:DB_Competency) -> bool:
-    ''' check whether a competency for user_id, quadrant and sector is present already. ''' 
+    ''' check whether a competency for user_id, quadrant and sector is present already. '''
     with Session(engine) as session:
         stmt = select(DB_Competency).where(
                 DB_Competency.user_id == competency.user_id).where(
@@ -54,10 +54,8 @@ def check_competency_is_applied_to_user_already(engine,competency:DB_Competency)
         return False
 
 def add_user(engine,user:DB_User):
-    # eventually, this all needs to go in database.py
     with Session(engine) as session:
         try:
-            # new_user = user
             session.add(user)
             # https://stackoverflow.com/questions/36014700/sqlalchemy-how-do-i-see-a-primary-key-id-for-a-newly-created-record
             session.flush()
@@ -67,7 +65,7 @@ def add_user(engine,user:DB_User):
             return {"action":"usercreate","usercreated":True, "id":new_user_id}
         except Exception as ex:
             print(ex)
-            return {f"action":"usercreate","message":"Failed: {ex}", "usercreated":False}        
+            return {f"action":"usercreate","message":"Failed: {ex}", "usercreated":False}
     return {"action":"usercreate","message":"Failed", "usercreated":False}
 
 def add_competency(engine, competency:DB_Competency) -> dict:   # status object
@@ -86,54 +84,42 @@ def add_competency(engine, competency:DB_Competency) -> dict:   # status object
                 # does this honour the foreign key?
                 session.commit()
                 return {"status":"added", "message":"Added competency to user"}
-            # might fail also
-            # TODO
 
         else:
-            # UPDATE competency
-            # print("UPDATING COMPETENCY")
             stmt = (update(DB_Competency)
                     .where(DB_Competency.user_id==competency.user_id)
                     .where(DB_Competency.quadrant==competency.quadrant)
                     .where(DB_Competency.sector == competency.sector)
                     .values(rating=competency.rating)
             )
-            # print(stmt)
             with Session(engine) as session:
                 session.execute(stmt)
                 session.commit()
-            
                 return {"status":"updated", "message":"user competency updated TODO"}
             return {"status":"update failed","message":"update failed"}
-
     else:
         return {"status":"failed", "message":"Bounds or user check failed."}
 
 def get_users(engine) -> list[User]|None:
-    
     with Session(engine) as session:
-        # https://docs.sqlalchemy.org/en/20/tutorial/data_select.html
-        stmt = select(DB_User)
-        result = []
-        # need to convert the DB_User into a User, so th epydantic validation works
-        for row in session.scalars(stmt):
-
-            _usr = User(
-                id=row.id,
-                compass_id=row.compass_id,
-                name=row.name,
-                username=row.username,
-                email=row.email,
+        _dbresults = session.query(DB_User).all()
+        _results = []
+        for _dbresult in _dbresults:
+            _results.append(User(
+                id=_dbresult.id,
+                compass_id=_dbresult.compass_id,
+                name=_dbresult.name,
+                username=_dbresult.username,
+                email=_dbresult.email,
             )
+        )
+        if _results:
+            return _results
 
-            result.append(row)  # original code (a DB_User)
-            
-        if result:
-            return result    # the first found user
-        
         logging.warning("no users found")
         # raise UserNotFound("user with id %s not found" % user_id)
         return []
+
 
 def get_user(engine, user_id:int) -> User|None:
     # eventually, this all needs to go in database.py
@@ -148,14 +134,14 @@ def get_user(engine, user_id:int) -> User|None:
                 id=row.id,
                 compass_id=row.compass_id,
                 name=row.name,
-                username=row.username, 
+                username=row.username,
                 email=row.email)
             result.append(_usr)   # new: A User()
         if result:
             return result[0]    # the first found user
         logging.warning(f"user with id {user_id} not found")
         raise UserNotFound(404, "user with id %s not found" % user_id)
-    
+
 # All new
 def get_user_data(engine, user_id:int) -> UserCompetencies: # to type!
     with Session(engine) as session:
@@ -192,7 +178,7 @@ def get_competency(engine, competency_id:int) -> Competency|None:
             return result[0]    # the first found user
         print(f"competency with id {competency_id} not found")
         raise CompetencyNotFound("Competency with id %s not found" % competency_id)
-    
+
 def get_competencies_for_user(engine, user_id:int) -> list[Competency]:
     with Session(engine) as session:
         # https://docs.sqlalchemy.org/en/20/tutorial/data_select.html
@@ -214,7 +200,7 @@ def update_user(engine, user:User) -> User|None:
     with Session(engine) as session:
         try:
             # https://docs.sqlalchemy.org/en/20/tutorial/data_select.html
-            # extract the incoming User data and construct 
+            # extract the incoming User data and construct
 
             if get_user(engine,user.id):
                 stmt = update(DB_User).where(DB_User.id == user.id).values(
@@ -253,7 +239,7 @@ def add_quadrant(engine,quadrant:QuadrantIn) -> dict:
             return {"action":"quadrantcreate","quadrantcreated":True, "id":new_quadrant_id}
         except Exception as ex:
             print(ex)
-            return {f"action":"quadrantcreate","message":"Failed: {ex}", "quadrantcreated":False}        
+            return {f"action":"quadrantcreate","message":"Failed: {ex}", "quadrantcreated":False}
     return {"action":"quadrantcreate","message":"Failed", "quadrantcreated":False}
 
 def update_quadrant(engine,quadrant:QuadrantBase) -> Quadrant:
@@ -268,7 +254,7 @@ def get_quadrants(engine, include_titles=False) -> list[Quadrant]:
     with Session(engine) as session:
         result = []
         _quads = session.query(DB_Quadrant)
-        
+
         # get each quad's title parts:
         for _quad in _quads:
             try:
@@ -312,18 +298,16 @@ def get_quadrant(engine, id:int) -> QuadrantBase:
         return res
 
 ###########################################
-# QUADRANT TITLES    
+# QUADRANT TITLES
 ###########################################
 def get_quadrant_titles(engine) -> list[QuadrantTitles]:
     with Session(engine) as session:
         _z = []
         try:
             _x = session.query(DB_QuadrantTitles).all()
-            
             for _y in _x:
-                # _z.append(QuadrantTitles(id=_y.id, title_part = _y.title_part, coord_x=_y.coord_x, coord_y=_y.coord_y)) # model
                 _z.append(QuadrantTitles(id=_y.id, title_part = _y.title_part)) # model
-            return(_z)
+            return _z
         except Exception as ex:
             print(ex)
         return _z
@@ -345,7 +329,7 @@ def add_quadrant_title(engine, quadrant_title_in:QuadrantTitlesIn) -> QuadrantTi
         except Exception as ex:
             print(ex)
             raise ex
-        
+
 def update_quadrant_title(engine, quadrant_title:QuadrantTitles) -> QuadrantTitles:
     with Session(engine) as session:
         try:
@@ -369,7 +353,7 @@ def add_sector(engine,sector:SectorIn) -> dict:
                 summary = sector.summary,
                 description = sector.description,
             )
-            session.add(_s) 
+            session.add(_s)
             session.flush() # this gives us the ID, which we need to append the title parts:
             new_sector_id = _s.id
             session.commit()
@@ -377,7 +361,23 @@ def add_sector(engine,sector:SectorIn) -> dict:
         except Exception as ex:
             print(f"ERROR: {ex}")
             return {f"action":"sectorcreate","message":"Failed: {ex}", "sectorcreated":False}
-    return {"action":"sectorcreate","message":"Failed", "sectorcreated":False} 
+    return {"action":"sectorcreate","message":"Failed", "sectorcreated":False}
+
+def update_sector(engine,sector:Sector) -> dict:    # maybe return the updated thing - will have consequenses though
+    with Session(engine) as session:
+        try:
+            # get the thing to update as a SQLAlchemy object:
+            _sector_to_update = session.query(DB_Sector).where(DB_Sector.id == sector.id).first()
+            _sector_to_update.summary = sector.summary
+            _sector_to_update.description = sector.description
+            session.commit()
+
+            return {"action":"sectorupdate","sectorupdated":True, "id":sector.id}
+        except Exception as ex:
+            print(f"ERROR: {ex}")
+            return {f"action":"sectorupdate","message":"Failed: {ex}", "sectorupdated":False}
+    return {"action":"sectorupdate","message":"Failed", "sectorupdated":False}
+
 
 def get_sectors(engine) -> list[Sector]:
     with Session(engine) as session:
@@ -386,7 +386,7 @@ def get_sectors(engine) -> list[Sector]:
         # possibly not. The Compass definition does not (YET!!) include
         # a lookup for sector or quadrant title. Therefore, the model should change to
         # remove this dependency comletely].
-        # I may be left in the short term with a mismatch between a sector and it's 
+        # I may be left in the short term with a mismatch between a sector and it's
         # intrinsically associated titles, and that defined by the Compass itself
         # (same for quad titles I think)
         # This is a big TODO:
@@ -434,7 +434,7 @@ def get_sector_titles(engine) -> list[SectorTitles]:
         for _dbresult in _dbresults:
             _results.append(SectorTitles(
                 id=_dbresult.id,
-                title_part=_dbresult.title_part, 
+                title_part=_dbresult.title_part,
                 # coord_x=_dbresult.coord_x,
                 # coord_y=_dbresult.coord_y,
             )
@@ -451,7 +451,7 @@ def get_sector_title(engine, id:int)->SectorTitles:
             # coord_y = 0,
         )
         return _out
-    
+
 def update_sector_title(engine, updated_sector_title:SectorTitles) -> SectorTitles:
     ''' ## Update sector title\n\n
       Update a sector title. returns updated sector title. '''
@@ -463,17 +463,17 @@ def update_sector_title(engine, updated_sector_title:SectorTitles) -> SectorTitl
         session.commit()
         return updated_sector_title # i.e. what we passed in. I couldrecreate from udpated DB object. Also add exception handling!
 
-def add_sector_titles(engine, sector_title_list:list[SectorTitlesIn])->bool:
+def add_sector_title(engine, sector_title:SectorTitlesIn)->bool:
     with Session(engine) as session:
         try:
-            for sector_title in sector_title_list:
-                _st = DB_SectorTitles(
-                    # don't need ID...
-                    title_part = sector_title.title_part,
-                    # coord_x = 0,    # to remove
-                    # coord_y = 0,
-                )
-                session.add(_st)
+            # for sector_title in sector_title_list:
+            _st = DB_SectorTitles(
+                # don't need ID...
+                title_part = sector_title.title_part,
+                # coord_x = 0,    # to remove
+                # coord_y = 0,
+            )
+            session.add(_st)
             session.commit()
             return True
         except Exception as ex:
@@ -493,6 +493,18 @@ def add_rating(engine, rating:Rating) -> bool:
             session.add(_r)
             session.commit()
             return True
+        except Exception as ex:
+            logging.warning(f"Failed to add rating: {ex}")
+            return False
+
+def update_rating(engine, rating:Rating) -> Rating:
+    with Session(engine) as session:
+        try:
+            update_obj = session.query(DB_Rating).where(DB_Rating.id == rating.id).first()
+            update_obj.title = rating.title
+            update_obj.description = rating.description
+            session.commit()
+            return rating
         except Exception as ex:
             logging.warning(f"Failed to add rating: {ex}")
             return False
@@ -517,7 +529,7 @@ def get_ratings(engine) -> list[Rating]:
 def get_rating(engine, id:int) -> Rating:
     ''' get a rating by database ID '''
     with Session(engine) as session:
-        try:  
+        try:
             _db_rating = session.query(DB_Rating).where(DB_Rating.id == id).first()
             _rating = Rating(
                 id=_db_rating.id,
@@ -571,7 +583,7 @@ def get_all_compasses(engine) -> list[CompassSummary]:
 # Let's add the constants to the models.
 def get_compass(engine, id:int) -> CompassData:
     with Session(engine) as session:
-        
+
         # THIS syntax works as a compound query:
         # result = session.query(DB_CompassDefinition,DB_Quadrant).where(DB_CompassDefinition.id==id).where(DB_Quadrant.id==DB_CompassDefinition.quadrant_1).first()
         _db_compass_def = session.query(DB_CompassDefinition).where(DB_CompassDefinition.id==id).first()
@@ -617,7 +629,7 @@ def get_compass(engine, id:int) -> CompassData:
                 _get_sector_title_parts(session,_db_compass_def.q1_s3_tp1,_db_compass_def.q1_s3_tp2),
                 _get_sector_title_parts(session,_db_compass_def.q1_s4_tp1,_db_compass_def.q1_s4_tp2),
                 _get_sector_title_parts(session,_db_compass_def.q1_s5_tp1,_db_compass_def.q1_s5_tp2),
-            ] 
+            ]
 
 
             _db_q2_sectors = [
@@ -626,7 +638,7 @@ def get_compass(engine, id:int) -> CompassData:
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_2_sector_3).first(),
                 session.query(DB_Sector).where(DB_Sector.id == _db_compass_def.quadrant_2_sector_4).first(),
             ]
-            
+
             _q2_sectors_titles = [
                 _get_sector_title_parts(session,_db_compass_def.q2_s1_tp1,_db_compass_def.q2_s1_tp2),
                 _get_sector_title_parts(session,_db_compass_def.q2_s2_tp1,_db_compass_def.q2_s2_tp2),
@@ -674,12 +686,12 @@ def get_compass(engine, id:int) -> CompassData:
             _sectors = [_q1_sectors,_q2_sectors,_q3_sectors,_q4_sectors]
 
             # and THESE are database models (should probably modify to pass same type of data):
-            # although it may be OK as all this is doing is attaching the rithr Sectors to each 
+            # although it may be OK as all this is doing is attaching the rithr Sectors to each
             # returned Quadrant.
             # update: as I am building the entire thing here, and I now have the quad titles for each, I
             # can pass them in here (though be careful with model vs db_model types!!)
             _quadrants = _get_quadrant_models_from_db_models(_db_quadrants,_db_quadrant_titles, _sectors)
-            
+
             _ratings = _get_rating_models_from_db_models(_db_ratings)
 
             try:
@@ -734,7 +746,7 @@ def set_compass(engine, definition:CompassData) -> int:
             quadrant_2 = definition.quadrant_2,
             quadrant_3 = definition.quadrant_3,
             quadrant_4 = definition.quadrant_4,
-            
+
             # Quadrant title IDs (note FK-enforced second - how to handle? Special case?)
             q1_tp1= definition.q1_tp1,
             q1_tp2= definition.q1_tp2,
@@ -766,7 +778,7 @@ def set_compass(engine, definition:CompassData) -> int:
 
             # Q2 Sectors:
             quadrant_2_sector_1 = definition.quadrant_2_sector_1,
-            quadrant_2_sector_2 = definition.quadrant_2_sector_2,            
+            quadrant_2_sector_2 = definition.quadrant_2_sector_2,
             quadrant_2_sector_3 = definition.quadrant_2_sector_3,
             quadrant_2_sector_4 = definition.quadrant_2_sector_4,
 
@@ -782,7 +794,7 @@ def set_compass(engine, definition:CompassData) -> int:
 
             # Q3 Sectors:
             quadrant_3_sector_1 = definition.quadrant_3_sector_1,
-            quadrant_3_sector_2 = definition.quadrant_3_sector_2,           
+            quadrant_3_sector_2 = definition.quadrant_3_sector_2,
             quadrant_3_sector_3 = definition.quadrant_3_sector_3,
             quadrant_3_sector_4 = definition.quadrant_3_sector_4,
 
@@ -798,7 +810,7 @@ def set_compass(engine, definition:CompassData) -> int:
 
             # Q4 Sectors:
             quadrant_4_sector_1 = definition.quadrant_4_sector_1,
-            quadrant_4_sector_2 = definition.quadrant_4_sector_2,            
+            quadrant_4_sector_2 = definition.quadrant_4_sector_2,
             quadrant_4_sector_3 = definition.quadrant_4_sector_3,
             quadrant_4_sector_4 = definition.quadrant_4_sector_4,
 
@@ -830,7 +842,7 @@ def set_compass(engine, definition:CompassData) -> int:
             return new_compass_id
         except Exception as ex:
             print(f"Exception attempting to insert new compass definition: {ex}")
-        
+
     # if fails:
     return -2
 
@@ -843,7 +855,7 @@ def update_compass(engine, definition:CompassDefinition) -> int:
         if _compass_to_update:
             # Now update the DB_CompassDefinition object from the incoming
             # CompassDefinition object.
-            # I need to explicitly address each field - not sure I can enumerate and 
+            # I need to explicitly address each field - not sure I can enumerate and
             # dynamically use a fieldname...
             _compass_to_update.name = definition.name
             _compass_to_update.description = definition.description
@@ -852,7 +864,7 @@ def update_compass(engine, definition:CompassDefinition) -> int:
             _compass_to_update.quadrant_2 = definition.quadrant_2
             _compass_to_update.quadrant_3 = definition.quadrant_3
             _compass_to_update.quadrant_4 = definition.quadrant_4
-            
+
             # Quadrant title IDs (note FK-enforced second - how to handle? Special case?)
             _compass_to_update.q1_tp1= definition.q1_tp1
             _compass_to_update.q1_tp2= definition.q1_tp2
@@ -884,7 +896,7 @@ def update_compass(engine, definition:CompassDefinition) -> int:
 
             # Q2 Sectors:
             _compass_to_update.quadrant_2_sector_1 = definition.quadrant_2_sector_1
-            _compass_to_update.quadrant_2_sector_2 = definition.quadrant_2_sector_2            
+            _compass_to_update.quadrant_2_sector_2 = definition.quadrant_2_sector_2
             _compass_to_update.quadrant_2_sector_3 = definition.quadrant_2_sector_3
             _compass_to_update.quadrant_2_sector_4 = definition.quadrant_2_sector_4
 
@@ -900,7 +912,7 @@ def update_compass(engine, definition:CompassDefinition) -> int:
 
             # Q3 Sectors:
             _compass_to_update.quadrant_3_sector_1 = definition.quadrant_3_sector_1
-            _compass_to_update.quadrant_3_sector_2 = definition.quadrant_3_sector_2           
+            _compass_to_update.quadrant_3_sector_2 = definition.quadrant_3_sector_2
             _compass_to_update.quadrant_3_sector_3 = definition.quadrant_3_sector_3
             _compass_to_update.quadrant_3_sector_4 = definition.quadrant_3_sector_4
 
@@ -916,7 +928,7 @@ def update_compass(engine, definition:CompassDefinition) -> int:
 
             # Q4 Sectors:
             _compass_to_update.quadrant_4_sector_1 = definition.quadrant_4_sector_1
-            _compass_to_update.quadrant_4_sector_2 = definition.quadrant_4_sector_2            
+            _compass_to_update.quadrant_4_sector_2 = definition.quadrant_4_sector_2
             _compass_to_update.quadrant_4_sector_3 = definition.quadrant_4_sector_3
             _compass_to_update.quadrant_4_sector_4 = definition.quadrant_4_sector_4
 
@@ -947,10 +959,10 @@ def update_compass(engine, definition:CompassDefinition) -> int:
             return 1
         else:
             raise Exception
-        
+
     print(f"no matching compass for id {definition.id}")
     raise Exception
-        
+
 
 def _get_quadrant_models_from_db_models(
         db_quadrant_model_list:list[DB_Quadrant],
@@ -988,14 +1000,14 @@ def _get_quadrant_models_from_db_models(
         except Exception as ex:
             logging.warning(f"failed to add quadrant {ex}")
     return _out
-        
+
 def _get_sector_models_from_db_models(quadrant_id:int, db_sector_model_list:list[DB_Sector],sector_title_model_list) -> list[Sector]:
     ''' retrieve the list of title parts for each set of sectors for supplied quadrant data '''
     _out = []
     _counter = 0
     for db_sector_model in db_sector_model_list:
         # print(db_sector_model)
-        
+
         _titles = []
         for title_part in sector_title_model_list[_counter]:  # the sector titles
             _titles.append(
@@ -1006,7 +1018,7 @@ def _get_sector_models_from_db_models(quadrant_id:int, db_sector_model_list:list
                     # coord_y=title_part.coord_y,
                )
             )
-            
+
         _out.append(
             Sector(
                 id=db_sector_model.id,

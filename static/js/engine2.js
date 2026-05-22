@@ -214,33 +214,24 @@ var engine = {
             });
 
             // now add the bits that are specific to the component configure page:
-            // Can probably rationalise this...
-            // NOTE: The data-identifier should be unique!
-            // should probably use a DOM ID...
-            // how about document.removeEventListener("click", func) first??
-            // yes, but need this:
-            // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
-            // and 
-            // https://stackoverflow.com/questions/77553191/how-do-i-go-about-removing-an-event-handler-created-in-an-arrow-function-so-that
-            // maybe phase 2 :-)
-            let dropdown_elem_quadrants = document.querySelector("[data-identifier='quadrant']");
+             let dropdown_elem_quadrants = document.querySelector("[data-identifier='quadrant']");
             dropdown_elem_quadrants.addEventListener("click",(e)=>{
-                this.selectHandlerQuadrants(e, "quadrant",submitBtnQuadrant);
+                this.selectComponentUIChangeHandler(event=e,prefix="quadrant", submitBtn=submitBtnQuadrant,hiddenDataElemsIdList=["summary","description"]);
             })
 
             let dropdown_elem_quadrant_titles = document.querySelector("[data-identifier='quadrant_title']");
             dropdown_elem_quadrant_titles.addEventListener("click",(e)=>{
-                this.selectHandlerQuadrantTitles(e,  "quadrant_title",submitBtnQuadrantTitle);
+                this.selectComponentUIChangeHandler(event=e,prefix="quadrant_title", submitBtn=submitBtnQuadrantTitle,hiddenDataElemsIdList=["part"]);
             })
 
             let dropdown_elem_sectors = document.querySelector("[data-identifier='sector']");
             dropdown_elem_sectors.addEventListener("click",(e)=>{
-                    this.selectHandlerSectors(e, "sector",submitBtnSector);
+                this.selectComponentUIChangeHandler(event=e,prefix="sector", submitBtn=submitBtnSector,hiddenDataElemsIdList=["summary","description"]);
             })
             
             let dropdown_elem_sector_titles = document.querySelector("[data-identifier='sector_title']");
             dropdown_elem_sector_titles.addEventListener("click",(e)=>{
-                this.selectHandlerSectorTitles(e, "sector_title",submitBtnSectorTitle);
+                this.selectComponentUIChangeHandler(event=e,prefix="sector_title", submitBtn=submitBtnSectorTitle,hiddenDataElemsIdList=["part"]);
             })
 
             let dropdown_elem_ratings = document.querySelector("[data-identifier='rating']");
@@ -362,6 +353,7 @@ var engine = {
         "manage_quadrant_titles_select" : {"endpoint" : "/compass/quadrants/title/", "data_elems":["quadrant_title_id","quadrant_title_part"]},
         "manage_sectors_select"         : {"endpoint" : "/compass/sectors/", "data_elems":["sector_id","sector_summary","sector_description"]},
         "manage_sector_titles_select"   : {"endpoint" : "/compass/sectors/title/", "data_elems":["sector_title_id","sector_title_part"]},
+        "manage_ratings_select"         : {"endpoint" : "/compass/rating/", "data_elems":["rating_id","rating_title","rating_description"]},
     }, 
     /**
      * Also if I return the new thing, I might be able to append to the exisitng dropdown rather than reloading the page///
@@ -413,6 +405,11 @@ var engine = {
                 if(currentFieldName.startsWith("sector_")){
                     currentFieldName = currentFieldName.replace("sector_","");
                 }
+
+                if(currentFieldName.startsWith("rating_")){
+                    currentFieldName = currentFieldName.replace("rating_","");
+                }
+
                 // ARGH! and 
                 console.log(currentFieldName);
                 if(currentFieldName.endsWith("_id")){
@@ -535,141 +532,26 @@ var engine = {
 
     // dropdown handler for manage components page. We are populaing a form, so it is different to the 
     // full compass one above] The key is the lookup data in the hidden DOM elements 
-
-    // selectHandlerQuadrants: function(evt,selectlist,current_option_value, current_dropdown_index, prefix, submitBtn){
-
-    /**  
-     * These next 5 functions are all about updating the UI elements based on selected tab and user actions
-     * used by the /components route
-     */
-    selectHandlerQuadrants: function(evt, prefix, submitBtn){
-
-        document.getElementById(`${prefix}_id`).value = evt.srcElement[evt.srcElement.selectedIndex].value;
-        if(parseInt(evt.srcElement[evt.srcElement.selectedIndex].value) !== -1){
-            document.getElementById('quadrant_id').value = evt.srcElement[evt.srcElement.selectedIndex].value;
-            document.getElementById(`${prefix}_summary`).value = document.getElementById(`${prefix}_summary_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
-            document.getElementById(`${prefix}_description`).value = document.getElementById(`${prefix}_description_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
-            submitBtn.value=`Update existing ${prefix.replace('_',' ')}`;
-        }
-        else{
-            document.getElementById(`${prefix}_summary`).value = "";
-            document.getElementById(`${prefix}_description`).value = "";
-            submitBtn.value=`Create new ${prefix.replace('_',' ')}`
-        }
-    },
-
-    // selectHandlerQuadrantTitles: function(evt,selectlistXXX,current_option_valueXXX, current_dropdown_indexXXX, prefix, submitBtn){
-    selectHandlerQuadrantTitles: function(evt, prefix, submitBtn){
-        document.getElementById(`${prefix}_id`).value = evt.srcElement[evt.srcElement.selectedIndex].value;
-        if(parseInt(evt.srcElement[evt.srcElement.selectedIndex].value) !== -1){
-            document.getElementById(`${prefix}_part`).value = document.getElementById(`${prefix}_part_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
-            submitBtn.value=`Update existing ${prefix.replace('_',' ')}`;
-        }
-        else{
-            document.getElementById(`${prefix}_part`).value = "";
-            submitBtn.value=`Create new ${prefix.replace('_',' ')}`
-        }
-    },
-    
-    selectHandlerSectors: function(evt, prefix, submitBtn){
-        console.log("separating...")
-        document.getElementById(`${prefix}_id`).value = evt.srcElement[evt.srcElement.selectedIndex].value;
-        if(parseInt(evt.srcElement[evt.srcElement.selectedIndex].value) !== -1){
-            document.getElementById('quadrant_id').value = evt.srcElement[evt.srcElement.selectedIndex].value;
-            document.getElementById(`${prefix}_summary`).value = document.getElementById(`${prefix}_summary_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
-            document.getElementById(`${prefix}_description`).value = document.getElementById(`${prefix}_description_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
-            // can get this with a prefix value for ID:
-            submitBtn.value=`Update existing ${prefix.replace('_',' ')}`;
-        }
-        else{
-            document.getElementById(`${prefix}_summary`).value = "";
-            document.getElementById(`${prefix}_description`).value = "";
-            submitBtn.value=`Create new ${prefix.replace('_',' ')}`
-        }
-    },
-
-    selectHandlerSectorTitles: function(evt, prefix, submitBtn){
-        document.getElementById(`${prefix}_id`).value = evt.srcElement[evt.srcElement.selectedIndex].value;
-        if(parseInt(evt.srcElement[evt.srcElement.selectedIndex].value) !== -1){
-            document.getElementById(`${prefix}_part`).value = document.getElementById(`${prefix}_part_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
-            submitBtn.value=`Update existing ${prefix.replace('_',' ')}`;
-        }
-        else{
-            document.getElementById(`${prefix}_part`).value = "";
-            submitBtn.value=`Create new ${prefix.replace('_',' ')}`
-        }
-    },
-
-
     selectComponentUIChangeHandler: function(event=event, prefix=prefix, submitBtn=submitBtn, hiddenDataElemsIdList=hiddenDataElemsIdList){
         // the database ID textbox. Will be hidden, is an int
+        console.log("consolidated UI handler")
         document.getElementById(`${prefix}_id`).value = event.srcElement[event.srcElement.selectedIndex].value;
-        // switch on negative value or not passed from select box (I don't need to parseInt() here):
-        // I don't want to loop twice:
-        // iterate ofer passed elem IDs (dependent of course on the HTML markup TO FUCKING RATIONALISE!!!!!!!)
 
-
+        // now figure out whetehr we are ADDING or UPDATING, and change the UI accordingly
         if(event.srcElement[event.srcElement.selectedIndex].value !== "-1"){
             /** Retrieve the current data for the selected database ID from the jinja template markup rendered elems holding the current values */
-            // document.getElementById(`${prefix}_title`).value = document.getElementById(`${prefix}_title_${event.srcElement[event.srcElement.selectedIndex].value}`).innerText;
-            // document.getElementById(`${prefix}_description`).value = document.getElementById(`${prefix}_description_${event.srcElement[event.srcElement.selectedIndex].value}`).innerText;
             for(let elemCount = 0;elemCount < hiddenDataElemsIdList.length; elemCount++){
-                console.log(hiddenDataElemsIdList[elemCount]);
                 document.getElementById(`${prefix}_${hiddenDataElemsIdList[elemCount]}`).value = document.getElementById(`${prefix}_${hiddenDataElemsIdList[elemCount]}_${event.srcElement[event.srcElement.selectedIndex].value}`).innerText;
             }
             submitBtn.value=`Update existing ${prefix.replace('_',' ')}`;
         }
         else{
-            // document.getElementById(`${prefix}_title`).value = "";
-            // document.getElementById(`${prefix}_description`).value = "";
             for(let elemCount = 0;elemCount < hiddenDataElemsIdList.length; elemCount++){
-                // console.log(hiddenDataElemsIdList[elemCount]);
                 document.getElementById(`${prefix}_${hiddenDataElemsIdList[elemCount]}`).value = "";
             }
             submitBtn.value=`Create new ${prefix.replace('_',' ')}`;    // `prefix` does not always have an underscore
         }
     },
-
-    
-    // // This is getting out of hand. Lets separate and try an rationalise later on
-    // selectHandler_Manage: function(evt,selectlist,current_option_value, current_dropdown_index, prefix, submitBtn){
-    //     /** Retrieve data from the hidden elements holding the data, in hidden elems!! */
-    //     // set ID field:
-    //     console.log(prefix)
-    //     document.getElementById(`${prefix}_id`).value = evt.srcElement[evt.srcElement.selectedIndex].value;
-
-
-    //     // let submitBtn = document.getElementById("quadrant_component_submit");
-    //     // is this the right stuff:
-    //     // and account for the '-1' add new value:
-    //     // I'm not sure about the lookup model branching here - it should be possible to assign the
-    //     // SAME model, so I don't need to branch at all. 
-    //     if(parseInt(evt.srcElement[evt.srcElement.selectedIndex].value) !== -1){
-    //         if(prefix.indexOf("_title") !== -1){
-    //             document.getElementById(`${prefix}_part`).value = document.getElementById(`${prefix}_part_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
-    //         }
-    //         else{
-    //             // and apply the value to the textareas:
-    //             document.getElementById(`${prefix}_summary`).innerText = document.getElementById(`${prefix}_summary_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
-    //             document.getElementById(`${prefix}_description`).innerText = document.getElementById(`${prefix}_description_${evt.srcElement[evt.srcElement.selectedIndex].value}`).innerText;
-    //         }
-    //         submitBtn.value=`Update existing ${prefix.replace('_',' ')}`;
-    //     }
-    //     else{
-    //         console.log("adding new");
-    //         if(prefix.indexOf("_title") !== -1){
-    //             document.getElementById(`${prefix}_part`).value = "";
-    //         }
-    //         else{
-    //             document.getElementById(`${prefix}_summary`).innerText = "";
-    //             document.getElementById(`${prefix}_description`).innerText = "";
-    //         }
-    //         submitBtn.value=`Create new ${prefix.replace('_',' ')}`
-            
-    //     }
-        
-    //     // console.log(evt,selectlist,current_option_value, current_dropdown_index, prefix)
-    // },
 
     descriptionHoverHandler: function(evt){
         console.log(evt);

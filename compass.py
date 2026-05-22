@@ -133,7 +133,6 @@ async def compass_new(request: Request):
         return templates.TemplateResponse(
             request=request,
             name="configure.html",
-            # name="dummy.html",
             context={
                 "compass_data":None,
                 "quadrants":quadrants,
@@ -190,7 +189,7 @@ async def compass_summaries(request: Request):
     compass_summaries = handlers.get_all_compasses(engine=engine) # to sort. we can't have hardcoded IDs floating about...
     return templates.TemplateResponse(
         request=request,
-        name="compass_summaries.html",
+        name="configure_home.html",
         context={"compass_summaries":compass_summaries}
     )
 
