@@ -148,32 +148,7 @@ var engine = {
         // split into multiple JS files I think
         if(page==="components"){
 
-            /** 
-             * Hmm - avn I do this within the handler function itself? It seems a bit redundant to 
-             * declare them all separately here 
-             * */
-            let submitBtnQuadrant = document.getElementById("quadrant_component_submit");
-            submitBtnQuadrant.addEventListener("click",(e)=>{
-                // we also use this DOM ID to select from a lookup object of endpoints
-                // because we will use the same handler for all add/update actions:
-                this.submitComponent(e,"manage_quadrants_select");  
-            });
 
-            let submitBtnQuadrantTitle = document.getElementById("quadrant_title_component_submit");
-            submitBtnQuadrantTitle.addEventListener("click",(e)=>{
-                this.submitComponent(e,"manage_quadrant_titles_select");
-            });
-            
-            let submitBtnSector = document.getElementById("sector_component_submit");
-            submitBtnSector.addEventListener("click",(e)=>{
-                this.submitComponent(e,"manage_sectors_select");  
-            });
-
-            let submitBtnSectorTitle = document.getElementById("sector_title_component_submit");
-            console.log(submitBtnSectorTitle)
-            submitBtnSectorTitle.addEventListener("click",(e)=>{
-                this.submitComponent(e,"manage_sector_titles_select");  
-            });
             
             // apply handler to tabs:
             let tabber_elems = document.getElementsByClassName("panel_selector_tab");
@@ -199,9 +174,55 @@ var engine = {
                 }
             }
 
+            /** 
+             * Hmm - avn I do this within the handler function itself? It seems a bit redundant to 
+             * declare them all separately here 
+             * No - they DO need to be here otherwise it will attach an event listener on 
+             * each click... But I can declare an array so it loops rather than having separate blocks...
+             * */
+            let ComponentButtonData = [
+                {"btnId":"quadrant_component_submit"}
+            ]
+            let submitBtnQuadrant = document.getElementById("quadrant_component_submit");
+            submitBtnQuadrant.addEventListener("click",(e)=>{
+                // we also use this DOM ID to select from a lookup object of endpoints
+                // because we will use the same handler for all add/update actions:
+                // second is dropdown ID holding the database ID. I'd like to manage the 
+                // dynamic bit in one place, so having the args passed in here to determine API path etc.
+                // TODO:
+                this.submitComponent(e,"manage_quadrants_select");  
+            });
+
+            let submitBtnQuadrantTitle = document.getElementById("quadrant_title_component_submit");
+            submitBtnQuadrantTitle.addEventListener("click",(e)=>{
+                this.submitComponent(e,"manage_quadrant_titles_select");
+            });
+            
+            let submitBtnSector = document.getElementById("sector_component_submit");
+            submitBtnSector.addEventListener("click",(e)=>{
+                this.submitComponent(e,"manage_sectors_select");  
+            });
+
+            let submitBtnSectorTitle = document.getElementById("sector_title_component_submit");
+            submitBtnSectorTitle.addEventListener("click",(e)=>{
+                this.submitComponent(e,"manage_sector_titles_select");  
+            });
+
+            let submitBtnRatings = document.getElementById("rating_component_submit");
+            submitBtnRatings.addEventListener("click",(e)=>{
+                this.submitComponent(e,"manage_ratings_select");
+            });
+
             // now add the bits that are specific to the component configure page:
             // Can probably rationalise this...
             // NOTE: The data-identifier should be unique!
+            // should probably use a DOM ID...
+            // how about document.removeEventListener("click", func) first??
+            // yes, but need this:
+            // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
+            // and 
+            // https://stackoverflow.com/questions/77553191/how-do-i-go-about-removing-an-event-handler-created-in-an-arrow-function-so-that
+            // maybe phase 2 :-)
             let dropdown_elem_quadrants = document.querySelector("[data-identifier='quadrant']");
             dropdown_elem_quadrants.addEventListener("click",(e)=>{
                 this.selectHandlerQuadrants(e, "quadrant",submitBtnQuadrant);
@@ -221,7 +242,13 @@ var engine = {
             dropdown_elem_sector_titles.addEventListener("click",(e)=>{
                 this.selectHandlerSectorTitles(e, "sector_title",submitBtnSectorTitle);
             })
+
+            let dropdown_elem_ratings = document.querySelector("[data-identifier='rating']");
+            dropdown_elem_ratings.addEventListener("click",(e)=>{   // TODO: add named args
+                this.selectComponentUIChangeHandler(event=e,prefix="rating", submitBtn=submitBtnRatings,hiddenDataElemsIdList=["title","description"])
+            })
         }
+        /** END OF COMPONENTS PAGE HANDLERS */
 
         /** The main compass definition page. Use to assemble a full compass from the bits defined in the 
          * "components" page
@@ -332,19 +359,23 @@ var engine = {
         // The dropdown elem ID:
         // I might need to convert the array of strings into an array of objects, to prevent ambiguity on submission of data to the API:
         "manage_quadrants_select"       : {"endpoint" : "/compass/quadrant/", "data_elems":["quadrant_id","quadrant_summary","quadrant_description"] },
-        "manage_quadrant_titles_select" : {"endpoint" : "/compass/quadrants/titles/", "data_elems":["quadrant_title_id","quadrant_title_part"]},
+        "manage_quadrant_titles_select" : {"endpoint" : "/compass/quadrants/title/", "data_elems":["quadrant_title_id","quadrant_title_part"]},
         "manage_sectors_select"         : {"endpoint" : "/compass/sectors/", "data_elems":["sector_id","sector_summary","sector_description"]},
-        "manage_sector_titles_select"   : {"endpoint" : "/compass/sectors/titles/", "data_elems":["sector_title_id","sector_title_part"]},
+        "manage_sector_titles_select"   : {"endpoint" : "/compass/sectors/title/", "data_elems":["sector_title_id","sector_title_part"]},
     }, 
-    submitComponent: function(e,srcElemId){
-        // the ID of the DROPDOWN
+    /**
+     * Also if I return the new thing, I might be able to append to the exisitng dropdown rather than reloading the page///
+     * Useed by /configure page
+     */
+    submitComponent: async function(e,itemSelectDOMId){
+        // the DOM ID of the DROPDOWN
         // we could get the database ID from this, but it is already calculated in the hidden
         // text field via the onchange handler of the dropdown, so let's use that. So we DO need all 
         // DOM elem IDs in that array above 
         // console.log(`trying for ${srcElemId}...`);
-        let component_id = parseInt(document.getElementById(srcElemId).value);
+        let component_id = parseInt(document.getElementById(itemSelectDOMId).value);
         // and use the above as a key to determine which endpoint we send to...
-        let endpoint = engine.ENDPOINT_MAPPER[srcElemId]["endpoint"];
+        let endpoint = engine.ENDPOINT_MAPPER[itemSelectDOMId]["endpoint"];   // hacky!!
         if(component_id !== -1){
             endpoint += "update/"; 
         }
@@ -352,14 +383,64 @@ var engine = {
         // [NOTE: I need to implement data integrity checking etc. and alert the
         // user if data is not present/wrong!!]
         let submit_data = {};
-        submit_data["endpoint"] = endpoint;
-        for(let idx=0; idx<engine.ENDPOINT_MAPPER[srcElemId]["data_elems"].length; idx++){
-            console.log(engine.ENDPOINT_MAPPER[srcElemId]["data_elems"][idx]);
-            console.log(document.getElementById(engine.ENDPOINT_MAPPER[srcElemId]["data_elems"][idx]).value);
-            submit_data[engine.ENDPOINT_MAPPER[srcElemId]["data_elems"][idx]] = document.getElementById(engine.ENDPOINT_MAPPER[srcElemId]["data_elems"][idx]).value;
+        // submit_data["endpoint"] = endpoint;
+        // iterate over elems to retrieve data from.
+        // I want to embellish so each array item is actually:
+        // `{"domId":"id_string", "type":"str/int"}`
+        // maybe assume string unless otehrwise specified?
+        for(let idx=0; idx<engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"].length; idx++){
+            // its a bit messy in terms of the ID, so...
+            console.log(engine.ENDPOINT_MAPPER[itemSelectDOMId]);
+            console.log(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx])
+            console.log(document.getElementById(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx]));
+            let _val = document.getElementById(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx]).value;
+            let _append = true;
+            // ak!! to rationalise with the API endpoint models!!!
+            if(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx].endsWith("_id")){
+                _val = parseInt(_val);
+                if(_val === -1) _append = false;
+            }
+            
+            if(_append){
+                // there's a mismatch between the database ID field (`id`) and the DOM ID string representing the element HOLDING that ID.
+                // I can either hack it on the server - ik - or I can hack it here...
+                let currentFieldName = engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx];
+                // likewise for "title_part"...
+                if(currentFieldName.endsWith("_title_part")){
+                    currentFieldName = "title_part";
+                }
+                // AND handle sector fieldname4 mismatch (CHANGE AT DB LEVEL IN THE ORM!!! TODO:)
+                if(currentFieldName.startsWith("sector_")){
+                    currentFieldName = currentFieldName.replace("sector_","");
+                }
+                // ARGH! and 
+                console.log(currentFieldName);
+                if(currentFieldName.endsWith("_id")){
+                    currentFieldName = "id";
+                }
+
+                // submit_data[engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx]] = document.getElementById(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx]).value;
+                submit_data[currentFieldName] = document.getElementById(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx]).value;
+            }
         }
 
         console.log(component_id, endpoint, submit_data);
+        
+        const response = await fetch(endpoint,{
+            method: "post",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(submit_data),
+        }).then((response)=>{
+            console.log(response.json());
+            // I should be able to update the dropdown if I use returned data.
+            // in the mean time:
+            document.location.reload();
+        });
+        
+
     },
 
     btnSubmitCompassData: function(evt){
@@ -439,6 +520,7 @@ var engine = {
      * contain the descriptions for ALL the ratings or sectors that have been defined.
      * The specifics of the DOM element attributes allow identification and mapping of the
      * thing to its corresponding description. Trust me, it makes sense...
+     * Used by /configure page:
      */
     selectHandler: function(evt,selectlist,current_option_value, current_dropdown_index, prefix){
         // let id = selectlist[current_dropdown_index].id;
@@ -455,6 +537,11 @@ var engine = {
     // full compass one above] The key is the lookup data in the hidden DOM elements 
 
     // selectHandlerQuadrants: function(evt,selectlist,current_option_value, current_dropdown_index, prefix, submitBtn){
+
+    /**  
+     * These next 5 functions are all about updating the UI elements based on selected tab and user actions
+     * used by the /components route
+     */
     selectHandlerQuadrants: function(evt, prefix, submitBtn){
 
         document.getElementById(`${prefix}_id`).value = evt.srcElement[evt.srcElement.selectedIndex].value;
@@ -510,6 +597,36 @@ var engine = {
         else{
             document.getElementById(`${prefix}_part`).value = "";
             submitBtn.value=`Create new ${prefix.replace('_',' ')}`
+        }
+    },
+
+
+    selectComponentUIChangeHandler: function(event=event, prefix=prefix, submitBtn=submitBtn, hiddenDataElemsIdList=hiddenDataElemsIdList){
+        // the database ID textbox. Will be hidden, is an int
+        document.getElementById(`${prefix}_id`).value = event.srcElement[event.srcElement.selectedIndex].value;
+        // switch on negative value or not passed from select box (I don't need to parseInt() here):
+        // I don't want to loop twice:
+        // iterate ofer passed elem IDs (dependent of course on the HTML markup TO FUCKING RATIONALISE!!!!!!!)
+
+
+        if(event.srcElement[event.srcElement.selectedIndex].value !== "-1"){
+            /** Retrieve the current data for the selected database ID from the jinja template markup rendered elems holding the current values */
+            // document.getElementById(`${prefix}_title`).value = document.getElementById(`${prefix}_title_${event.srcElement[event.srcElement.selectedIndex].value}`).innerText;
+            // document.getElementById(`${prefix}_description`).value = document.getElementById(`${prefix}_description_${event.srcElement[event.srcElement.selectedIndex].value}`).innerText;
+            for(let elemCount = 0;elemCount < hiddenDataElemsIdList.length; elemCount++){
+                console.log(hiddenDataElemsIdList[elemCount]);
+                document.getElementById(`${prefix}_${hiddenDataElemsIdList[elemCount]}`).value = document.getElementById(`${prefix}_${hiddenDataElemsIdList[elemCount]}_${event.srcElement[event.srcElement.selectedIndex].value}`).innerText;
+            }
+            submitBtn.value=`Update existing ${prefix.replace('_',' ')}`;
+        }
+        else{
+            // document.getElementById(`${prefix}_title`).value = "";
+            // document.getElementById(`${prefix}_description`).value = "";
+            for(let elemCount = 0;elemCount < hiddenDataElemsIdList.length; elemCount++){
+                // console.log(hiddenDataElemsIdList[elemCount]);
+                document.getElementById(`${prefix}_${hiddenDataElemsIdList[elemCount]}`).value = "";
+            }
+            submitBtn.value=`Create new ${prefix.replace('_',' ')}`;    // `prefix` does not always have an underscore
         }
     },
 
