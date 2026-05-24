@@ -1,3 +1,15 @@
+/**
+ * REFS TO SORT
+ * https://stackoverflow.com/questions/39565706/post-request-with-fetch-api
+ * https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+ * https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith
+ * https://fastapi.tiangolo.com/advanced/templates/#install-dependencies
+ * https://stackoverflow.com/questions/1927593/cant-update-textarea-with-javascript-after-writing-to-it-manually (.value vs .innerText)
+ * https://stackoverflow.com/questions/77553191/how-do-i-go-about-removing-an-event-handler-created-in-an-arrow-function-so-that
+ * https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
+ * https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+*/
 var compass_rating;
 (function (compass_rating) {
     compass_rating[compass_rating["UNFAMILIAR"] = 1] = "UNFAMILIAR";
@@ -13,7 +25,7 @@ var engine = {
     // API_URL: "/static/data/display_data_rationalised.json",    // static JSON file
     // This is the currently hardcoded URL of a configured compass data API endpoint.
     // If there is no compass of this ID, the system currently breaks:
-    API_URL: "/compass/1", 
+    API_URL: "/compass/1",
 
     // This is the coordiate lookup for the title positions:
     CONSTANTS_URL: "/static/data/compass_titles.json",
@@ -29,7 +41,7 @@ var engine = {
      *  - the target is worked out by mapping the indexes to each appropriately structured
      *    element ID.
      */
-    rating_description_lookup:null,
+    rating_description_lookup: null,
     coordinate_lookup: null,
     data_quadrant: null,
     elems: [
@@ -81,12 +93,12 @@ var engine = {
     // pass in loaded data here 
     init: function (display_data) {
         // and set the properties of the object from the loaded data:
-        if(display_data){
+        if (display_data) {
             this.data_quadrants = display_data.data_quadrants;
             this.rating_description_lookup = display_data.rating_description_lookup;
         }
-        
-        
+
+
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
         for (var _i = 0, _a = this.elems; _i < _a.length; _i++) {
             var id = _a[_i];
@@ -98,18 +110,18 @@ var engine = {
             }
         };
 
-        if(page==="add_user"){
+        if (page === "add_user") {
             // append listener to add button:
             let btn_add_user = document.getElementById("btn_add_user");
-            if(btn_add_user){
-                btn_add_user.addEventListener("click",this.submitNewUserDataHandler)
+            if (btn_add_user) {
+                btn_add_user.addEventListener("click", this.submitNewUserDataHandler)
             }
         };
 
-        if(page==="update_user"){
+        if (page === "update_user") {
             let btn_update_user = document.getElementById("btn_update_user");
-            if(btn_update_user){
-                btn_update_user.addEventListener("click",this.submitUpdateUserDataHandler)
+            if (btn_update_user) {
+                btn_update_user.addEventListener("click", this.submitUpdateUserDataHandler)
             }
         };
 
@@ -120,14 +132,14 @@ var engine = {
         /**  
          * load the dropdown with selecting and jumping to specific user page
          * */
-        if(page === "home"){
+        if (page === "home") {
             this.populateCompassImageData();
             this.getStaticSectorTitlesDOM();
             this.renderDisplayedTexts();
             this.loadAndBuildUserDropdown();
         }
-        
-        if (page === "svg_template"){
+
+        if (page === "svg_template") {
             this.populateCompassImageData();
             this.getStaticSectorTitlesDOM();
 
@@ -139,36 +151,33 @@ var engine = {
 
             /** append handler to data download button */
             let btn_data_download = document.getElementById("data_download");
-            if(btn_data_download){
-                btn_data_download.addEventListener("click",this.retrieveUserData)
+            if (btn_data_download) {
+                btn_data_download.addEventListener("click", this.retrieveUserData)
             }
         }
         // COMPONENT SUBMIT HANDLERS
         // RATIONALISE THIS - the JS needs to be broken apart and simplified. I can afford to
         // split into multiple JS files I think
-        if(page==="components"){
-
-
-            
+        if (page === "components") {
             // apply handler to tabs:
             let tabber_elems = document.getElementsByClassName("panel_selector_tab");
-            for(let x=0;x<tabber_elems.length; x++){
-                tabber_elems[x].addEventListener("click",(e)=>{
-                    engine.tabHandler(e,tabber_elems);
+            for (let x = 0; x < tabber_elems.length; x++) {
+                tabber_elems[x].addEventListener("click", (e) => {
+                    engine.tabHandler(e, tabber_elems);
                 })
             }
 
             // handle tab selection AFTER the click handlers are applied...
-            if(window.location.pathname.indexOf("/configure")!==-1 && window.location.hash.length > 0 ){
+            if (window.location.pathname.indexOf("/configure") !== -1 && window.location.hash.length > 0) {
                 // NOTE: I modified the hash so it wouldn't actually be a DOM ID, so we didn't get the anchor jump...
-                elem = document.getElementById(window.location.hash.replace('#','').replace("_selected",""));
-                if(elem){
+                elem = document.getElementById(window.location.hash.replace('#', '').replace("_selected", ""));
+                if (elem) {
                     // https://medium.com/@python-javascript-php-html-css/javascript-to-emulate-a-click-on-the-first-button-in-a-list-9c61f408b4b5
-                    let evt = new PointerEvent('click',{
-                        bubbles:true,
-                        cancelable:true,
-                        view:window,
-                        pointerType:'mouse',
+                    let evt = new PointerEvent('click', {
+                        bubbles: true,
+                        cancelable: true,
+                        view: window,
+                        pointerType: 'mouse',
                     });
                     elem.dispatchEvent(evt);
                 }
@@ -181,62 +190,62 @@ var engine = {
              * each click... But I can declare an array so it loops rather than having separate blocks...
              * */
             let ComponentButtonData = [
-                {"btnId":"quadrant_component_submit"}
+                { "btnId": "quadrant_component_submit" }
             ]
             let submitBtnQuadrant = document.getElementById("quadrant_component_submit");
-            submitBtnQuadrant.addEventListener("click",(e)=>{
+            submitBtnQuadrant.addEventListener("click", (e) => {
                 // we also use this DOM ID to select from a lookup object of endpoints
                 // because we will use the same handler for all add/update actions:
                 // second is dropdown ID holding the database ID. I'd like to manage the 
                 // dynamic bit in one place, so having the args passed in here to determine API path etc.
                 // TODO:
-                this.submitComponent(e,"manage_quadrants_select");  
+                this.submitComponent(e, "manage_quadrants_select");
             });
 
             let submitBtnQuadrantTitle = document.getElementById("quadrant_title_component_submit");
-            submitBtnQuadrantTitle.addEventListener("click",(e)=>{
-                this.submitComponent(e,"manage_quadrant_titles_select");
+            submitBtnQuadrantTitle.addEventListener("click", (e) => {
+                this.submitComponent(e, "manage_quadrant_titles_select");
             });
-            
+
             let submitBtnSector = document.getElementById("sector_component_submit");
-            submitBtnSector.addEventListener("click",(e)=>{
-                this.submitComponent(e,"manage_sectors_select");  
+            submitBtnSector.addEventListener("click", (e) => {
+                this.submitComponent(e, "manage_sectors_select");
             });
 
             let submitBtnSectorTitle = document.getElementById("sector_title_component_submit");
-            submitBtnSectorTitle.addEventListener("click",(e)=>{
-                this.submitComponent(e,"manage_sector_titles_select");  
+            submitBtnSectorTitle.addEventListener("click", (e) => {
+                this.submitComponent(e, "manage_sector_titles_select");
             });
 
             let submitBtnRatings = document.getElementById("rating_component_submit");
-            submitBtnRatings.addEventListener("click",(e)=>{
-                this.submitComponent(e,"manage_ratings_select");
+            submitBtnRatings.addEventListener("click", (e) => {
+                this.submitComponent(e, "manage_ratings_select");
             });
 
             // now add the bits that are specific to the component configure page:
-             let dropdown_elem_quadrants = document.querySelector("[data-identifier='quadrant']");
-            dropdown_elem_quadrants.addEventListener("click",(e)=>{
-                this.selectComponentUIChangeHandler(event=e,prefix="quadrant", submitBtn=submitBtnQuadrant,hiddenDataElemsIdList=["summary","description"]);
+            let dropdown_elem_quadrants = document.querySelector("[data-identifier='quadrant']");
+            dropdown_elem_quadrants.addEventListener("click", (e) => {
+                this.selectComponentUIChangeHandler(event = e, prefix = "quadrant", submitBtn = submitBtnQuadrant, hiddenDataElemsIdList = ["summary", "description"]);
             })
 
             let dropdown_elem_quadrant_titles = document.querySelector("[data-identifier='quadrant_title']");
-            dropdown_elem_quadrant_titles.addEventListener("click",(e)=>{
-                this.selectComponentUIChangeHandler(event=e,prefix="quadrant_title", submitBtn=submitBtnQuadrantTitle,hiddenDataElemsIdList=["part"]);
+            dropdown_elem_quadrant_titles.addEventListener("click", (e) => {
+                this.selectComponentUIChangeHandler(event = e, prefix = "quadrant_title", submitBtn = submitBtnQuadrantTitle, hiddenDataElemsIdList = ["part"]);
             })
 
             let dropdown_elem_sectors = document.querySelector("[data-identifier='sector']");
-            dropdown_elem_sectors.addEventListener("click",(e)=>{
-                this.selectComponentUIChangeHandler(event=e,prefix="sector", submitBtn=submitBtnSector,hiddenDataElemsIdList=["summary","description"]);
+            dropdown_elem_sectors.addEventListener("click", (e) => {
+                this.selectComponentUIChangeHandler(event = e, prefix = "sector", submitBtn = submitBtnSector, hiddenDataElemsIdList = ["summary", "description"]);
             })
-            
+
             let dropdown_elem_sector_titles = document.querySelector("[data-identifier='sector_title']");
-            dropdown_elem_sector_titles.addEventListener("click",(e)=>{
-                this.selectComponentUIChangeHandler(event=e,prefix="sector_title", submitBtn=submitBtnSectorTitle,hiddenDataElemsIdList=["part"]);
+            dropdown_elem_sector_titles.addEventListener("click", (e) => {
+                this.selectComponentUIChangeHandler(event = e, prefix = "sector_title", submitBtn = submitBtnSectorTitle, hiddenDataElemsIdList = ["part"]);
             })
 
             let dropdown_elem_ratings = document.querySelector("[data-identifier='rating']");
-            dropdown_elem_ratings.addEventListener("click",(e)=>{   // TODO: add named args
-                this.selectComponentUIChangeHandler(event=e,prefix="rating", submitBtn=submitBtnRatings,hiddenDataElemsIdList=["title","description"])
+            dropdown_elem_ratings.addEventListener("click", (e) => {   // TODO: add named args
+                this.selectComponentUIChangeHandler(event = e, prefix = "rating", submitBtn = submitBtnRatings, hiddenDataElemsIdList = ["title", "description"])
             })
         }
         /** END OF COMPONENTS PAGE HANDLERS */
@@ -244,19 +253,19 @@ var engine = {
         /** The main compass definition page. Use to assemble a full compass from the bits defined in the 
          * "components" page
          */
-        if(page === "configure"){
+        if (page === "configure") {
             // apply handler to tabs:
             let tabber_elems = document.getElementsByClassName("panel_selector_tab");
-            for(let x=0;x<tabber_elems.length; x++){
-                tabber_elems[x].addEventListener("click",(e)=>{
-                    engine.tabHandler(e,tabber_elems);
+            for (let x = 0; x < tabber_elems.length; x++) {
+                tabber_elems[x].addEventListener("click", (e) => {
+                    engine.tabHandler(e, tabber_elems);
                 })
             }
 
             // and apply handler for submit button (accounts for add and update actions)
             let btn_submit_compass_data = document.getElementById("btn_submit_compass_data");
-            if(btn_submit_compass_data){
-                btn_submit_compass_data.addEventListener("click",this.btnSubmitCompassData)
+            if (btn_submit_compass_data) {
+                btn_submit_compass_data.addEventListener("click", this.btnSubmitCompassData)
             }
 
             // add event listener to the ratings dropdowns, to handle onchange
@@ -264,50 +273,50 @@ var engine = {
             // why am I doing a querySelectorAll()???
             let dropdown_elems = document.querySelectorAll("[data-identifier='rating_dropdown']");
             // let dropdown_elems = document.querySelectorAll("[data-identifier]");
-            for(let x=0;x<dropdown_elems.length;x++){
+            for (let x = 0; x < dropdown_elems.length; x++) {
                 let current_option_value = dropdown_elems[x].selectedIndex;   // initial value
-                dropdown_elems[x].addEventListener("click",(e)=>{
+                dropdown_elems[x].addEventListener("click", (e) => {
                     // this.ratingSelectHandler(e, dropdown_elems, current_option_value, x);
                     this.selectHandler(e, dropdown_elems, current_option_value, x, "rating");
                 })
             }
 
             let dropdown_elems_sectors = document.querySelectorAll("[data-identifier='sector_dropdown']");
-            for(let x=0;x<dropdown_elems_sectors.length;x++){
+            for (let x = 0; x < dropdown_elems_sectors.length; x++) {
                 let current_option_value = dropdown_elems_sectors[x].selectedIndex;   // initial value
-                dropdown_elems_sectors[x].addEventListener("click",(e)=>{
+                dropdown_elems_sectors[x].addEventListener("click", (e) => {
                     // this.sectorSelectHandler(e, dropdown_elems_sectors, current_option_value, x);
                     this.selectHandler(e, dropdown_elems_sectors, current_option_value, x, "sector");
                 })
             }
 
             let dropdown_elems_quadrants = document.querySelectorAll("[data-identifier='quadrant_dropdown']");
-            for(let x=0;x<dropdown_elems_quadrants.length;x++){
+            for (let x = 0; x < dropdown_elems_quadrants.length; x++) {
                 let current_option_value = dropdown_elems_quadrants[x].selectedIndex;   // initial value
-                dropdown_elems_quadrants[x].addEventListener("click",(e)=>{
+                dropdown_elems_quadrants[x].addEventListener("click", (e) => {
                     this.selectHandler(e, dropdown_elems_quadrants, current_option_value, x, "quadrant");
                 })
             }
 
             // HOVER HANDLERS FOR DESCRIPTIONS:
             let ratings_descriptions = document.querySelectorAll("[data-identifier='rating_description'], [data-identifier='sector_description'], [data-identifier='quadrant_description']");
-            for(let x=0;x<ratings_descriptions.length;x++){
-                ratings_descriptions[x].addEventListener("mouseover",(e)=>{
+            for (let x = 0; x < ratings_descriptions.length; x++) {
+                ratings_descriptions[x].addEventListener("mouseover", (e) => {
                     this.descriptionHoverHandler(e);
                 })
             }
 
             // handle tab selection AFTER the click handlers are applied...
-            if(window.location.pathname.indexOf("/configure")!==-1 && window.location.hash.length > 0 ){
+            if (window.location.pathname.indexOf("/configure") !== -1 && window.location.hash.length > 0) {
                 // NOTE: I modified the hash so it wouldn't actually be a DOM ID, so we didn't get the anchor jump...
-                elem = document.getElementById(window.location.hash.replace('#','').replace("_selected",""));
-                if(elem){
+                elem = document.getElementById(window.location.hash.replace('#', '').replace("_selected", ""));
+                if (elem) {
                     // https://medium.com/@python-javascript-php-html-css/javascript-to-emulate-a-click-on-the-first-button-in-a-list-9c61f408b4b5
-                    let evt = new PointerEvent('click',{
-                        bubbles:true,
-                        cancelable:true,
-                        view:window,
-                        pointerType:'mouse',
+                    let evt = new PointerEvent('click', {
+                        bubbles: true,
+                        cancelable: true,
+                        view: window,
+                        pointerType: 'mouse',
                     });
                     elem.dispatchEvent(evt);
                 }
@@ -319,15 +328,15 @@ var engine = {
         var user_dropdown_btn = document.getElementById("select_user_button");
         var user_dropdown = document.getElementById("select_user");
 
-        if(user_dropdown_btn){
-            user_dropdown_btn.addEventListener("click",() => {engine.selectAndLoadUser()});
+        if (user_dropdown_btn) {
+            user_dropdown_btn.addEventListener("click", () => { engine.selectAndLoadUser() });
         }
-        if(user_dropdown){
-            if(page==="home"){
-                user_dropdown.addEventListener("change",() => {engine.redirectToUserTemplate()});
+        if (user_dropdown) {
+            if (page === "home") {
+                user_dropdown.addEventListener("change", () => { engine.redirectToUserTemplate() });
             }
-            if(page="svg"){
-                user_dropdown.addEventListener("change",() => {engine.selectAndLoadUser()});
+            if (page = "svg") {
+                user_dropdown.addEventListener("change", () => { engine.selectAndLoadUser() });
             }
         }
     },
@@ -346,20 +355,20 @@ var engine = {
      * 
      * I don't need the _id 
      */
-    ENDPOINT_MAPPER:  {
+    ENDPOINT_MAPPER: {
         // The dropdown elem ID:
         // I might need to convert the array of strings into an array of objects, to prevent ambiguity on submission of data to the API:
-        "manage_quadrants_select"       : {"endpoint" : "/compass/quadrant/", "data_elems":["quadrant_id","quadrant_summary","quadrant_description"] },
-        "manage_quadrant_titles_select" : {"endpoint" : "/compass/quadrants/title/", "data_elems":["quadrant_title_id","quadrant_title_part"]},
-        "manage_sectors_select"         : {"endpoint" : "/compass/sectors/", "data_elems":["sector_id","sector_summary","sector_description"]},
-        "manage_sector_titles_select"   : {"endpoint" : "/compass/sectors/title/", "data_elems":["sector_title_id","sector_title_part"]},
-        "manage_ratings_select"         : {"endpoint" : "/compass/rating/", "data_elems":["rating_id","rating_title","rating_description"]},
-    }, 
+        "manage_quadrants_select": { "endpoint": "/compass/quadrant/", "data_elems": ["quadrant_id", "quadrant_summary", "quadrant_description"] },
+        "manage_quadrant_titles_select": { "endpoint": "/compass/quadrants/title/", "data_elems": ["quadrant_title_id", "quadrant_title_part"] },
+        "manage_sectors_select": { "endpoint": "/compass/sectors/", "data_elems": ["sector_id", "sector_summary", "sector_description"] },
+        "manage_sector_titles_select": { "endpoint": "/compass/sectors/title/", "data_elems": ["sector_title_id", "sector_title_part"] },
+        "manage_ratings_select": { "endpoint": "/compass/rating/", "data_elems": ["rating_id", "rating_title", "rating_description"] },
+    },
     /**
      * Also if I return the new thing, I might be able to append to the exisitng dropdown rather than reloading the page///
      * Useed by /configure page
      */
-    submitComponent: async function(e,itemSelectDOMId){
+    submitComponent: async function (e, itemSelectDOMId) {
         // the DOM ID of the DROPDOWN
         // we could get the database ID from this, but it is already calculated in the hidden
         // text field via the onchange handler of the dropdown, so let's use that. So we DO need all 
@@ -368,8 +377,8 @@ var engine = {
         let component_id = parseInt(document.getElementById(itemSelectDOMId).value);
         // and use the above as a key to determine which endpoint we send to...
         let endpoint = engine.ENDPOINT_MAPPER[itemSelectDOMId]["endpoint"];   // hacky!!
-        if(component_id !== -1){
-            endpoint += "update/"; 
+        if (component_id !== -1) {
+            endpoint += "update/";
         }
         // once we have determined which endpoint to use, collect the data to POST:
         // [NOTE: I need to implement data integrity checking etc. and alert the
@@ -380,7 +389,18 @@ var engine = {
         // I want to embellish so each array item is actually:
         // `{"domId":"id_string", "type":"str/int"}`
         // maybe assume string unless otehrwise specified?
-        for(let idx=0; idx<engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"].length; idx++){
+        /** 
+         * Here, we iterate over the declared DOM elements in the field mapper above
+         * for the component type being updated/created - (THIS is where we need a
+         * better DOM ID to database ID mapping logic!!) - and extract the values
+         * being submitted.
+         * 
+         * If the ID value from the select box is -1 (i.e. is NOT a database ID value)
+         * we assume a NEW component is to be created, and we don't append this value.
+         * The FastAPI has two models for each - one with and one without an ID and the
+         * back-end processes accordingly (update or new).   
+         */
+        for (let idx = 0; idx < engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"].length; idx++) {
             // its a bit messy in terms of the ID, so...
             console.log(engine.ENDPOINT_MAPPER[itemSelectDOMId]);
             console.log(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx])
@@ -388,69 +408,100 @@ var engine = {
             let _val = document.getElementById(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx]).value;
             let _append = true;
             // ak!! to rationalise with the API endpoint models!!!
-            if(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx].endsWith("_id")){
+            if (engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx].endsWith("_id")) {
                 _val = parseInt(_val);
-                if(_val === -1) _append = false;
+                if (_val === -1) _append = false;
             }
-            
-            if(_append){
+
+            /** Append fieldnames unless it is a NEW item request */
+            if (_append) {
                 // there's a mismatch between the database ID field (`id`) and the DOM ID string representing the element HOLDING that ID.
                 // I can either hack it on the server - ik - or I can hack it here...
+                // I *think* can just prefix with something in the DOM??? 
                 let currentFieldName = engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx];
                 // likewise for "title_part"...
-                if(currentFieldName.endsWith("_title_part")){
+                if (currentFieldName.endsWith("_title_part")) {
                     currentFieldName = "title_part";
                 }
-                // AND handle sector fieldname4 mismatch (CHANGE AT DB LEVEL IN THE ORM!!! TODO:)
-                if(currentFieldName.startsWith("sector_")){
-                    currentFieldName = currentFieldName.replace("sector_","");
+                // AND handle sector fieldname mismatch (CHANGE AT DB LEVEL IN THE ORM!!! TODO:)
+                if (currentFieldName.startsWith("sector_")) {
+                    currentFieldName = currentFieldName.replace("sector_", "");
                 }
 
-                if(currentFieldName.startsWith("rating_")){
-                    currentFieldName = currentFieldName.replace("rating_","");
+                if (currentFieldName.startsWith("rating_")) {
+                    currentFieldName = currentFieldName.replace("rating_", "");
                 }
 
                 // ARGH! and 
                 console.log(currentFieldName);
-                if(currentFieldName.endsWith("_id")){
+                if (currentFieldName.endsWith("_id")) {
                     currentFieldName = "id";
                 }
 
-                // submit_data[engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx]] = document.getElementById(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx]).value;
                 submit_data[currentFieldName] = document.getElementById(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx]).value;
             }
         }
 
         console.log(component_id, endpoint, submit_data);
-        
-        const response = await fetch(endpoint,{
+
+        const response = await fetch(endpoint, {
             method: "post",
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(submit_data),
-        }).then((response)=>{
-            console.log(response.json());
-            // I should be able to update the dropdown if I use returned data.
+        }).then((response) => {
+            /** TODO: APIs should return the new or updated component */
+            // console.log(response.json());
+            return(response.json());    // pass to next 'then'
+
+        }).then((data)=>{
+            // https://www.geeksforgeeks.org/javascript/javascript-fetch-method/
+            // As long as the back-end returns the correct object...
+            // THIS TODO!!
+            // console.log(data);
+            // // I should be able to update the dropdown if I use returned data.
+            // // which will either be a direct update of the dropdown, or an amendment
+            // // of the generated DOM elements with a reload call to update the elems?
+            // // I cannot update via the Flask load of template - cos that's a reload - 
+            // // but I should be able to identify and add/update the DOM element??
+            // // This MIGHT be a PITA / SLOW!!! to do.
+            // // do I get this scope?
+            // console.log(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"]);
+            // // for(item in data){
+            // for(let x=0;x < engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"].length;x++){
+            //     let item = engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][x];
+            //     console.log(item);
+            //     // if(item !== "id"){
+            //         // console.log(data[item]);
+            //         console.log(item);  // a string
+            //         // anyway, lets try:
+            //         let targetElem = document.getElementById(`${item}_${data['id']}`);
+            //         // OK now we hit the datafield mismatch issue again...
+            //         console.log(`${item}_${data['id']}`);
+            //         console.log(console.log(data[item]));
+            //         if(targetElem){
+            //             targetElem.innerText = data[item];
+            //         }
+            //     // }
+            // }
             // in the mean time:
             document.location.reload();
         });
-        
-
     },
 
-    btnSubmitCompassData: function(evt){
+    btnSubmitCompassData: function (evt) {
         // they are all dropdowns...
         let elems = document.getElementsByTagName("select");
         let compass_id = parseInt(document.getElementById("compass_id").value);
-        if(compass_id === NaN){
+        if (compass_id === NaN) {
             compass_id = null;
         }
         let compass_name = document.getElementById("compass_name").value;
         let compass_description = document.getElementById("compass_description").value;
         let data = {}
-        for(let elem of elems){
+        for (let elem of elems) {
             let field = elem.getAttribute("data-fieldname");
             let value = elem.value;
             data[field] = parseInt(value);
@@ -461,10 +512,10 @@ var engine = {
         console.log(data);
         /** determine whether to add or update */
         let submitURL = '/compass/';    // the add endpoint (if POST)
-        if(compass_id > 0){
+        if (compass_id > 0) {
             submitURL = '/compass/update/';
         }
-        if(data){
+        if (data) {
             fetch(submitURL, {
                 method: 'POST',
                 body: JSON.stringify(data),
@@ -473,21 +524,21 @@ var engine = {
                     'Content-Type': 'application/json'
                 },
             }).then(function (response) {
-                return response.json(); 
-                }).then(function (response) { 
+                return response.json();
+            }).then(function (response) {
 
             });
         }
     },
 
     // handle configure tabber
-    tabHandler: function(evt,tablist){
+    tabHandler: function (evt, tablist) {
         // we also need the list of panels to show/hide:
         let panel_list = document.getElementsByClassName("gutterpanel");
-        for(x=0; x<tablist.length;x++){
+        for (x = 0; x < tablist.length; x++) {
             tablist[x].classList.remove("panel_selector_tab_selected");
             panel_list[x].classList.add("hidden");
-            if( x===parseInt(evt.srcElement.getAttribute("data-tabid"))-1 ){    // because '0' will do odd things...
+            if (x === parseInt(evt.srcElement.getAttribute("data-tabid")) - 1) {    // because '0' will do odd things...
                 tablist[x].classList.add("panel_selector_tab_selected");
                 panel_list[x].classList.remove("hidden");
                 // and add a hash to the URL:
@@ -496,7 +547,7 @@ var engine = {
                 // action. The code elsewhere that selected the tab based on the hash
                 // in the URL acounts for this addition, but the page doesn't jump any
                 // more because there is no anchor of this name in the markup...
-                window.location.hash = evt.srcElement.getAttribute("id")+"_selected";
+                window.location.hash = evt.srcElement.getAttribute("id") + "_selected";
             }
         }
     },
@@ -519,71 +570,71 @@ var engine = {
      * thing to its corresponding description. Trust me, it makes sense...
      * Used by /configure page:
      */
-    selectHandler: function(evt,selectlist,current_option_value, current_dropdown_index, prefix){
+    selectHandler: function (evt, selectlist, current_option_value, current_dropdown_index, prefix) {
         // let id = selectlist[current_dropdown_index].id;
         console.log(`${selectlist[current_dropdown_index].id}_description_changed`);
         document.getElementById(`${selectlist[current_dropdown_index].id}_description_changed`).innerText = ""
-        if(current_option_value !== selectlist[current_dropdown_index].selectedIndex){
+        if (current_option_value !== selectlist[current_dropdown_index].selectedIndex) {
             document.getElementById(`${selectlist[current_dropdown_index].id}_description_changed`).innerText = "*"
         }
         // apply description to display DIV:
-        document.getElementById(`${selectlist[current_dropdown_index].id}_description`).innerText = document.getElementById(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex+1}`).innerText;
+        document.getElementById(`${selectlist[current_dropdown_index].id}_description`).innerText = document.getElementById(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex + 1}`).innerText;
     },
 
     // dropdown handler for manage components page. We are populaing a form, so it is different to the 
     // full compass one above] The key is the lookup data in the hidden DOM elements 
-    selectComponentUIChangeHandler: function(event=event, prefix=prefix, submitBtn=submitBtn, hiddenDataElemsIdList=hiddenDataElemsIdList){
+    selectComponentUIChangeHandler: function (event = event, prefix = prefix, submitBtn = submitBtn, hiddenDataElemsIdList = hiddenDataElemsIdList) {
         // the database ID textbox. Will be hidden, is an int
         console.log("consolidated UI handler")
         document.getElementById(`${prefix}_id`).value = event.srcElement[event.srcElement.selectedIndex].value;
 
         // now figure out whetehr we are ADDING or UPDATING, and change the UI accordingly
-        if(event.srcElement[event.srcElement.selectedIndex].value !== "-1"){
+        if (event.srcElement[event.srcElement.selectedIndex].value !== "-1") {
             /** Retrieve the current data for the selected database ID from the jinja template markup rendered elems holding the current values */
-            for(let elemCount = 0;elemCount < hiddenDataElemsIdList.length; elemCount++){
+            for (let elemCount = 0; elemCount < hiddenDataElemsIdList.length; elemCount++) {
                 document.getElementById(`${prefix}_${hiddenDataElemsIdList[elemCount]}`).value = document.getElementById(`${prefix}_${hiddenDataElemsIdList[elemCount]}_${event.srcElement[event.srcElement.selectedIndex].value}`).innerText;
             }
-            submitBtn.value=`Update existing ${prefix.replace('_',' ')}`;
+            submitBtn.value = `Update existing ${prefix.replace('_', ' ')}`;
         }
-        else{
-            for(let elemCount = 0;elemCount < hiddenDataElemsIdList.length; elemCount++){
+        else {
+            for (let elemCount = 0; elemCount < hiddenDataElemsIdList.length; elemCount++) {
                 document.getElementById(`${prefix}_${hiddenDataElemsIdList[elemCount]}`).value = "";
             }
-            submitBtn.value=`Create new ${prefix.replace('_',' ')}`;    // `prefix` does not always have an underscore
+            submitBtn.value = `Create new ${prefix.replace('_', ' ')}`;    // `prefix` does not always have an underscore
         }
     },
 
-    descriptionHoverHandler: function(evt){
+    descriptionHoverHandler: function (evt) {
         console.log(evt);
-        evt.srcElement.setAttribute("title",evt.srcElement.innerText);
+        evt.srcElement.setAttribute("title", evt.srcElement.innerText);
     },
 
-    loadConstantData: function(data){
+    loadConstantData: function (data) {
         engine.coordinate_lookup = data;
     },
 
     // populate data for routes that require it from JSON data file:
-    populateCompassImageData: function(){
+    populateCompassImageData: function () {
 
     },
 
-    buildOptionElem: function(header, userName, userId){
+    buildOptionElem: function (header, userName, userId) {
         let _elem = document.createElement('option');
         let _txt, _attr;
-        if(header){
+        if (header) {
             _txt = document.createTextNode('-- Select yourself --')
             _attr = -1;
         }
-        else{
+        else {
             _txt = document.createTextNode(userName)
             _attr = userId;
         }
-        _elem.setAttribute("value",_attr)
+        _elem.setAttribute("value", _attr)
         _elem.appendChild(_txt)
-        return(_elem);
+        return (_elem);
     },
 
-    loadAndBuildUserDropdown: function(){
+    loadAndBuildUserDropdown: function () {
         fetch(`/users/`, {
             method: 'GET',
             headers: {
@@ -591,8 +642,8 @@ var engine = {
                 'Content-Type': 'application/json'
             },
         }).then(function (response) {
-             return response.json(); 
-        }).then(function (response) { 
+            return response.json();
+        }).then(function (response) {
             let targetElem = document.getElementById("select_user");
 
             /**  
@@ -601,9 +652,9 @@ var engine = {
              *  - and the argument rages on...
             */
             targetElem.innerHTML = "";
-            targetElem.appendChild(engine.buildOptionElem(true,null,null));
-            for(let x=0;x<response.length;x++){
-                targetElem.appendChild(engine.buildOptionElem(false,response[x].name,response[x].id));
+            targetElem.appendChild(engine.buildOptionElem(true, null, null));
+            for (let x = 0; x < response.length; x++) {
+                targetElem.appendChild(engine.buildOptionElem(false, response[x].name, response[x].id));
             }
         });
     },
@@ -612,7 +663,7 @@ var engine = {
      * Generate DOM for static quadrant and sector compass titles. We don't want to duplicate hardcoded
      * HTML in > 1 template
      */
-    getStaticSectorTitlesDOM: function(){
+    getStaticSectorTitlesDOM: function () {
         // This is why it did not display:
         // https://stackoverflow.com/questions/23588384/dynamically-created-svg-element-not-displaying
 
@@ -620,95 +671,95 @@ var engine = {
         _render_titles.innerHTML = "";
 
         // iterate over quadrants:
-        for(let qt=0;qt<this.data_quadrants.length;qt++){
-            let _polygon = document.createElementNS("http://www.w3.org/2000/svg",'polygon');
-            
+        for (let qt = 0; qt < this.data_quadrants.length; qt++) {
+            let _polygon = document.createElementNS("http://www.w3.org/2000/svg", 'polygon');
+
             // for DATABASE DATA:
-            _polygon.setAttribute("class",`svg_title svg_quadrant_${qt+1}`);
+            _polygon.setAttribute("class", `svg_title svg_quadrant_${qt + 1}`);
             // THIS NEEDS TO BE REPLACED WITH THE STATIC DATA RETURNED BY THE /compass/{id} ENDPOINT
             // LOG DATA REGARDING THAT API CALL HERE!!
-            _polygon.setAttribute("points",engine.coordinate_lookup.quadrants[qt].points);
+            _polygon.setAttribute("points", engine.coordinate_lookup.quadrants[qt].points);
 
 
             // and append to the wrapper:
             _render_titles.appendChild(_polygon);
-            
+
             // iterate over title parts for each quadrant (0, 1 or 2):
-            for(let qtp=0;qtp<this.data_quadrants[qt].title.length;qtp++){
-                let _title = document.createElementNS("http://www.w3.org/2000/svg",'text');
-                _title.setAttribute('id',`svg_title_${qt+1}_${qtp+1}`);
+            for (let qtp = 0; qtp < this.data_quadrants[qt].title.length; qtp++) {
+                let _title = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                _title.setAttribute('id', `svg_title_${qt + 1}_${qtp + 1}`);
                 // This replaces classname stored in database with auto-generated one:
-                _title.setAttribute('class',`svg_quad_title svg_quadrant_${qt+1}`);
-                _title.setAttribute('font-size','24');
-                
+                _title.setAttribute('class', `svg_quad_title svg_quadrant_${qt + 1}`);
+                _title.setAttribute('font-size', '24');
+
                 // TODO:
                 // for #71/#72 here we would define a lookup for qt/qtp for specific coords 
-                _title.setAttribute('x',engine.coordinate_lookup.quadrants[qt].title[qtp].coords[0]);
-                _title.setAttribute('y',engine.coordinate_lookup.quadrants[qt].title[qtp].coords[1]);
-                
+                _title.setAttribute('x', engine.coordinate_lookup.quadrants[qt].title[qtp].coords[0]);
+                _title.setAttribute('y', engine.coordinate_lookup.quadrants[qt].title[qtp].coords[1]);
+
                 // and append to the wrapper:
                 _render_titles.appendChild(_title);
             }
 
             // and for each quadrant, generate the sector titles:
-            for(let stp=0;stp<this.data_quadrants[qt].sectors.length;stp++){
+            for (let stp = 0; stp < this.data_quadrants[qt].sectors.length; stp++) {
                 let sector_title_array = this.data_quadrants[qt].sectors[stp].title;
                 // and for each of these, generate a <text> element:
-                for(let xx=0;xx<sector_title_array.length;xx++){
+                for (let xx = 0; xx < sector_title_array.length; xx++) {
 
-                    let _sector_title = document.createElementNS("http://www.w3.org/2000/svg",'text');
-                    _sector_title.setAttribute('id',`svg_sector_${qt+1}_${stp+1}_${xx+1}`);
-                    _sector_title.setAttribute('font-size','14');
+                    let _sector_title = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                    _sector_title.setAttribute('id', `svg_sector_${qt + 1}_${stp + 1}_${xx + 1}`);
+                    _sector_title.setAttribute('font-size', '14');
 
                     // DATABASE DATA
                     // with static lookups:
-                    _sector_title.setAttribute('x',engine.coordinate_lookup.quadrants[qt].sectors[stp][xx].coords[0]);
-                    _sector_title.setAttribute('y',engine.coordinate_lookup.quadrants[qt].sectors[stp][xx].coords[1]);
+                    _sector_title.setAttribute('x', engine.coordinate_lookup.quadrants[qt].sectors[stp][xx].coords[0]);
+                    _sector_title.setAttribute('y', engine.coordinate_lookup.quadrants[qt].sectors[stp][xx].coords[1]);
                     _render_titles.appendChild(_sector_title);
                 }
             }
         }
     },
 
-    renderDisplayedTexts: function(){
+    renderDisplayedTexts: function () {
         // render texts that show always, rather than having static texts as part
         // of the image itself. also, find a way
         // of using the same image for /static and /templates.
         // This function assumes presence of DOM generated by above function.
- 
+
         // I'm using index 1 because of the way the element IDs are named.
-        for(let x=1;x<=this.data_quadrants.length;x++){
+        for (let x = 1; x <= this.data_quadrants.length; x++) {
             // get the array of words for the current title elems:
-             let current_words = this.data_quadrants[x-1];
+            let current_words = this.data_quadrants[x - 1];
 
             // identify the text elements by ID:
             // for(let y=1;y<=current_words.title_parts.length;y++){
-            for(let y=1;y<=current_words.title.length;y++){
+            for (let y = 1; y <= current_words.title.length; y++) {
                 let elem_id = `svg_title_${x}_${y}`;
-                try{
+                try {
                     let elem = document.getElementById(elem_id);
                     // static data:
                     // let txt = document.createTextNode(current_words.title_parts[y-1].title);
 
                     // database data:
-                    let txt = document.createTextNode(current_words.title[y-1].title_part);
+                    let txt = document.createTextNode(current_words.title[y - 1].title_part);
                     elem.appendChild(txt);
                 }
-                catch(ex){
+                catch (ex) {
                     console.log(`Cannot process quadrant title parts: ${ex}`);
                 }
             }
 
             // now get the segment titles: we do a double loop to get each segment, and the lines array for each:
-            for(let z=1;z<=current_words.sectors.length;z++){
-                for(let xx=1;xx<=current_words.sectors[z-1].title.length;xx++){
+            for (let z = 1; z <= current_words.sectors.length; z++) {
+                for (let xx = 1; xx <= current_words.sectors[z - 1].title.length; xx++) {
                     let elem_id = `svg_sector_${x}_${z}_${xx}`;
-                    try{
+                    try {
                         let elem = document.getElementById(elem_id);
-                        let txt = document.createTextNode(current_words.sectors[z-1].title[xx-1].title_part);
+                        let txt = document.createTextNode(current_words.sectors[z - 1].title[xx - 1].title_part);
                         elem.appendChild(txt);
                     }
-                    catch(ex){
+                    catch (ex) {
                         console.log(`Cannot process segment title parts: ${ex}`);
                     }
                 }
@@ -716,25 +767,25 @@ var engine = {
         }
     },
 
-    redirectToUserPage: function(){
+    redirectToUserPage: function () {
         // TODO:
     },
 
-    submitNewUserDataHandler: function(){
+    submitNewUserDataHandler: function () {
         let submit = true;
-        data={}
+        data = {}
         data['username'] = document.getElementById("new_user_login").value;
         data['compass_id'] = document.getElementById("compass_id").value;
         data['name'] = document.getElementById("new_user_name").value;
         data['email'] = document.getElementById("new_user_email").value;
         data['password'] = document.getElementById("new_user_pwd").value;
         data['password_check'] = document.getElementById("new_user_pwd_repeat").value;
-        if(data["password"] !== data["password_check"]){    // also checks on server
+        if (data["password"] !== data["password_check"]) {    // also checks on server
             submit = false;
         }
         console.table(data);
         // TODO: Do blur/change handlers and alert in real-time 
-        if(submit){
+        if (submit) {
             fetch('/users/new/', {
                 method: 'POST',
                 body: JSON.stringify(data),
@@ -743,22 +794,22 @@ var engine = {
                     'Content-Type': 'application/json'
                 },
             }).then(function (response) {
-                return response.json(); 
-                }).then(function (response) { 
+                return response.json();
+            }).then(function (response) {
                 /** the ResponseRedirect from the server is failing, so
                  * try with JS instead:
                  */
-                if(response.usercreated){
+                if (response.usercreated) {
                     // document.location.href=`/static/?user_id=${response.user_id}`
-                    document.location.href=`/${response.user_id}`
+                    document.location.href = `/${response.user_id}`
                 }
             });
         }
     },
 
-    submitUpdateUserDataHandler: function(){
+    submitUpdateUserDataHandler: function () {
         let submit = true;
-        data={}
+        data = {}
         data['username'] = document.getElementById("update_user_login").value;
         data['id'] = parseInt(document.getElementById("update_user_id").value);
         data['compass_id'] = parseInt(document.getElementById("compass_id").value);
@@ -773,7 +824,7 @@ var engine = {
         //     submit = false;
         // }
         // TODO: Do blur/change handlers and alert in real-time 
-        if(submit){
+        if (submit) {
             fetch(`/users/${data['id']}/edit/`, {
                 method: 'POST',
                 body: JSON.stringify(data),
@@ -782,15 +833,15 @@ var engine = {
                     'Content-Type': 'application/json'
                 },
             }).then(function (response) {
-                return response.json(); 
-            }).then(function (response) { 
+                return response.json();
+            }).then(function (response) {
                 /** the ResponseRedirect from the server is failing, so
                  * try with JS instead:
                  */
-                if(response.username){  // check that it is a User object
-                    document.location.href=`/${response.id}/`
+                if (response.username) {  // check that it is a User object
+                    document.location.href = `/${response.id}/`
                 }
-                else{
+                else {
                     // render a message - wrong user ID etc
                     elem = document.getElementById("message")
                     elem.innerHTML = "Error"
@@ -818,37 +869,36 @@ var engine = {
         }
     },
 
-    retrieveUserData: function(){
+    retrieveUserData: function () {
         let user_id = this.getAttribute('data-user-id').split(":")[1];
         /** now call API endpoint: */
         fetch(`/${user_id}/data/`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                   // 'Content-Disposition': 'attachment',
-                },
-            }).then(function (response) {
-                return response.json(); 
-                }).then(function (response) { 
-                /** the ResponseRedirect from the server is failing, so
-                 * try with JS instead:
-                 */
-                if(response.usercreated){
-                    document.location.href=`/static/?user_id=${response.user_id}`
-                }
-            });
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                // 'Content-Disposition': 'attachment',
+            },
+        }).then(function (response) {
+            return response.json();
+        }).then(function (response) {
+            /** the ResponseRedirect from the server is failing, so
+             * try with JS instead:
+             */
+            if (response.usercreated) {
+                document.location.href = `/static/?user_id=${response.user_id}`
+            }
+        });
     },
 
-    test_load_data: function (user_id=0) {
+    test_load_data: function (user_id = 0) {
         /** first, clear the current data */
         // https://developer.mozilla.org/en-US/docs/Web/API/NodeList
         var svg_compass = Array.from(document.getElementById("svg_compass").childNodes);
-        for(let _x=0;_x<svg_compass.length; _x++){
-            if(svg_compass[_x].tagName === "polygon"){
+        for (let _x = 0; _x < svg_compass.length; _x++) {
+            if (svg_compass[_x].tagName === "polygon") {
                 /** ignore outer titles, because removing style from this causes an error */
-                if(!svg_compass[_x].classList.contains("svg_title"))
-                {
+                if (!svg_compass[_x].classList.contains("svg_title")) {
                     svg_compass[_x].classList.remove('svg_clicked');
                     svg_compass[_x].classList.remove('svg_show');
                 }
@@ -868,26 +918,27 @@ var engine = {
                 'Content-Type': 'application/json'
             },
         }).then(function (response) {
-             return response.json(); 
-        }).then(function (response) { 
+            return response.json();
+        }).then(function (response) {
             currentData = [];
-            for(let a=0;a<response.length;a++){
+            for (let a = 0; a < response.length; a++) {
                 currentData.push({
-                    "key":[response[a].quadrant, response[a].sector,response[a].sector],
-                    "rating":response[a].rating})
+                    "key": [response[a].quadrant, response[a].sector, response[a].sector],
+                    "rating": response[a].rating
+                })
             }
             if (currentData) {
                 var data = currentData;
                 for (var a = 0; a < data.length; a++) {
                     if (engine.isQuadrant(data[a])) {
                         engine.addToUserdata(
-                            data[a].key, 
+                            data[a].key,
                             data[a].rating
                         );
-                        var elem = document.querySelector('[data-lookup="[' 
-                            + data[a].key 
-                            + ']"][data-rating="' 
-                            + data[a].rating 
+                        var elem = document.querySelector('[data-lookup="['
+                            + data[a].key
+                            + ']"][data-rating="'
+                            + data[a].rating
                             + '"]');
                         if (elem) {
                             elem.click();
@@ -897,11 +948,11 @@ var engine = {
             }
         });
     },
-    
+
     isQuadrant: function (data) {
         return data.rating >= 0 && data.rating <= 6;
     },
-    
+
     test_handler: function (event) {
         if (this.current_score > -1) {
             engine.addToUserdata([this.current_quad, this.current_sector, this.current_score], this.current_rating);
@@ -911,9 +962,9 @@ var engine = {
         event.preventDefault();
     },
 
-    getQuadrantTitleFromData: function(titleParts){
+    getQuadrantTitleFromData: function (titleParts) {
         let out = "";
-        for(let a=0;a<titleParts.length;a++){
+        for (let a = 0; a < titleParts.length; a++) {
             // out += titleParts[a].title + " ";
             out += titleParts[a].title_part + " ";
         }
@@ -943,7 +994,7 @@ var engine = {
             }
             var sector_title_description = '';
             if (lookup[1] > -1) {
-                
+
                 // DATABASE DATA
                 sector_title_description = engine.data_quadrants[lookup[0]].sectors[lookup[0]].description;
                 sector_title = engine.data_quadrants[lookup[0]].sectors[lookup[0]].title;
@@ -956,13 +1007,13 @@ var engine = {
                 sector_block_description = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].sectors[lookup[2]].title);
             }
             // special case for outer titles: TO SORT!
-            if(lookup[1] > -1 && lookup[2]===-1){
-                try{
+            if (lookup[1] > -1 && lookup[2] === -1) {
+                try {
                     // DATABASE DATA:
-                    sector_title =             engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].sectors[lookup[1]].title);
+                    sector_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].sectors[lookup[1]].title);
                     sector_block_description = engine.data_quadrants[lookup[0]].sectors[lookup[1]].description;
                 }
-                catch(e){
+                catch (e) {
                     console.log(e);
                 }
             }
@@ -1015,14 +1066,14 @@ var engine = {
             }
         }
     },
-    
+
     /** for template, simplify the function */
-    loadUser: function(){
+    loadUser: function () {
         let selected_user = document.getElementById("select_user").value;
         engine.test_load_data(selected_user);
     },
-    
-    selectAndLoadUser: function(){
+
+    selectAndLoadUser: function () {
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
         let selected_user = document.getElementById("select_user").value;
 
@@ -1036,13 +1087,13 @@ var engine = {
         }
     },
 
-    redirectToUserTemplate: function(){
+    redirectToUserTemplate: function () {
         let selected_user = document.getElementById("select_user").value;
-        if(parseInt(selected_user) > 0){
+        if (parseInt(selected_user) > 0) {
             document.location.href = `/${selected_user}`;
         }
     },
-    
+
     addToUserdata: function (lookup, rating) {
         /**  here we add the data to the database rather than localstorage. Therefore, this also 
          * needs to have an async promise handler: */
@@ -1063,17 +1114,16 @@ var engine = {
                 'Content-Type': 'application/json'
             },
         }).then(function (response) {
-             return response.json(); 
-        }).then(function (response) { 
-        
+            return response.json();
+        }).then(function (response) {
+
         });
 
         var append = true;
         for (var a = 0; a < engine.current_data.length; a++) {
-            if (engine.current_data[a].key[0] === lookup[0] 
-                    && engine.current_data[a].key[1] === lookup[1] 
-                    && engine.current_data[a].key[2] === lookup[2])
-                {
+            if (engine.current_data[a].key[0] === lookup[0]
+                && engine.current_data[a].key[1] === lookup[1]
+                && engine.current_data[a].key[2] === lookup[2]) {
                 append = false;
                 engine.current_data[a].rating = rating;
             };
@@ -1083,7 +1133,7 @@ var engine = {
         }
         this.renderRatings();
     },
-    
+
     setSectorSVGClicked: function (elem) {
         var id_prefix = elem.getAttribute('id').split('-')[0];
         var max_id = parseInt(elem.getAttribute('id').split('-')[1]);
@@ -1096,7 +1146,7 @@ var engine = {
             document.getElementById('svg_' + id_prefix + '-' + x).classList.add('svg_show');
         }
     },
-    
+
     setSectorSVGDisplay: function (elem, show) {
         var id_prefix = elem.getAttribute('id').split('-')[0];
         var max_id = parseInt(elem.getAttribute('id').split('-')[1]);
@@ -1112,7 +1162,7 @@ var engine = {
             }
         }
     },
-    
+
     renderRatings: function () {
         var target = document.getElementById('userdata');
         target.innerText = "";
@@ -1131,8 +1181,8 @@ var engine = {
             // row.appendChild(document.createTextNode(engine.getQuadrantTitleFromData(  engine.data_quadrants[engine.current_data[a].key[0]].title_parts)
             // DATABASE DATA:
 
-            row.appendChild(document.createTextNode(engine.getQuadrantTitleFromData(  engine.data_quadrants[engine.current_data[a].key[0]].title)
-            // row.appendChild(document.createTextNode(engine.data_quadrants[engine.current_data[a].key[0]].summary.title
+            row.appendChild(document.createTextNode(engine.getQuadrantTitleFromData(engine.data_quadrants[engine.current_data[a].key[0]].title)
+                // row.appendChild(document.createTextNode(engine.data_quadrants[engine.current_data[a].key[0]].summary.title
                 + ', '
                 // STATIC DATA
                 // + engine.data_quadrants[engine.current_data[a].key[0]].sector_summaries[engine.current_data[a].key[1]].title
@@ -1146,7 +1196,7 @@ var engine = {
         }
     },
 
-    test : function(arg){
+    test: function (arg) {
         console.log("IN FUNCTION LIB");
         console.log(arg);
     }
@@ -1162,17 +1212,17 @@ document.addEventListener("DOMContentLoaded",
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
-                    return response.json();  
+                    return response.json();
                 })
                 .then(display_data => {
                     // apply data as required:
                     engine.init(display_data);  // put this into callback
-                })  
+                })
                 .catch(error => {
                     console.error('Failed to fetch data:', error);
-                    return({"status":"error", "message":'Failed to fetch data:', error});
+                    return ({ "status": "error", "message": 'Failed to fetch data:', error });
                 }
-                ); 
+                );
         }
         // THIS NEEDS TO BE REPLACED WITH THE STATIC DATA RETURNED BY THE /compass/{id} ENDPOINT
         function fetchConstantData() {
@@ -1181,15 +1231,15 @@ document.addEventListener("DOMContentLoaded",
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
-                    return response.json();  
+                    return response.json();
                 })
                 .then(constant_data => {
                     // apply data as required:
                     engine.loadConstantData(constant_data);  // put this into callback
-                })  
-                .catch(error => console.error('Failed to fetch constant data:', error)); 
+                })
+                .catch(error => console.error('Failed to fetch constant data:', error));
         }
-        fetchJSONData(); 
+        fetchJSONData();
         // test:
         // THIS NEEDS TO BE REPLACED WITH THE STATIC DATA RETURNED BY THE /compass/{id} ENDPOINT
         fetchConstantData();
