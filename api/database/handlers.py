@@ -248,7 +248,7 @@ def update_quadrant(engine,quadrant:QuadrantBase) -> Quadrant:
         _update_obj.quadrant_summary = quadrant.quadrant_summary
         _update_obj.quadrant_description = quadrant.quadrant_description
         session.commit()
-        return _update_obj
+        return quadrant # TODO: exception handling if error!
 
 def get_quadrants(engine, include_titles=False) -> list[Quadrant]:
     with Session(engine) as session:
