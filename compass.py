@@ -63,7 +63,8 @@ Base.metadata.create_all(engine)
 # load JSON data on startup:
 # load_config_data()
 
-# test of jinja template function calling:
+# test of jinja template function calling
+# https://stackoverflow.com/questions/6036082/call-a-python-function-from-jinja2
 # To move to imported lib
 class Funcs():
     
@@ -71,6 +72,14 @@ class Funcs():
         if not str_in:
             return "[empty]"
         return str_in
+    
+
+    def truncate_displayed_text(long_test:str):
+        truncated_length = 30
+        if len(long_test) > truncated_length:
+            # https://stackoverflow.com/questions/663171/how-do-i-get-a-substring-of-a-string-in-python
+            return '%s...' % long_test[:truncated_length]
+        return long_test
 
 
 @app.get("/")
