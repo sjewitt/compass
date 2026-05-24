@@ -454,9 +454,9 @@ var engine = {
         }).then((response) => {
             /** TODO: APIs should return the new or updated component */
             // console.log(response.json());
-            return(response.json());    // pass to next 'then'
+            return (response.json());    // pass to next 'then'
 
-        }).then((data)=>{
+        }).then((data) => {
             // https://www.geeksforgeeks.org/javascript/javascript-fetch-method/
             // As long as the back-end returns the correct object...
             // THIS TODO!!
