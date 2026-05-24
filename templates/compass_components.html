@@ -28,27 +28,30 @@
 		</h1>
 	</div>
 
-	<!-- as for the compass, I need a store for the current data as hidden DIVs. 
-	 It MIGHT be better to directly use the database IDs to build the DOM IDs -->
-	{% for quadrant in quadrants %}
-		<div id="quadrant_summary_{{quadrant.id}}" class="hidden">{{quadrant.quadrant_summary}}</div>
-		<div id="quadrant_description_{{quadrant.id}}" class="hidden">{{quadrant.quadrant_description}}</div>
-	{% endfor %}
-	{% for quadrant_title in quadrant_titles %}
-		<div id="quadrant_title_part_{{quadrant_title.id}}" class="hidden">{{quadrant_title.title_part}}</div>
-	{% endfor %}
-	{% for sector in sectors %}
-		<div id="sector_summary_{{sector.id}}" class="hidden">{{sector.summary}}</div>
-		<div id="sector_description_{{sector.id}}" class="hidden">{{sector.description}}</div>		
-	{% endfor %}
-	{% for sector_title in sector_titles %}
-		<div id="sector_title_part_{{sector_title.id}}" class="hidden">{{sector_title.title_part}}</div>
-	{% endfor %}
-	{% for rating in ratings %}
-		<div id="rating_title_{{rating.id}}" class="hiddenxx">{{rating.title}}</div>
-		<div id="rating_description_{{rating.id}}" class="hiddenxx">{{rating.description}}</div>
-	{% endfor %}
-
+	<div id="compass_data_lookups">
+		<!-- as for the compass, I need a store for the current data as hidden DIVs. 
+		It MIGHT be better to directly use the database IDs to build the DOM IDs.
+		I also want to push updates in here so we see a realtim view rather than having 
+		to reload the page... -->
+		{% for quadrant in quadrants %}
+			<div id="quadrant_summary_{{quadrant.id}}" class="hidden">{{quadrant.quadrant_summary}}</div>
+			<div id="quadrant_description_{{quadrant.id}}" class="hidden">{{quadrant.quadrant_description}}</div>
+		{% endfor %}
+		{% for quadrant_title in quadrant_titles %}
+			<div id="quadrant_title_part_{{quadrant_title.id}}" class="hidden">{{quadrant_title.title_part}}</div>
+		{% endfor %}
+		{% for sector in sectors %}
+			<div id="sector_summary_{{sector.id}}" class="hidden">{{sector.summary}}</div>
+			<div id="sector_description_{{sector.id}}" class="hidden">{{sector.description}}</div>		
+		{% endfor %}
+		{% for sector_title in sector_titles %}
+			<div id="sector_title_part_{{sector_title.id}}" class="hidden">{{sector_title.title_part}}</div>
+		{% endfor %}
+		{% for rating in ratings %}
+			<div id="rating_title_{{rating.id}}" class="hidden">{{rating.title}}</div>
+			<div id="rating_description_{{rating.id}}" class="hidden">{{rating.description}}</div>
+		{% endfor %}
+</div>
 	<div class="tabswrapper">
 		<div data-tabid="1" class="panel_selector_tab panel_selector_tab_selected" id="tab_1">Quadrants</div>
 		<div data-tabid="2" class="panel_selector_tab " id="tab_2">Quadrant Titles</div>
@@ -72,18 +75,18 @@
 						<select name="manage_quadrants_select" id="manage_quadrants_select" data-identifier="quadrant">
 							<option value="-1">[Add New]</option>
 							{% for quadrant in quadrants %}
-							<option value="{{quadrant.id}}">{{quadrant.quadrant_summary}}</option>
+							<option value="{{quadrant.id}}">{{funcs.truncate_displayed_text(quadrant.quadrant_summary)}}</option>
 							{% endfor %}
 						</select>
 					</div>
-					<div>X</div>
+					<div></div>
 					<div>
-						<form id="manage_quadrants_form" name="manage_quadrants_form">
-							<input type="text" id="quadrant_id" value="-1">
+						<!-- <form id="manage_quadrants_form" name="manage_quadrants_form"> -->
+							<input type="text" id="quadrant_id" value="-1" class="hidden">
 							<textarea id="quadrant_summary" rows="2" cols="80"></textarea><!-- restrict to x chars as per database table -->
 							<textarea id="quadrant_description" rows="10" cols="80"></textarea>
 							<input type="button" id="quadrant_component_submit" value="Create new quadrant"/>
-						</form>
+						<!-- </form> -->
 					</div>
 				</div>
 			</div>
@@ -104,17 +107,17 @@
 						<select name="manage_quadrant_titles_select" id="manage_quadrant_titles_select" data-identifier="quadrant_title">
 							<option value="-1">[Add New]</option>
 							{% for quadrant_title in quadrant_titles %}
-							<option value="{{quadrant_title.id}}">{{quadrant_title.title_part}}</option>
+							<option value="{{quadrant_title.id}}">{{funcs.truncate_displayed_text(quadrant_title.title_part)}}</option>
 							{% endfor %}
 						</select>
 					</div>
-					<div>X</div>
+					<div></div>
 					<div>
-						<form id="manage_quadrant_titles_form" name="manage_quadrant_titles_form">
-							<input type="text" id="quadrant_title_id" value="-1">
+						<!-- <form id="manage_quadrant_titles_form" name="manage_quadrant_titles_form"> -->
+							<input type="text" id="quadrant_title_id" value="-1" class="hidden">
 							<input type="text" id="quadrant_title_part" value="">
 							<input type="button" id="quadrant_title_component_submit" value="Create new quadrant title"/>
-						</form>
+						<!-- </form> -->
 					</div>
 				</div>
 			</div>
@@ -136,18 +139,18 @@
 						<select name="manage_sectors_select" id="manage_sectors_select" data-identifier="sector">
 							<option value="-1">[Add New]</option>
 							{% for sector in sectors %}
-							<option value="{{sector.id}}">{{sector.summary}}</option>
+							<option value="{{sector.id}}">{{ funcs.truncate_displayed_text(sector.summary) }}</option>
 							{% endfor %}
 						</select>
 					</div>
-					<div>X</div>
+					<div></div>
 					<div>
-						<form id="manage_sectors_form" name="manage_sectors_form">
-							<input type="text" id="sector_id" value="-1">
+						<!-- <form id="manage_sectors_form" name="manage_sectors_form"> -->
+							<input type="text" id="sector_id" value="-1" class="hidden">
 							<textarea id="sector_summary" rows="2" cols="80"></textarea><!-- restrict to x chars as per database table -->
 							<textarea id="sector_description" rows="10" cols="80"></textarea>
 							<input type="button" id="sector_component_submit" value="Create new sector"/>
-						</form>
+						<!-- </form> -->
 					</div>
 				</div>
 			</div>
@@ -168,17 +171,17 @@
 						<select name="manage_sector_titles_select" id="manage_sector_titles_select" data-identifier="sector_title">
 							<option value="-1">[Add New]</option>
 							{% for sector_title in sector_titles %}
-							<option value="{{sector_title.id}}">{{sector_title.title_part}}</option>
+							<option value="{{sector_title.id}}">{{funcs.truncate_displayed_text(sector_title.title_part)}}</option>
 							{% endfor %}
 						</select>
 					</div>
-					<div>X</div>
+					<div></div>
 					<div>
-						<form id="manage_sector_titles_form" name="manage_sector_titles_form">
-							<input type="text" id="sector_title_id" value="-1">
+						<!-- <form id="manage_sector_titles_form" name="manage_sector_titles_form"> -->
+							<input type="text" id="sector_title_id" value="-1" class="hidden">
 							<input type="text" id="sector_title_part" value="">
 							<input type="button" id="sector_title_component_submit" value="Create new sector title"/>
-						</form>
+						<!-- </form> -->
 					</div>
 				</div>
 			</div>
@@ -192,29 +195,38 @@
 					</div>
 					Ratings
 				</h2>
+				<div>
+					<p>A Rating is simply a level of competency description. It can be anything from very 
+					generic ("Novice", "Shows potential") to highly specific ("Junior Javascript Developer",
+					"Able to implement a solution, given a suitable technicl brief").
+					</p>
+					<p>
+						When composing a full Compass, suitable Ratings can be chosen from the pool generated 
+						here.
+					</p>
+				</div>
 			</div>
 			<div>
 				<div>
-				{{ratings}}
-				<div class="threecolpanel" id="manage_ratings">
-					<div>
-						<select name="manage_ratings_select" id="manage_ratings_select" data-identifier="rating">
-							<option value="-1">[Add New]</option>
-							{% for rating in ratings %}
-							<option value="{{rating.id}}">{{rating.title}}</option>
-							{% endfor %}
-						</select>
+					<div class="threecolpanel" id="manage_ratings">
+						<div>
+							<select name="manage_ratings_select" id="manage_ratings_select" data-identifier="rating">
+								<option value="-1">[Add New]</option>
+								{% for rating in ratings %}
+								<option value="{{rating.id}}">{{funcs.truncate_displayed_text(rating.title)}}</option>
+								{% endfor %}
+							</select>
+						</div><!-- this ovrflows into the middle column if too narrow. Needs a min-width perhaps? -->
+						<div></div>
+						<div>
+							<!-- <form id="manage_sectors_form" name="manage_sectors_form"> -->
+								<input type="text" id="rating_id" value="-1" class="hidden">
+								<input type="text" id="rating_title" />
+								<textarea id="rating_description" rows="10" cols="80"></textarea>
+								<input type="button" id="rating_component_submit" value="Create new rating"/>
+							<!-- </form> -->
+						</div>
 					</div>
-					<div>X</div>
-					<div>
-						<form id="manage_sectors_form" name="manage_sectors_form">
-							<input type="text" id="rating_id" value="-1">
-							<input type="text" id="rating_title" />
-							<textarea id="rating_description" rows="10" cols="80"></textarea>
-							<input type="button" id="rating_component_submit" value="Create new rating"/>
-						</form>
-					</div>
-				</div>
 				</div>
 			</div>
 		</div>
