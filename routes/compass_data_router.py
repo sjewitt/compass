@@ -130,19 +130,19 @@ def get_sector_title(id:int) -> SectorTitles:
     result = handlers.get_sector_title(engine, id)
     return result
 
-@router.post("/sectors/titles/update")
+@router.post("/sectors/title/update")
 def update_sector_title(updated_sector_title:SectorTitles) -> SectorTitles:
     ''' ## get specified sector title defined in the database '''
     result = handlers.update_sector_title(engine, updated_sector_title)
     return result
 
-@router.post("/sectors/titles/")
-def add_sector_titles(sectortitles:list[SectorTitlesIn]) -> bool:
+@router.post("/sectors/title/")
+def add_sector_title(sectortitle:SectorTitlesIn) -> bool:
     '''
-      ## Add one or more sector title\n 
-      Expects a list of SectorTitles
+      ## Add sector title\n 
+      Expects a `SectorTitles` instance
     '''
-    result = handlers.add_sector_titles(engine,sectortitles)
+    result = handlers.add_sector_title(engine,sectortitle)
     return result
 
 ################################################
@@ -151,6 +151,11 @@ def add_sector_titles(sectortitles:list[SectorTitlesIn]) -> bool:
 @router.post("/sectors/")
 def add_sector(sector:SectorIn):
     result = handlers.add_sector(engine,sector)
+    return result
+
+@router.post("/sectors/update/")
+def update_sector(sector:Sector):
+    result = handlers.update_sector(engine,sector)
     return result
 
 @router.get("/sectors/")
@@ -174,6 +179,11 @@ def get_sector(id:int)->Sector:
 @router.post("/rating/")
 def add_rating(rating:RatingIn):
     result = handlers.add_rating(engine, rating)
+    return result
+
+@router.post("/rating/update")
+def update_rating(rating:Rating):
+    result = handlers.update_rating(engine, rating)
     return result
 
 @router.get("/ratings/", response_model=list[Rating])

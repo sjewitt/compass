@@ -40,6 +40,9 @@ body{
   grid-gap: 10px;
   width: 100%
 }
+.panelwrapper select{
+  width:200px;
+}
 
 .threecolpanel > div > h4{
     margin-top: 5px;

@@ -63,7 +63,8 @@ Base.metadata.create_all(engine)
 # load JSON data on startup:
 # load_config_data()
 
-# test of jinja template function calling:
+# test of jinja template function calling
+# https://stackoverflow.com/questions/6036082/call-a-python-function-from-jinja2
 # To move to imported lib
 class Funcs():
     
@@ -71,6 +72,14 @@ class Funcs():
         if not str_in:
             return "[empty]"
         return str_in
+    
+
+    def truncate_displayed_text(long_test:str):
+        truncated_length = 30
+        if len(long_test) > truncated_length:
+            # https://stackoverflow.com/questions/663171/how-do-i-get-a-substring-of-a-string-in-python
+            return '%s...' % long_test[:truncated_length]
+        return long_test
 
 
 @app.get("/")
@@ -105,6 +114,7 @@ async def compass_summaries(request: Request):
     quadrant_titles = handlers.get_quadrant_titles(engine=engine)
     sectors = handlers.get_sectors(engine=engine)
     sector_titles = handlers.get_sector_titles(engine=engine)
+    ratings = handlers.get_ratings(engine=engine)
     return templates.TemplateResponse(
         request=request,
         name="compass_components.html",
@@ -113,6 +123,7 @@ async def compass_summaries(request: Request):
             "quadrant_titles":quadrant_titles,
             "sectors":sectors, 
             "sector_titles":sector_titles,
+            "ratings":ratings,
             "funcs":Funcs,
         }
     )
@@ -131,7 +142,6 @@ async def compass_new(request: Request):
         return templates.TemplateResponse(
             request=request,
             name="configure.html",
-            # name="dummy.html",
             context={
                 "compass_data":None,
                 "quadrants":quadrants,
@@ -188,7 +198,7 @@ async def compass_summaries(request: Request):
     compass_summaries = handlers.get_all_compasses(engine=engine) # to sort. we can't have hardcoded IDs floating about...
     return templates.TemplateResponse(
         request=request,
-        name="compass_summaries.html",
+        name="configure_home.html",
         context={"compass_summaries":compass_summaries}
     )
 
