@@ -370,10 +370,6 @@ var engine = {
      */
     submitComponent: async function (e, itemSelectDOMId) {
         // the DOM ID of the DROPDOWN
-        // we could get the database ID from this, but it is already calculated in the hidden
-        // text field via the onchange handler of the dropdown, so let's use that. So we DO need all 
-        // DOM elem IDs in that array above 
-        // console.log(`trying for ${srcElemId}...`);
         let component_id = parseInt(document.getElementById(itemSelectDOMId).value);
         // and use the above as a key to determine which endpoint we send to...
         let endpoint = engine.ENDPOINT_MAPPER[itemSelectDOMId]["endpoint"];   // hacky!!
@@ -384,11 +380,6 @@ var engine = {
         // [NOTE: I need to implement data integrity checking etc. and alert the
         // user if data is not present/wrong!!]
         let submit_data = {};
-        // submit_data["endpoint"] = endpoint;
-        // iterate over elems to retrieve data from.
-        // I want to embellish so each array item is actually:
-        // `{"domId":"id_string", "type":"str/int"}`
-        // maybe assume string unless otehrwise specified?
         /** 
          * Here, we iterate over the declared DOM elements in the field mapper above
          * for the component type being updated/created - (THIS is where we need a
@@ -401,13 +392,13 @@ var engine = {
          * back-end processes accordingly (update or new).   
          */
         for (let idx = 0; idx < engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"].length; idx++) {
-            // its a bit messy in terms of the ID, so...
-            console.log(engine.ENDPOINT_MAPPER[itemSelectDOMId]);
-            console.log(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx])
-            console.log(document.getElementById(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx]));
-            let _val = document.getElementById(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx]).value;
+
+            let currentDataDOMEntry = document.getElementById(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx]);
+            let _val = currentDataDOMEntry.value;
+            
+            // Assume we are updating...
             let _append = true;
-            // ak!! to rationalise with the API endpoint models!!!
+            // but check if we are creating a new one: 
             if (engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx].endsWith("_id")) {
                 _val = parseInt(_val);
                 if (_val === -1) _append = false;
@@ -415,34 +406,11 @@ var engine = {
 
             /** Append fieldnames unless it is a NEW item request */
             if (_append) {
-                // there's a mismatch between the database ID field (`id`) and the DOM ID string representing the element HOLDING that ID.
-                // I can either hack it on the server - ik - or I can hack it here...
-                // I *think* can just prefix with something in the DOM??? 
-                let currentFieldName = engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx];
-                // likewise for "title_part"...
-                if (currentFieldName.endsWith("_title_part")) {
-                    currentFieldName = "title_part";
-                }
-                // AND handle sector fieldname mismatch (CHANGE AT DB LEVEL IN THE ORM!!! TODO:)
-                if (currentFieldName.startsWith("sector_")) {
-                    currentFieldName = currentFieldName.replace("sector_", "");
-                }
-
-                if (currentFieldName.startsWith("rating_")) {
-                    currentFieldName = currentFieldName.replace("rating_", "");
-                }
-
-                // ARGH! and 
-                console.log(currentFieldName);
-                if (currentFieldName.endsWith("_id")) {
-                    currentFieldName = "id";
-                }
-
+                // retrieve the database fieldname from the current DOM element:
+                let currentFieldName = currentDataDOMEntry.getAttribute("data-database-field");
                 submit_data[currentFieldName] = document.getElementById(engine.ENDPOINT_MAPPER[itemSelectDOMId]["data_elems"][idx]).value;
             }
         }
-
-        console.log(component_id, endpoint, submit_data);
 
         const response = await fetch(endpoint, {
             method: "post",
@@ -453,7 +421,6 @@ var engine = {
             body: JSON.stringify(submit_data),
         }).then((response) => {
             /** TODO: APIs should return the new or updated component */
-            // console.log(response.json());
             return (response.json());    // pass to next 'then'
 
         }).then((data) => {
