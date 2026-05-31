@@ -82,9 +82,9 @@
 					<div></div>
 					<div>
 						<!-- <form id="manage_quadrants_form" name="manage_quadrants_form"> -->
-							<input type="text" id="quadrant_id" value="-1" class="hidden">
-							<textarea id="quadrant_summary" rows="2" cols="80"></textarea><!-- restrict to x chars as per database table -->
-							<textarea id="quadrant_description" rows="10" cols="80"></textarea>
+							<input type="text" id="quadrant_id" value="-1" class="hidden" data-database-field="id">
+							<textarea id="quadrant_summary" rows="2" cols="80" data-database-field="quadrant_summary"></textarea><!-- restrict to x chars as per database table -->
+							<textarea id="quadrant_description" rows="10" cols="80" data-database-field="quadrant_description"></textarea>
 							<input type="button" id="quadrant_component_submit" value="Create new quadrant"/>
 						<!-- </form> -->
 					</div>
@@ -114,8 +114,8 @@
 					<div></div>
 					<div>
 						<!-- <form id="manage_quadrant_titles_form" name="manage_quadrant_titles_form"> -->
-							<input type="text" id="quadrant_title_id" value="-1" class="hidden">
-							<input type="text" id="quadrant_title_part" value="">
+							<input type="text" id="quadrant_title_id" value="-1" class="hidden" data-database-field="id">
+							<input type="text" id="quadrant_title_part" value="" data-database-field="title_part">
 							<input type="button" id="quadrant_title_component_submit" value="Create new quadrant title"/>
 						<!-- </form> -->
 					</div>
@@ -146,9 +146,9 @@
 					<div></div>
 					<div>
 						<!-- <form id="manage_sectors_form" name="manage_sectors_form"> -->
-							<input type="text" id="sector_id" value="-1" class="hidden">
-							<textarea id="sector_summary" rows="2" cols="80"></textarea><!-- restrict to x chars as per database table -->
-							<textarea id="sector_description" rows="10" cols="80"></textarea>
+							<input type="text" id="sector_id" value="-1" class="hidden" data-database-field="id">
+							<textarea id="sector_summary" rows="2" cols="80" data-database-field="summary"></textarea><!-- restrict to x chars as per database table -->
+							<textarea id="sector_description" rows="10" cols="80"  data-database-field="description"></textarea>
 							<input type="button" id="sector_component_submit" value="Create new sector"/>
 						<!-- </form> -->
 					</div>
@@ -178,9 +178,9 @@
 					<div></div>
 					<div>
 						<!-- <form id="manage_sector_titles_form" name="manage_sector_titles_form"> -->
-							<input type="text" id="sector_title_id" value="-1" class="hidden">
-							<input type="text" id="sector_title_part" value="">
-							<input type="button" id="sector_title_component_submit" value="Create new sector title"/>
+							<input type="text" id="sector_title_id" value="-1" class="hidden"  data-database-field="id">
+							<input type="text" id="sector_title_part" value=""  data-database-field="title_part">
+							<input type="button" id="sector_title_component_submit" value="Create new sector title" />
 						<!-- </form> -->
 					</div>
 				</div>
@@ -220,9 +220,9 @@
 						<div></div>
 						<div>
 							<!-- <form id="manage_sectors_form" name="manage_sectors_form"> -->
-								<input type="text" id="rating_id" value="-1" class="hidden">
-								<input type="text" id="rating_title" />
-								<textarea id="rating_description" rows="10" cols="80"></textarea>
+								<input type="text" id="rating_id" value="-1" class="hidden" data-database-field="id">
+								<input type="text" id="rating_title"  data-database-field="title"/>
+								<textarea id="rating_description" rows="10" cols="80"  data-database-field="description"></textarea>
 								<input type="button" id="rating_component_submit" value="Create new rating"/>
 							<!-- </form> -->
 						</div>
