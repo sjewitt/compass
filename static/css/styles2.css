@@ -105,6 +105,10 @@ body{
  * UTILITIES
  ***************************************************/
 
+.grey{
+  color:grey;
+}
+
 /* see https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/transform-function/rotate */
 .rotate_90{
   transform: rotate(90deg)
