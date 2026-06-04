@@ -27,7 +27,8 @@ A User row can map to zero or more Competencies.
 '''
 class Competency(BaseModel):
     ''' this maps to the compass quadrants and sectors, and the current rating for each '''
-    user_id:int = Field()   # actually a FK to users table
+    user_id:int = Field()        # FK to users table
+    compass_id:int = Field()     # FK to compass_definition table
     quadrant:int = Field(min=0, max=3)
     sector:int = Field(min=0, max=4)
     rating:int = Field(min=0, max=5)

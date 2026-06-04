@@ -30,6 +30,7 @@ class DB_Competency(Base):
     __tablename__ = "competencies"
     id : Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    compass_id: Mapped[int] = mapped_column(ForeignKey("compass_definition.id"))
     quadrant = mapped_column(Integer)
     sector = mapped_column(Integer)
     rating = mapped_column(Integer)
