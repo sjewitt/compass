@@ -42,12 +42,17 @@ def check_user_exists(engine, user_id:int) -> bool:
     return False
 
 def check_competency_is_applied_to_user_already(engine,competency:DB_Competency) -> bool:
-    ''' check whether a competency for user_id, quadrant and sector is present already. '''
+    ''' check whether a competency for user_id,, compass_id, quadrant and sector is present already. '''
     with Session(engine) as session:
         stmt = select(DB_Competency).where(
-                DB_Competency.user_id == competency.user_id).where(
-                DB_Competency.quadrant == competency.quadrant).where(
-                DB_Competency.sector == competency.sector)
+                    DB_Competency.user_id == competency.user_id
+                ).where(
+                    DB_Competency.compass_id == competency.compass_id
+                ).where(
+                    DB_Competency.quadrant == competency.quadrant
+                ).where(
+                    DB_Competency.sector == competency.sector
+                )
         result = session.execute(stmt).first()
         if result:
             return True
@@ -73,7 +78,7 @@ def add_competency(engine, competency:DB_Competency) -> dict:   # status object
                 and check_quadrant_bounds(competency.quadrant)                      \
                 and check_sector_bounds(competency.quadrant,competency.sector)      \
                 and check_ratings_bounds(competency.rating):
-        # here, check whetherthe competency is already applied to user:
+        # here, check whether the competency is already applied to user:
         # - if so, UPDATE
         # - if NOT, add new (logic to change!)
         # print(check_competency_is_applied_to_user_already(engine,competency))
@@ -180,9 +185,10 @@ def get_competency(engine, competency_id:int) -> Competency|None:
         raise CompetencyNotFound("Competency with id %s not found" % competency_id)
 
 def get_competencies_for_user(engine, user_id:int) -> list[Competency]:
+    _user = get_user(engine=engine,user_id=user_id)
     with Session(engine) as session:
         # https://docs.sqlalchemy.org/en/20/tutorial/data_select.html
-        stmt = select(DB_Competency).where(DB_Competency.user_id == user_id)
+        stmt = select(DB_Competency).where(DB_Competency.user_id == user_id).where(DB_Competency.compass_id == _user.compass_id)
         result = []
         # need to convert the DB_User into a User, so th epydantic validation works
         for row in session.scalars(stmt):
