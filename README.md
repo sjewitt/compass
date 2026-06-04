@@ -335,3 +335,6 @@ This is already minimally implemented for `Rating` with `RatingIn` model. (and C
 
 
 I thinkj I need to sequentially number the sector description dropdowns - 1 -> 17
+
+
+TODO: IMplement the load-by-compass-id. Use teh same technique of loading the compass_id rather than the hardcoded one specified in the .js file.  I may need to do the load at a different time in the lifecycle (I can't remember when I load compass - probab;ly on page load?? CHECK with debgging!)
