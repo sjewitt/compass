@@ -93,8 +93,9 @@ async def root(request: Request):
 @app.get("/{user_id}")
 async def template_test(request: Request,user_id:int):
     _user = handlers.get_user(engine, user_id)
+    _compass = handlers.get_compass(engine, _user.compass_id)
     return templates.TemplateResponse(
-        request=request,name="index.html", context={"user":_user}
+        request=request,name="index.html", context={"user":_user, "compass":_compass}
     )
 
 @app.get("/{user_id}/edit/")
