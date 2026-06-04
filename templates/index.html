@@ -35,14 +35,14 @@
 			<img src="/static/images/edit-user-64.png" alt="Edit user icon" title="Edit user" />
 		</a>
 	</div>
-{{user.name}}
+{{user.name}} <span class="grey">{{ compass.title }}</span>
 </h1>
 </div>
 
 <!-- <img src='/static/compass_trans.png' id='test' alt='Craft Compass' title="Craft Compass" usemap="#testmap"> -->
 <img src='/static/compass_trans_blank_cropped.png' id='test' alt='Craft Compass' title='Craft Compass' usemap="#testmap">
 
-compass for me: {{ user.compass_id }}
+compass for me: <input type="text" id="compass_id" value="{{ user.compass_id }}" />{{ user.compass_id }}
 <div style="width:1152px;">
 		<!-- q1 -->
 		<svg viewBox="0 0 1152 900" id="svg_compass">
@@ -58,7 +58,6 @@ compass for me: {{ user.compass_id }}
 
 				<!-- compass titles are pushed in here -->
 			</g>
-
 
 	<!-- quadrant 1, top right -->
 	    	    <polygon class="svg_hide q1" id="svg_s1-1" points="517,389,515,350,543,356,535,393" />
