@@ -1066,8 +1066,10 @@ var engine = {
          * needs to have an async promise handler: */
         /** get the ID of the user from the dropdown */
         let user_id = document.getElementById("select_user").value;
+        let compass_id = document.getElementById("compass_id").value;
         data = {
             "user_id": user_id,
+            "compass_id": compass_id,
             "quadrant": lookup[0],
             "sector": lookup[1],
             "rating": rating,
@@ -1169,12 +1171,22 @@ var engine = {
     }
 };
 
+// This may not need to be loaded ALWAYS, or for every page. JUST the data display page
+// and homepage? - i.e. the compass itself.
+// We DO need to call the API endpoint related to the current user's compass though, so thet
+// see the correct titles etc.
+// I can get the URL positional variable for the compass from the data-attribute on the page
+// but ideally this should be done with a user session variable. User management and auth 
+// has not yet been addressed... A BIG TODO:!
 document.addEventListener("DOMContentLoaded",
     (evt) => {
         // load data then call init:
         // https://www.geeksforgeeks.org/javascript/read-json-file-using-javascript/
         function fetchJSONData() {
-            fetch(engine.API_URL)
+            console.log(document.getElementById("compass_id").value);
+            let API_URL = `/compass/${document.getElementById("compass_id").value}`;
+            // fetch(engine.API_URL)
+            fetch(API_URL)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -1191,7 +1203,10 @@ document.addEventListener("DOMContentLoaded",
                 }
                 );
         }
-        // THIS NEEDS TO BE REPLACED WITH THE STATIC DATA RETURNED BY THE /compass/{id} ENDPOINT
+        // ~~THIS NEEDS TO BE REPLACED WITH THE STATIC DATA RETURNED BY THE /compass/{id} ENDPOINT~~
+        // UPDATE: This lookup is actually the coordinates of where the compass data is placed.
+        // it does not need to be added to teh database (in fact, I REMOVED cord data from the schema as
+        // it was unnecessary) 
         function fetchConstantData() {
             fetch(engine.CONSTANTS_URL)
                 .then(response => {
