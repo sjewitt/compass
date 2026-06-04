@@ -8,7 +8,8 @@ from sqlalchemy.orm import sessionmaker
 # DATABASE_URI = "sqlite:///./database/test3.sqlite"    # CURRENT SCHEMA
 # DATABASE_URI = "sqlite:///./database/test4.sqlite"
 # DATABASE_URI = "sqlite:///./database/test5.sqlite" # EMPTY
-DATABASE_URI = "sqlite:///./database/test6.sqlite"  # schema v2 
+# DATABASE_URI = "sqlite:///./database/test6.sqlite"  # schema v0.2 
+DATABASE_URI = "sqlite:///./database/test7.sqlite"  # schema v0.3 (competenies with compass ID) 
 engine = create_engine(DATABASE_URI, echo=False)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
