@@ -1183,8 +1183,12 @@ document.addEventListener("DOMContentLoaded",
         // load data then call init:
         // https://www.geeksforgeeks.org/javascript/read-json-file-using-javascript/
         function fetchJSONData() {
-            console.log(document.getElementById("compass_id").value);
-            let API_URL = `/compass/${document.getElementById("compass_id").value}`;
+            console.log(document.getElementById("compass_id"));
+            let API_URL = engine.API_URL;   // fallback TO FIX!!! WE DEFINITELY DONT NEED THIS FOR THE COMPONENTS PAGE!!!!!
+            if(document.getElementById("compass_id")){
+                API_URL = `/compass/${document.getElementById("compass_id").value}`;
+            }
+            
             // fetch(engine.API_URL)
             fetch(API_URL)
                 .then(response => {
@@ -1221,7 +1225,13 @@ document.addEventListener("DOMContentLoaded",
                 })
                 .catch(error => console.error('Failed to fetch constant data:', error));
         }
-        fetchJSONData();
+        // pending separation of JS, this ensures that this only works on teh page that has it...
+        // (it is to pass back the compass ID assigne to the user, and terefore only applies to the main
+        // compass page)
+        //if(document.getElementById("compass_id")){
+            fetchJSONData();
+        //}
+        
         // test:
         // THIS NEEDS TO BE REPLACED WITH THE STATIC DATA RETURNED BY THE /compass/{id} ENDPOINT
         fetchConstantData();
