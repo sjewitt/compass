@@ -38,7 +38,7 @@
 	<input type="hidden" name="update_user_id" id="update_user_id" value="{{ user.id }}"/>
 	
 	<div>Compass:</div><select name="compass_id" id="compass_id">
-		<option>Select compass (todo):</option>
+		<option value="-1">Select compass:</option>
 		{% for compass_summary in compasses %}
 		<option value="{{ compass_summary.id }}"
 		{% if compass_summary.id == user.compass_id %}
@@ -64,5 +64,5 @@
 
 
 </body>
-<script src="/static/js/engine2.js"></script>
+<script src="/static/js/engine-user.js"></script>
 </html>
