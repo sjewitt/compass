@@ -734,7 +734,9 @@ def get_compass(engine, id:int) -> CompassData:
         else:
             print(f"No compass matching ID {id}")
             # return CompassData()
-            raise IndexError(f"No compass matching ID {id}")
+            # raise IndexError(f"No compass matching ID {id}")
+            # LOG the error
+            return {}
 
 # generate compass data using extisting quadrants and sectors:
 # def set_compass(engine, definition:CompassDefinition) -> int:
