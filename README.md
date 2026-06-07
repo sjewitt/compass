@@ -1,3 +1,17 @@
+# REFS
+
+ * https://stackoverflow.com/questions/39565706/post-request-with-fetch-api
+ * https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+ * https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith
+ * https://fastapi.tiangolo.com/advanced/templates/#install-dependencies
+ * https://stackoverflow.com/questions/1927593/cant-update-textarea-with-javascript-after-writing-to-it-manually (.value vs .innerText)
+ * https://stackoverflow.com/questions/77553191/how-do-i-go-about-removing-an-event-handler-created-in-an-arrow-function-so-that
+ * https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
+ * https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+
+
+
 # README for imagemap
 
 ## Simple setup (not prod!!)
@@ -338,3 +352,12 @@ I thinkj I need to sequentially number the sector description dropdowns - 1 -> 1
 
 
 TODO: IMplement the load-by-compass-id. Use teh same technique of loading the compass_id rather than the hardcoded one specified in the .js file.  I may need to do the load at a different time in the lifecycle (I can't remember when I load compass - probab;ly on page load?? CHECK with debgging!)
+
+070626
+-------
+
+if a NEW user:
+ - breaks upon loading and editing (with or without a compass applied):
+ - WITHOUT:
+   - 
+FIXED
