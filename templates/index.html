@@ -10,7 +10,7 @@
 <div id="flyout" class="flyout">
 <h1>
 	<!-- <div class="inline_block"> -->
-		<input type="hidden" name="select_user" id="select_user" value="{{ user.id }}" />
+		<input type="text" class="hidden" name="select_user" id="current_user" value="{{ user.id }}" />
 		<!-- <input disabled="disabled" class="text_left lg_width" type="text" value="{{ user.name }}"  />
 	</div> -->
 	<div class="button inline_block">
@@ -35,8 +35,26 @@
 			<img src="/static/images/edit-user-64.png" alt="Edit user icon" title="Edit user" />
 		</a>
 	</div>
-{{user.name}} <span class="grey">{{ compass.title }}</span>
+	{{user.name}} <span class="grey">
+		{%if compass and compass.title %}
+			{{ compass.title }}
+		{% else %}
+			[No compass assigned]
+		{% endif %}
+		
+		</span>
 </h1>
+
+		{%if not compass %}
+		<div>
+		<h3>Actions</h3>
+		<ul>
+			<li><a href="/{{user.id}}/edit/">Assign a compass</a></li>
+		</ul>
+	</div>
+			
+		{% endif %}
+
 </div>
 
 <!-- <img src='/static/compass_trans.png' id='test' alt='Craft Compass' title="Craft Compass" usemap="#testmap"> -->
@@ -370,8 +388,17 @@ compass for me: <input type="text" id="compass_id" value="{{ user.compass_id }}"
 </div>
 <a id="download_hidden_link"></a>
 </body>
-<!-- <script src="/static/js/engine2.js"></script> -->
- <!-- import the javascript import tag... -->
+
 <script src="/static/js/common.js"></script> 
 <script src="/static/js/engine-index.js"></script>
+<script>
+	/** there should be a way of converting the entire User object in one go... */
+	engine.user = {};
+	// NOTE: VS Code doesn't like this unquoted syntax, but it works just fine:
+	engine.user.id = {{user.id }};
+	engine.user.name = "{{user.name }}";
+	engine.user.compass_id = {{user.compass_id }};
+	engine.user.username = "{{user.username }}";
+	console.log(engine);
+</script>
 </html>
