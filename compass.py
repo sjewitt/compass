@@ -94,6 +94,7 @@ async def root(request: Request):
 async def template_test(request: Request,user_id:int):
     _user = handlers.get_user(engine, user_id)
     _compass = handlers.get_compass(engine, _user.compass_id)
+    # If we get here with _compass == {}, then there is currently no compass applied to the user. We need to handle this at the template...
     return templates.TemplateResponse(
         request=request,name="index.html", context={"user":_user, "compass":_compass}
     )
