@@ -7,8 +7,14 @@ class UserNotFound(HTTPException):
 class CompetencyNotFound(HTTPException):
     pass
 
+
 class CompetencyOutOfRange(HTTPException):
     pass
 
+
 class CompetenciesForUserNotFound(HTTPException):
+    pass
+
+
+class CompassForUserNotFound(HTTPException):
     pass
