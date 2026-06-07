@@ -4,6 +4,7 @@ from api.models import Quadrant, QuadrantIn, QuadrantBase, QuadrantTitles, \
         QuadrantTitlesIn, Sector, SectorIn, \
         SectorTitles,SectorTitlesIn,CompassData, CompassDefinition, CompassDefinitionIn, CompassSummary, \
         Rating, RatingIn
+from api.exceptions import CompassForUserNotFound
 # from api.db_models import DB_Quadrant, DB_QuadrantTitles,\
 #         DB_Sector,DB_SectorTitles, DB_Rating
 from api.database.engine import get_engine
@@ -39,7 +40,13 @@ def get_data(id:int) -> CompassData:
     ''' retrieve the definition by ID and compose the actual data in the handler '''
     try:
         result = handlers.get_compass(engine,id)
+        if not result:
+            raise CompassForUserNotFound(status_code=200)   # the API page exists, but no data is returned. see https://stackoverflow.com/questions/9595151 
+
         return result
+    except CompassForUserNotFound as ex:
+        print(ex)
+        return None
     except Exception as ex:
         print(ex)
         # return handlers.get_compass(engine,0)   # return a dummy to prevent errors (TO FIX PROPERLY!)
