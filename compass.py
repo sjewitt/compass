@@ -12,6 +12,8 @@ from fastapi.templating import Jinja2Templates
 
 from utilities.download_utilities import get_sector_title_from_data
 from utilities.data_utilities import load_config_data 
+from utilities.template_utils import Funcs
+
 from api.models import User,  UserCompetencies
 from api.database import handlers
 from api.database.engine import get_engine
@@ -60,36 +62,14 @@ templates = Jinja2Templates(directory="templates")
 # and generate the SQL:
 Base.metadata.create_all(engine)
 
-# load JSON data on startup:
-# load_config_data()
-
-# test of jinja template function calling
-# https://stackoverflow.com/questions/6036082/call-a-python-function-from-jinja2
-# To move to imported lib
-class Funcs():
-    
-    def replace_empty_string(str_in):
-        if not str_in:
-            return "[empty]"
-        return str_in
-    
-
-    def truncate_displayed_text(long_test:str):
-        truncated_length = 30
-        if len(long_test) > truncated_length:
-            # https://stackoverflow.com/questions/663171/how-do-i-get-a-substring-of-a-string-in-python
-            return '%s...' % long_test[:truncated_length]
-        return long_test
-
 
 @app.get("/")
 async def root(request: Request):
-    # return RedirectResponse("/static/")
     return templates.TemplateResponse(
         request=request,name="home.html", context={}
     )
 
-# template test:
+
 @app.get("/{user_id}")
 async def template_test(request: Request,user_id:int):
     _user = handlers.get_user(engine, user_id)
@@ -99,6 +79,7 @@ async def template_test(request: Request,user_id:int):
         request=request,name="index.html", context={"user":_user, "compass":_compass}
     )
 
+
 @app.get("/{user_id}/edit/")
 async def update_user(request: Request,user_id:int) -> User:
     ''' update user's competencies in database '''
@@ -107,7 +88,6 @@ async def update_user(request: Request,user_id:int) -> User:
     return templates.TemplateResponse(
         request=request,name="user_edit.html", context={"user":_user,"compasses":_compasses}
     )
-
 
 
 @app.get("/configure/components")
@@ -129,6 +109,7 @@ async def compass_summaries(request: Request):
             "funcs":Funcs,
         }
     )
+
 
 @app.get("/configure/new")
 async def compass_new(request: Request):
@@ -159,11 +140,11 @@ async def compass_new(request: Request):
     except Exception as ex:
         print(f"configure/new  Exception: {ex}")
 
+
 @app.get("/configure/{compass_id}")
 async def configure(request: Request, compass_id: int):
 
     # retrieve data we need
-    print(compass_id)
     try:
         compass_data = handlers.get_compass(engine=engine,id=compass_id) # to sort. we can't have hardcoded IDs floating about...
         # I also need the current data for the various components so I can generate the dropdowns as well:
@@ -223,17 +204,12 @@ async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
     for comp in user_data.competencies:
         _test = get_sector_title_from_data(config_data["configuration"].data_quadrants[comp.quadrant].title)
         row = ",".join([
-            # get_sector_title_from_data(config_data["configuration"]["data_quadrants"][comp.quadrant]["title_parts"]),
-            # get_sector_title_from_data(config_data["configuration"].data_quadrants[comp.quadrant].title),
             _test,
             # see: https://www.geeksforgeeks.org/python/python-program-to-remove-all-control-characters/
             # https://stackoverflow.com/questions/47187792/writing-csv-with-quotes-around-strings-python
-            # config_data["configuration"]["data_quadrants"][comp.quadrant]["sector_summaries"][comp.sector]["title"], 
-            # config_data["configuration"]["rating_description_lookup"][comp.rating]["title"],
             get_sector_title_from_data(config_data["configuration"].data_quadrants[comp.quadrant].sectors[comp.sector].title), 
             config_data["configuration"].rating_description_lookup[comp.rating].title,
             # remove control chars (TODO: quote the fields - probably use the CSV module...)
-            # re.sub(r'[\x00-\x1f]', '', config_data["configuration"]["rating_description_lookup"][comp.rating]["description"])
             re.sub(r'[\x00-\x1f]', '', config_data["configuration"].rating_description_lookup[comp.rating].description)
         ])
         csv_data = csv_data+row+"\n"
@@ -241,8 +217,6 @@ async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
     
     _cd = f"attachment; filename={user_data.user.username}_{datetime.datetime.now()}.csv"
     response.headers["Content-Disposition"] = _cd
-
-    # TODO: use CSV lib to properly generate quoted data
     return response
 
 
