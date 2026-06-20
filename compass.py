@@ -51,7 +51,7 @@ app.include_router(ratings_router.router)
 app.include_router(compass_data_router.router)
 
 compass_config_data = load_config_data(engine=engine, caller="root")
-app.mount("/api/",app)
+# app.mount("/api/",app)
 app.mount("/static", StaticFiles(directory="static", html=True, ),name="static")
 
 # declare location of template(s)
