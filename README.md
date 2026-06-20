@@ -360,4 +360,3 @@ if a NEW user:
  - breaks upon loading and editing (with or without a compass applied):
  - WITHOUT:
    - 
-FIXED
