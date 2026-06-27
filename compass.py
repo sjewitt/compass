@@ -16,10 +16,10 @@ from utilities.data_utilities import load_config_data
 from utilities.template_utils import Funcs
 
 from routers import competency_router, ratings_router, user_router, \
-    settings_router,compass_data_router,api_router
+    settings_router,compass_data_router  #,api_router
 
 from api.models import User,  UserCompetencies
-from handlers import handlers
+from api.database import handlers
 from api.database.engine import get_engine
 from api.db_models import  Base
 
@@ -97,7 +97,7 @@ app.include_router(ratings_router.router)
 app.include_router(compass_data_router.router)
 # lets separate the API routes from the template routes, so we can mount the API at /api/ and the templates at /
 # There's only one...
-app.include_router(api_router.router)
+# app.include_router(api_router.router)
 
 # compass_config_data = load_config_data(engine=engine, caller="root")
 app.mount("/static", StaticFiles(directory="static", html=True, ),name="static")
