@@ -12,9 +12,10 @@ compass_config_data = load_config_data(engine=engine, caller="settings")
 
   
 # endpoint for settings/json config retrieval
+# not even sure I need this any more.
 @router.get("/compass_config/") 
-def get_json_config_as_dict():
-    return load_config_data(engine=engine, caller="settings")
+def get_json_config_as_dict(compass_id:int=None):
+    return load_config_data(engine=engine, caller="settings",compass_id=compass_id)
 
 
 # reload config data so we don't need to restart:
