@@ -3,6 +3,7 @@ import datetime
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse, RedirectResponse
 
 # see https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-with-yield/
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 import uvicorn
@@ -14,46 +15,91 @@ from utilities.download_utilities import get_sector_title_from_data
 from utilities.data_utilities import load_config_data 
 from utilities.template_utils import Funcs
 
+from routers import competency_router, ratings_router, user_router, \
+    settings_router,compass_data_router,api_router
+
 from api.models import User,  UserCompetencies
-from api.database import handlers
+from handlers import handlers
 from api.database.engine import get_engine
 from api.db_models import  Base
 
 from fastapi import HTTPException
 from fastapi.exceptions import RequestValidationError, ResponseValidationError
 
-# # https://fastapitutorial.com/blog/dependencies-in-fastapi-coursefor-book/
 # https://github.com/fastapi/fastapi/discussions/12254
-
 # This doesn't quite feel right...
 engine = get_engine()
 
-app = FastAPI()
+
+
+# @app.on_event("startup")
+# async def startup_event():
+#     # load the config data into memory at startup
+#     # This is not actually needed initially, because we are no longer using the config dta
+#     # on the sdtart page. It is loaded when a user loads the compass currently assigned.
+#     # compass_config_data = load_config_data(engine=engine, caller="startup_event")
+
+#     # can I assign `engine` to a property of `app`? That way I don't need to pass it around
+#     # to the various handlers. I think this is a good idea, but I need to check if it is thread-safe.
+#     # app.arbitraryField = "bobs engine"
+#     # This works, but I need to investigate proper messagebus handlers
+#     # app.engine = get_engine()
+#     # print(app)
+    
+#     print(f"startup event")
+
+# from https://fastapi.tiangolo.com/advanced/events/#lifespan
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup code
+    print(f"startup event")# why does this only run on browser refresh? 
+    #I think it is because the app is not actually started until the first request is made. 
+    # #Therefore, the startup event is not actually run until the first request is made. 
+    # #This is a bit of a problem, because we want to load the config data into memory at startup,
+    # # so that it is available for all requests. Therefore, we need to find a way to run the 
+    # #startup event before the first request is made. I think this can be done by using a 
+    # #middleware that runs before the first request is made. I will investigate this further.
+    yield
+    # shutdown code
+    print(f"shutdown event")
+
+
+app = FastAPI(
+    lifespan=lifespan, 
+    title="Compass Application", 
+    description="A web application for managing user competencies and compass data.", 
+    version="0.5.0",
+    fish="sturgeon")    # it's still beta.
 
 # exception handlers for app:
 # see https://fastapi.tiangolo.com/tutorial/handling-errors/#override-request-validation-exceptions
 # TODO: move to module?
 
 @app.exception_handler(RequestValidationError)
-async def test(request,exc:RequestValidationError):
+async def handle_request_validation_error(request,exc:RequestValidationError):
     print(f"RequestValidationError occurred: {exc}")
     # https://stackoverflow.com/questions/62986778/fastapi-handling-and-redirecting-404
     return RedirectResponse("/static/404.html")
 
 @app.exception_handler(ResponseValidationError)
-async def test(request,exc:ResponseValidationError):
+async def handle_response_validation_error(request,exc:ResponseValidationError):
     print(f"ResponseValidationError occurred: {exc}")
-    return "BROKEN" 
+    # As advised by Copilot code review, we should return a JSON response with the error message and a 500 status code. This will help in debugging and provide
+    # a clear indication of what went wrong. 
+    return JSONResponse({"error":"ResponseValidationError occurred","message": str(exc)}, status_code=500)
+    # return RedirectResponse("/static/404.html") # could pass error here to a template and display the error?
 
-from routes import competency_router, ratings_router, user_router, settings_router,compass_data_router
+
 app.include_router(user_router.router)
 app.include_router(settings_router.router)
 app.include_router(competency_router.router)
 app.include_router(ratings_router.router)
 app.include_router(compass_data_router.router)
+# lets separate the API routes from the template routes, so we can mount the API at /api/ and the templates at /
+# There's only one...
+app.include_router(api_router.router)
 
-compass_config_data = load_config_data(engine=engine, caller="root")
-# app.mount("/api/",app)
+# compass_config_data = load_config_data(engine=engine, caller="root")
 app.mount("/static", StaticFiles(directory="static", html=True, ),name="static")
 
 # declare location of template(s)
@@ -62,7 +108,9 @@ templates = Jinja2Templates(directory="templates")
 # and generate the SQL:
 Base.metadata.create_all(engine)
 
-
+'''
+Templated routes for the compass application
+'''
 @app.get("/")
 async def root(request: Request):
     return templates.TemplateResponse(
@@ -71,7 +119,7 @@ async def root(request: Request):
 
 
 @app.get("/{user_id}")
-async def template_test(request: Request,user_id:int):
+async def compass_for_user(request: Request,user_id:int):
     _user = handlers.get_user(engine, user_id)
     _compass = handlers.get_compass(engine, _user.compass_id)
     # If we get here with _compass == {}, then there is currently no compass applied to the user. We need to handle this at the template...
@@ -186,38 +234,43 @@ async def compass_summaries(request: Request):
     )
 
 
-@app.get("/{user_id}/data")
-async def get_user_data(user_id:int) -> UserCompetencies:
-    user_data = handlers.get_user_data(engine, user_id)
-    return user_data
-
-
+# do I leave these here? [from Copilot]: I think so, as they are the API endpoints for the user data download. They are not part of the
+# template routes, but they are part of the API routes. So I will leave them here for now. Nice Interaction BTW.
 @app.get("/{user_id}/data/csv",response_class=StreamingResponse)
 async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
     user_data = handlers.get_user_data(engine, user_id)
-    config_data = settings_router.get_json_config_as_dict()     # this is needed!
+    compass_data = handlers.get_compass(engine, user_data.user.compass_id)
+    # CONFIG DATA is not being used consistently. It IS needed, but here it is erroneously loaded with
+    # incorrect compass ID. Therefore, pass current user compass ID to the settings_router.get_json_config_as_dict() 
+    # function to get the correct config data for this user.
+    config_data = settings_router.get_json_config_as_dict(compass_id=user_data.user.compass_id)     # this is needed!
     csv_data = ""
-    header = ",".join(['Quadrant','Sector','Rating',"Description"])
+    header = ",".join(['Compass','Quadrant','Sector','Rating',"Description"])
     header = header+"\n"
     csv_data = header
     
     for comp in user_data.competencies:
         _test = get_sector_title_from_data(config_data["configuration"].data_quadrants[comp.quadrant].title)
         row = ",".join([
+            compass_data.title,
             _test,
-            # see: https://www.geeksforgeeks.org/python/python-program-to-remove-all-control-characters/
             # https://stackoverflow.com/questions/47187792/writing-csv-with-quotes-around-strings-python
-            get_sector_title_from_data(config_data["configuration"].data_quadrants[comp.quadrant].sectors[comp.sector].title), 
+            get_sector_title_from_data(config_data["configuration"].data_quadrants[comp.quadrant].sectors[comp.sector].title),
             config_data["configuration"].rating_description_lookup[comp.rating].title,
             # remove control chars (TODO: quote the fields - probably use the CSV module...)
+            # # see: https://www.geeksforgeeks.org/python/python-program-to-remove-all-control-characters/
             re.sub(r'[\x00-\x1f]', '', config_data["configuration"].rating_description_lookup[comp.rating].description)
         ])
         csv_data = csv_data+row+"\n"
     response = StreamingResponse(csv_data)
-    
-    _cd = f"attachment; filename={user_data.user.username}_{datetime.datetime.now()}.csv"
-    response.headers["Content-Disposition"] = _cd
-    return response
+    try:
+        _dtformat = "%Y-%m-%d_%H-%M-%S"
+        _cd = f"attachment; filename={user_data.user.username}_{datetime.datetime.now().strftime(_dtformat)}.csv"
+        response.headers["Content-Disposition"] = _cd
+        return response
+    except Exception as ex:
+        print(f"Exception in download_user_data_csv: {ex}")
+        return JSONResponse({"error":"Exception in download_user_data_csv","message": str(ex)}, status_code=500)
 
 
 @app.get("/{user_id}/data/json",response_class=FileResponse)
