@@ -154,11 +154,15 @@ def get_user_data(engine, user_id:int) -> UserCompetencies: # to type!
             result=UserCompetencies(
                 user=get_user(engine,user_id),
                 competencies=[])
-            _competencies = session.query(DB_Competency).where(DB_Competency.user_id == user_id).order_by(DB_Competency.quadrant).all()
+            _competencies = session.query(DB_Competency)    \
+                .where(DB_Competency.user_id == user_id)    \
+                .where(DB_Competency.compass_id == result.user.compass_id)    \
+                .order_by(DB_Competency.quadrant).all()
             stmt = select(DB_Competency).where(DB_Competency.user_id == user_id)
             for row in _competencies:
                 _competency = Competency(
                     user_id=user_id,
+                    compass_id=row.compass_id,
                     quadrant=row.quadrant,
                     sector=row.sector,
                     rating=row.rating,
