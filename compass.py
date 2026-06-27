@@ -1,3 +1,4 @@
+import logging
 import re
 import datetime
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse, RedirectResponse
@@ -29,30 +30,14 @@ from fastapi.exceptions import RequestValidationError, ResponseValidationError
 # https://github.com/fastapi/fastapi/discussions/12254
 # This doesn't quite feel right...
 engine = get_engine()
-
-
-
-# @app.on_event("startup")
-# async def startup_event():
-#     # load the config data into memory at startup
-#     # This is not actually needed initially, because we are no longer using the config dta
-#     # on the sdtart page. It is loaded when a user loads the compass currently assigned.
-#     # compass_config_data = load_config_data(engine=engine, caller="startup_event")
-
-#     # can I assign `engine` to a property of `app`? That way I don't need to pass it around
-#     # to the various handlers. I think this is a good idea, but I need to check if it is thread-safe.
-#     # app.arbitraryField = "bobs engine"
-#     # This works, but I need to investigate proper messagebus handlers
-#     # app.engine = get_engine()
-#     # print(app)
-    
-#     print(f"startup event")
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # from https://fastapi.tiangolo.com/advanced/events/#lifespan
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # startup code
-    print(f"startup event")# why does this only run on browser refresh? 
+    logger.info(f"startup event")# why does this only run on browser refresh? 
     #I think it is because the app is not actually started until the first request is made. 
     # #Therefore, the startup event is not actually run until the first request is made. 
     # #This is a bit of a problem, because we want to load the config data into memory at startup,
@@ -61,15 +46,16 @@ async def lifespan(app: FastAPI):
     # #middleware that runs before the first request is made. I will investigate this further.
     yield
     # shutdown code
-    print(f"shutdown event")
+    logger.info(f"shutdown event")
 
-
+# NOTE: I can add arbitrary properties to `app`, but making an application-wide
+# global (app.state) may be an option.
+# See https://starlette.dev/applications/#accessing-the-app-instance
 app = FastAPI(
     lifespan=lifespan, 
     title="Compass Application", 
     description="A web application for managing user competencies and compass data.", 
-    version="0.5.0",
-    fish="sturgeon")    # it's still beta.
+    version="0.5.0")    # it's still beta.
 
 # exception handlers for app:
 # see https://fastapi.tiangolo.com/tutorial/handling-errors/#override-request-validation-exceptions
@@ -77,13 +63,13 @@ app = FastAPI(
 
 @app.exception_handler(RequestValidationError)
 async def handle_request_validation_error(request,exc:RequestValidationError):
-    print(f"RequestValidationError occurred: {exc}")
+    logger.error(f"RequestValidationError occurred: {exc}")
     # https://stackoverflow.com/questions/62986778/fastapi-handling-and-redirecting-404
     return RedirectResponse("/static/404.html")
 
 @app.exception_handler(ResponseValidationError)
 async def handle_response_validation_error(request,exc:ResponseValidationError):
-    print(f"ResponseValidationError occurred: {exc}")
+    logger.error(f"ResponseValidationError occurred: {exc}")
     # As advised by Copilot code review, we should return a JSON response with the error message and a 500 status code. This will help in debugging and provide
     # a clear indication of what went wrong. 
     return JSONResponse({"error":"ResponseValidationError occurred","message": str(exc)}, status_code=500)
@@ -184,9 +170,9 @@ async def compass_new(request: Request):
             }
         )
     except IndexError as ex:
-        print(f"IndexError: {ex}")
+        logger.error(f"IndexError: {ex}")
     except Exception as ex:
-        print(f"configure/new  Exception: {ex}")
+        logger.error(f"configure/new  Exception: {ex}")
 
 
 @app.get("/configure/{compass_id}")
@@ -215,9 +201,9 @@ async def configure(request: Request, compass_id: int):
             }
         )
     except IndexError as ex:
-        print(f"IndexError: {ex}")
+        logger.error(f"IndexError: {ex}")
     except Exception as ex:
-        print(f"Exception: {ex}")
+        logger.error(f"Exception: {ex}")
 
 
 # jumpoff page to select or create a compass definition
@@ -239,11 +225,18 @@ async def compass_summaries(request: Request):
 @app.get("/{user_id}/data/csv",response_class=StreamingResponse)
 async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
     user_data = handlers.get_user_data(engine, user_id)
+
+    # This is needed so we can determine the compass title for the user,
+    # and also the sector titles. We need to pass in the compass ID to
+    # get the correct config data for this user.
     compass_data = handlers.get_compass(engine, user_data.user.compass_id)
+    
     # CONFIG DATA is not being used consistently. It IS needed, but here it is erroneously loaded with
     # incorrect compass ID. Therefore, pass current user compass ID to the settings_router.get_json_config_as_dict() 
     # function to get the correct config data for this user.
-    config_data = settings_router.get_json_config_as_dict(compass_id=user_data.user.compass_id)     # this is needed!
+    # (note that this is a legacy of the old code, which was loading the config data with a hardcoded compass ID of 1. 
+    #  This is not correct, as it will not work for users with different compass IDs.)
+    config_data = settings_router.get_json_config_as_dict(compass_id=user_data.user.compass_id)
     csv_data = ""
     header = ",".join(['Compass','Quadrant','Sector','Rating',"Description"])
     header = header+"\n"
@@ -269,7 +262,7 @@ async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
         response.headers["Content-Disposition"] = _cd
         return response
     except Exception as ex:
-        print(f"Exception in download_user_data_csv: {ex}")
+        logger.error(f"Exception in download_user_data_csv: {ex}")
         return JSONResponse({"error":"Exception in download_user_data_csv","message": str(ex)}, status_code=500)
 
 
