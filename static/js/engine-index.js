@@ -292,7 +292,7 @@ var engine = {
             var quad_title = "";
             var sector_title = "";
             if (lookup[0] > -1) {
-                quad_description = engine.data_quadrants[lookup[0]].summary;
+                quad_description = engine.data_quadrants[lookup[0]].quadrant_summary;
                 quad_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].title);
             }
             var sector_title_description = '';
