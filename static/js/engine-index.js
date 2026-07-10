@@ -297,8 +297,6 @@ var engine = {
             }
             var sector_title_description = '';
             if (lookup[1] > -1) {
-
-                // DATABASE DATA
                 sector_title_description = engine.data_quadrants[lookup[0]].sectors[lookup[0]].description;
                 sector_title = engine.data_quadrants[lookup[0]].sectors[lookup[0]].title;
             }
@@ -307,12 +305,15 @@ var engine = {
                 sector_title = engine.data_quadrants[lookup[0]].sectors[lookup[0]].title;
                 sector_rating = parseInt(this.getAttribute('data-rating'));
                 this.current_rating = sector_rating;
-                sector_block_description = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].sectors[lookup[2]].title);
+                // note use of title rather than description for rating, because the description is too long to display in a tooltip
+                sector_block_description = [
+                    engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].sectors[lookup[2]].title),
+                    engine.rating_description_lookup[sector_rating].title
+                ].join('\n\n');
             }
-            // special case for outer titles: TO SORT!
+            // Outer sector titles:
             if (lookup[1] > -1 && lookup[2] === -1) {
                 try {
-                    // DATABASE DATA:
                     sector_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].sectors[lookup[1]].title);
                     sector_block_description = engine.data_quadrants[lookup[0]].sectors[lookup[1]].description;
                 }
