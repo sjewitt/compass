@@ -1,3 +1,10 @@
+/**
+ * CSS for the compass application
+ 
+ refs:
+  - https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/border-radius
+ */
+
 body{
   font-family:Arial, Helvetica, sans-serif;
 }
@@ -9,6 +16,11 @@ body{
 
 .italic {
   font-style: italic;
+}
+
+#compass_wrapper{
+  /* no idea why this had a margin bottom at all! */
+  margin-bottom: 0px;
 }
 
 .panel{
@@ -28,9 +40,10 @@ body{
 /* main non-compass page layout */
 .gutterpanel{
   display: grid;
-  grid-template-columns: 20% 70% ;
+  grid-template-columns: 12% 85% ;
   grid-gap: 10px;
-  width: 100%
+  width: 100%;
+  margin-top: 10px;
 }
 
 /* layout for ratings select blocks, to allow for dropdown, 'current' indicator and longer description */
@@ -40,6 +53,34 @@ body{
   grid-gap: 10px;
   width: 100%
 }
+
+.panelwrapper{
+  height: 60%;
+  padding-top: 20px;
+  border: 1px solid black;
+  border-bottom: none;
+  border-top-right-radius: 10px;
+}
+.big{
+  height: 80%;
+  /* padding-top: 20px;*/
+  border-bottom: 1px solid black;
+  /*border-bottom: none;*/
+  border-radius: 10px;
+  border-top-left-radius: 0px; 
+}
+
+.small{
+  
+  border: 1px solid black;
+  border-top: none;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  height: 10%;
+  padding-top: 0px;
+}
+
 .panelwrapper select{
   width:200px;
 }
@@ -49,6 +90,10 @@ body{
     margin-bottom: 0px;
 }
 
+.changed{
+  color: red;
+  font-weight: bold;
+}
 
 .offset_top{
   position: relative;
@@ -88,27 +133,62 @@ body{
   border-bottom: 1px solid white; /* simulate a foreground tab */
 }
 
-.panelwrapper{
-  padding-top: 20px;
-  border: 1px solid black;
-}
-
-#compass_description{
-  /* width:100%;
-  height:350px; */
-}
-
-#compass_name{
-
-}
 /***************************************************
  * UTILITIES
  ***************************************************/
 
+.italics{
+  font-style: italic;
+}
+
+.gutterpanel h4{
+    margin-top: 5px;
+    margin-bottom: 0px;
+}
+
+h4.h4-tall{
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+/* border radius stuff */
+.br-5{
+  border-radius: 5px;
+}
+
+/* test of CSS variable 
+Inline, use this:
+ - style="--br:10px;" where 10px is the desired radius
+*/
+.br-var{
+  border-radius: var(--br);
+}
+
+
+.brtr-5{
+  border-top-right-radius: 5px;
+}
+
+.brtl-5{
+  border-top-left-radius: 5px;
+}
+
+.brbl-5{
+  border-bottom-left-radius: 5px;
+}
+
+.brbr-5{
+  border-bottom-right-radius: 5px;
+}
+/* end border radius stuff */
+
+/* text colour utilities */
 .grey{
   color:grey;
 }
+/* end text colour utilities */
 
+/* rotate utilities */
 /* see https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/transform-function/rotate */
 .rotate_90{
   transform: rotate(90deg)
@@ -121,6 +201,7 @@ body{
 .rotate_270{
   transform: rotate(270deg)
 }
+/* end rotate utilities */
 
 .ellipsis_100pc{
     overflow: hidden;
@@ -142,9 +223,24 @@ body{
 .mt_minus_1{
   margin-top: -1px;
 }
+.mt-0{
+  margin-top:0px;
+}
+
+.mt-5{
+  margin-top:5px;
+}
+
+.mt-10{
+  margin-top:10px;
+}
 
 .pt8{
   padding-top:8px;
+}
+
+.p5{
+  padding:5px;
 }
 
 .min_width_170{
@@ -190,6 +286,10 @@ body{
   height:75%;
 }
 
+.h-70pc{
+  height:70%;
+}
+
 .full_height{
   height:100%;
 }
@@ -207,6 +307,28 @@ body{
 }
 .height_400px{
   height: 400px;
+}
+
+/* use this inline: `style="--w:100px;"` 
+where e.g. 100px is the desired width */
+.w-var{
+  width: var(--w);
+}
+
+.w-50{
+  width:50px;
+}
+
+.w-80{
+  width:80px;
+}
+
+.w-100{
+  width:100px;
+}
+
+.w-150{
+  width:150px;
 }
 
 .align_bottom{
@@ -246,13 +368,36 @@ body{
     font-size: x-large;
     padding-left: 5px;
     padding-right: 5px;
-    border: 1px solid grey;
+    border: 1px solid #ccc;
     margin-left: 5px;
     border-radius: 3px;
     padding-top: 4px;
     height:32px;
     width: 40px;
     text-align:center;
+}
+
+.tab_icon{
+    width: 25px;
+    height: 25px;
+    /* padding-top: 0px; */
+    position: relative;
+    bottom: -6px;
+}
+
+.pt-0{
+  padding-top:0px;
+}
+
+/* rationalise the button styles: */
+.btn_base{
+  background-color: #eee;
+  border:#555 solid 1px;
+  border-radius: 3px;
+}
+.btn_base:hover{
+  background-color: #ccc;
+  cursor: pointer;
 }
 
 /* https://stackoverflow.com/questions/5069110/remove-hover-css-behavior-from-element */

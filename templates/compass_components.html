@@ -59,19 +59,27 @@
 		<div data-tabid="4" class="panel_selector_tab" id="tab_4">Sector Titles</div>
 		<div data-tabid="5" class="panel_selector_tab" id="tab_5">Ratings</div>
 	</div>
-	<div class="panelwrapper mt_minus_1">
-		<div class="gutterpanel" data-panelid="1">
+	<div class="panelwrapper big mt_minus_1">
+		<div class="p5" data-panelid="1" data-identifier="gutterpanel">
+			<h3>Manage Quadrants</h3>
 			<div>
-				<h2>
-					<div class="button button-static inline_block">
-						<img src="/static/images/one-quarter_trans.png" alt="Home" title="Quadrant 1" />
-					</div>
-					Quadrants
-				</h2>
+				<div>
+					<p>
+						Quadrants describe the overall theme or focus of a major grouping of conpetencies.
+						The title and description entered here will be seen as hover texts and will describe
+						the data in the exported CSV.
+					</p>
+					<p>
+						When composing a full Compass, suitable Quadrants can be chosen from the pool generated 
+						here.
+					</p>
+				</div>
 			</div>
 			<div>
-				<div class="threecolpanel" id="manage_quadrants">
-					<div>
+				<div id="manage_quadrants">
+					<input type="text" id="quadrant_id" value="-1" class="hidden" data-database-field="id">
+					<div class="gutterpanel">
+						<h4>Choose a quadrant</h4>
 						<select name="manage_quadrants_select" id="manage_quadrants_select" data-identifier="quadrant">
 							<option value="-1">[Add New]</option>
 							{% for quadrant in quadrants %}
@@ -79,31 +87,43 @@
 							{% endfor %}
 						</select>
 					</div>
-					<div></div>
-					<div>
-						<!-- <form id="manage_quadrants_form" name="manage_quadrants_form"> -->
-							<input type="text" id="quadrant_id" value="-1" class="hidden" data-database-field="id">
-							<textarea id="quadrant_summary" rows="2" cols="80" data-database-field="quadrant_summary"></textarea><!-- restrict to x chars as per database table -->
-							<textarea id="quadrant_description" rows="10" cols="80" data-database-field="quadrant_description"></textarea>
-							<input type="button" id="quadrant_component_submit" value="Create new quadrant"/>
-						<!-- </form> -->
+					<div class="gutterpanel">
+						<h4>Edit Quadrant Title</h4>
+						<textarea id="quadrant_summary" rows="2" cols="80" data-database-field="quadrant_summary"></textarea><!-- restrict to x chars as per database table -->
+					</div>
+					<div class="gutterpanel">
+						<h4>Edit Quadrant Description</h4>
+						<textarea id="quadrant_description" rows="10" cols="80" data-database-field="quadrant_description"></textarea>
+					</div>
+					<div class="gutterpanel bottom">
+						<h4 class="h4-tall">Save changes</h4>
+						<input type="button" class="btn_base" id="quadrant_component_submit" value="Create new quadrant"/>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="gutterpanel hidden" data-panelid="2">
+		<div class="hidden p5" data-panelid="2" data-identifier="gutterpanel">
+			<h3>Manage Quadrant Titles</h3>
 			<div>
-				<h2>
-					<div class="button button-static inline_block">
-						<img src="/static/images/one-quarter_trans.png" alt="Home" title="Quadrant 1" />
-					</div>
-					Quadrant titles
-				</h2>
+				<div>
+					<p>
+						Quadrant Title(s) are a label that describes the overall theme or focus of a 
+						quadrant in the current Compass. You can select one or two for each quadrant, 
+						depending on the Compass configuration. Note that the physical space available 
+						for the title is limited, so keep it short and sweet!
+					</p>
+					<p>
+						When composing a full Compass, suitable Quadrant Titles can be chosen from the pool generated 
+						here.
+					</p>
+				</div>
 			</div>
 			<div>
-				<div class="threecolpanel" id="manage_quadrant_titles">
-					<div>
+				<div id="manage_quadrant_titles">
+					<input type="text" id="quadrant_title_id" value="-1" class="hidden" data-database-field="id">
+					<div class="gutterpanel">
+						<h4>Choose a Quadrant Title</h4>
 						<select name="manage_quadrant_titles_select" id="manage_quadrant_titles_select" data-identifier="quadrant_title">
 							<option value="-1">[Add New]</option>
 							{% for quadrant_title in quadrant_titles %}
@@ -111,31 +131,37 @@
 							{% endfor %}
 						</select>
 					</div>
-					<div></div>
-					<div>
-						<!-- <form id="manage_quadrant_titles_form" name="manage_quadrant_titles_form"> -->
-							<input type="text" id="quadrant_title_id" value="-1" class="hidden" data-database-field="id">
-							<input type="text" id="quadrant_title_part" value="" data-database-field="title_part">
-							<input type="button" id="quadrant_title_component_submit" value="Create new quadrant title"/>
-						<!-- </form> -->
+					<div class="gutterpanel">
+						<h4>Edit Quadrant Title</h4>
+						<input type="text" id="quadrant_title_part" value="" data-database-field="title_part">
+					</div>
+					<div class="gutterpanel">
+						<h4 class="h4-tall">Save changes</h4>
+						<input type="button" class="btn_base" id="quadrant_title_component_submit" value="Create new quadrant title"/>
 					</div>
 				</div>
 			</div>
 			
 		</div>
 
-		<div class="gutterpanel hidden" data-panelid="3">
+		<div class="hidden p5" data-panelid="3" data-identifier="gutterpanel">
+			<h3>Manage Sectors</h3>
 			<div>
-				<h2>
-					<div class="button button-static inline_block">
-						<img src="/static/images/one-quarter_trans.png" alt="Home" title="Quadrant 1" />
-					</div>
-					Sectors
-				</h2>
+				<div>
+					<p>
+						A Sector is a visual representation of the range of ratings available for a given competency. 
+					</p>
+					<p>
+						When composing a full Compass, suitable Sectors can be chosen from the pool generated 
+						here.
+					</p>
+				</div>
 			</div>
 			<div>
-				<div class="threecolpanel" id="manage_sectors">
-					<div>
+				<div id="manage_sectors">
+					<input type="text" id="sector_id" value="-1" class="hidden" data-database-field="id">
+					<div class="gutterpanel">
+						<h4>Choose a sector</h4>
 						<select name="manage_sectors_select" id="manage_sectors_select" data-identifier="sector">
 							<option value="-1">[Add New]</option>
 							{% for sector in sectors %}
@@ -144,30 +170,43 @@
 						</select>
 					</div>
 					<div></div>
-					<div>
-						<!-- <form id="manage_sectors_form" name="manage_sectors_form"> -->
-							<input type="text" id="sector_id" value="-1" class="hidden" data-database-field="id">
-							<textarea id="sector_summary" rows="2" cols="80" data-database-field="summary"></textarea><!-- restrict to x chars as per database table -->
-							<textarea id="sector_description" rows="10" cols="80"  data-database-field="description"></textarea>
-							<input type="button" id="sector_component_submit" value="Create new sector"/>
-						<!-- </form> -->
+					<div class="gutterpanel">
+						<h4>Edit sector summary</h4>
+						<textarea id="sector_summary" rows="2" cols="80" data-database-field="summary"></textarea><!-- restrict to x chars as per database table -->
+						</div>
+					<div class="gutterpanel">
+						<h4>Edit sector description</h4>
+						
+						<textarea id="sector_description" rows="10" cols="80"  data-database-field="description"></textarea>
+					</div>
+					<div class="gutterpanel">
+						<h4 class="h4-tall">Save changes</h4>	
+						<input type="button" class="btn_base" id="sector_component_submit" value="Create new sector"/>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="gutterpanel hidden" data-panelid="4">
+		<div class="hidden p5" data-panelid="4"  data-identifier="gutterpanel">
+			<h3>Manage Sector Titles</h3>
 			<div>
-				<h2>
-					<div class="button button-static inline_block">
-						<img src="/static/images/one-quarter_trans.png" alt="Home" title="Quadrant 1" />
-					</div>
-					Sector titles
-				</h2>
+				<div>
+					<p>
+						A Sector Title is simply a short descriptor of a sector. A sector can be seen as 
+						a competency, where each concentric sector block within indicates a specific competency level within that
+						broader competency as a whole.
+					</p>
+					<p>
+						When composing a full Compass, suitable SectorTitle parts can be chosen from the pool generated 
+						here.
+					</p>
+				</div>
 			</div>
 			<div>
-				<div class="threecolpanel" id="manage_sector_titles">
-					<div>
+				<div id="manage_sector_titles">
+					<input type="text" id="sector_title_id" value="-1" class="hidden"  data-database-field="id">
+					<div class="gutterpanel">
+						<h4>Choose a sector title</h4>
 						<select name="manage_sector_titles_select" id="manage_sector_titles_select" data-identifier="sector_title">
 							<option value="-1">[Add New]</option>
 							{% for sector_title in sector_titles %}
@@ -175,30 +214,27 @@
 							{% endfor %}
 						</select>
 					</div>
-					<div></div>
-					<div>
-						<!-- <form id="manage_sector_titles_form" name="manage_sector_titles_form"> -->
-							<input type="text" id="sector_title_id" value="-1" class="hidden"  data-database-field="id">
-							<input type="text" id="sector_title_part" value=""  data-database-field="title_part">
-							<input type="button" id="sector_title_component_submit" value="Create new sector title" />
-						<!-- </form> -->
+					<div class="gutterpanel">
+						<h4>Edit sector title</h4>
+						<input type="text" id="sector_title_part" value=""  data-database-field="title_part">
+					</div>
+					<div class="gutterpanel">
+						<h4 class="h4-tall">Save changes</h4>
+						
+						<input type="button"class="btn_base" id="sector_title_component_submit" value="Create new sector title" />
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="gutterpanel hidden" data-panelid="5">
+		<div class="hidden p5" data-panelid="5" data-identifier="gutterpanel">
+			<h3>Manage ratings</h3>
 			<div>
-				<h2>
-					<div class="button button-static inline_block">
-						<img src="/static/images/one-quarter_trans.png" alt="Home" title="Quadrant 1" />
-					</div>
-					Ratings
-				</h2>
 				<div>
-					<p>A Rating is simply a level of competency description. It can be anything from very 
-					generic ("Novice", "Shows potential") to highly specific ("Junior Javascript Developer",
-					"Able to implement a solution, given a suitable technicl brief").
+					<p>
+						A Rating is simply a level of competency description. It can be anything from very 
+						generic ("Novice", "Shows potential") to highly specific ("Junior Javascript Developer",
+						"Able to implement a solution, given a suitable technical brief").
 					</p>
 					<p>
 						When composing a full Compass, suitable Ratings can be chosen from the pool generated 
@@ -208,32 +244,39 @@
 			</div>
 			<div>
 				<div>
-					<div class="threecolpanel" id="manage_ratings">
-						<div>
+					<div id="manage_ratings">
+						<div class="gutterpanel">
+							<h4>
+								Choose a rating
+							</h4>
 							<select name="manage_ratings_select" id="manage_ratings_select" data-identifier="rating">
 								<option value="-1">[Add New]</option>
 								{% for rating in ratings %}
 								<option value="{{rating.id}}">{{funcs.truncate_displayed_text(rating.title)}}</option>
 								{% endfor %}
 							</select>
-						</div><!-- this ovrflows into the middle column if too narrow. Needs a min-width perhaps? -->
-						<div></div>
-						<div>
-							<!-- <form id="manage_sectors_form" name="manage_sectors_form"> -->
-								<input type="text" id="rating_id" value="-1" class="hidden" data-database-field="id">
-								<input type="text" id="rating_title"  data-database-field="title"/>
-								<textarea id="rating_description" rows="10" cols="80"  data-database-field="description"></textarea>
-								<input type="button" id="rating_component_submit" value="Create new rating"/>
-							<!-- </form> -->
+						</div>
+						<!-- <div></div> -->
+						<input type="text" id="rating_id" value="-1" class="hidden" data-database-field="id">
+						<div class="gutterpanel">
+							<h4>Edit rating title</h4>
+							<input type="text" id="rating_title"  data-database-field="title"/>
+						</div>
+						<div class="gutterpanel">
+							<h4>Edit rating description</h4>
+							<textarea id="rating_description" rows="10" cols="80"  data-database-field="description"></textarea>
+						</div>
+						<div class="gutterpanel">
+							<h4 class="h4-tall">Save changes</h4>
+							<input type="button" class="btn_base" id="rating_component_submit" value="Create new rating"/>
+					    </div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-
 	</div>
-
-
 </body>
-<script src="/static/js/engine2.js"></script>
+
+<script src="/static/js/engine-components.js"></script>
 </html>

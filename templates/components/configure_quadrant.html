@@ -1,0 +1,96 @@
+<!-- 
+ useful test of child templates, passing in complex data (a tuple) 
+ and access parent scope data. The latter may be less useful as it will be quite restrictive 
+-->
+<!-- compass ID:{{data[0]}}<br /> -->
+
+
+<!-- 
+  So what we need is to generate an entire quadrant panel from a first level child template with the main 
+  title, the blurb and quadrant title/description. Then we need to generate the sector panels from a second level child template with the sector title,
+  description, and the title parts. The second level child template will be called from the first level child template. The first level child template 
+  will be called from the main configure.html template. 
+-->
+
+<!-- Quadrant data-->
+
+
+<!-- Sector data - 5th one is optional -->
+
+
+			<div>
+				<div class="gutterpanel">
+					<h4>Title parts</h4>
+					<div>
+						<select data-fieldname="q1_tp1">
+							{% for title_part in quadrant_titles %}
+								{% if compass_data and title_part.id==compass_data.data_quadrants[data.quadrant_index].title[0].id %}
+							<option value="{{ title_part.id }}" selected="selected">* {{ funcs.replace_empty_string(title_part.title_part) }} </option>
+								{% else %}
+							<option value="{{ title_part.id }}"> {{ funcs.replace_empty_string(title_part.title_part) }} </option>
+								{% endif %}>
+							{% endfor %}
+						</select>
+
+						<select data-fieldname="q1_tp2"><!-- TODO: get the selected value as the title attribute here, as per summary, below -->
+							{% for title_part in quadrant_titles %}
+								{% if compass_data and title_part.id==compass_data.data_quadrants[data.quadrant_index].title[1].id %}
+							<option value="{{ title_part.id }}" selected="selected">* {{ funcs.replace_empty_string(title_part.title_part) }} </option>
+								{% else %}
+							<option value="{{ title_part.id }}"> {{ funcs.replace_empty_string(title_part.title_part) }} </option>
+								{% endif %}>	
+							{% endfor %}
+						</select>
+					</div>
+
+					<h4>Summary</h4>
+					<div class="min_width_170">
+						<!-- this needs to default to showing the current summary for this compass quadrant 1: -->
+						<select class="full_width" data-fieldname="quadrant_1" id="quadrant_1" data-identifier="quadrant_dropdown" title="{% if compass_data %} {{ compass_data.data_quadrants[data.quadrant_index].quadrant_summary }} {% endif %}">
+							{% for quadrant in quadrants %}
+							<option value="{{ quadrant.id }}" {% if compass_data and quadrant.id==compass_data.data_quadrants[data.quadrant_index].id %} selected="selected" {% endif %}>
+								{{ funcs.truncate_displayed_text(quadrant.quadrant_summary) }}
+							</option>
+							{% endfor %}
+						</select>
+					</div>
+
+					<h4>Description</h4>
+					<div>
+						<!-- initially, show the current description for this compass quadrant 1: -->
+						<div class="inline_block ellipsis_100pc" id="quadrant_1_description" data-identifier="quadrant_description">
+							{% if compass_data %} {{ compass_data.data_quadrants[data.quadrant_index].quadrant_description }} {% endif %}
+						</div>
+					</div>
+				</div>
+
+				<hr /><!-- maybe... -->
+				<div class="gutterpanel">
+          <!-- nested sector 1 -->
+              {% with data=( { "heading":"Sector 1", "sector_index":0, "parent_data":data, "sector_id_prefix":"1",}) %}
+                {% include "components/configure_sector.html" %}
+              {% endwith %}
+
+          <!-- nested sector 2 -->
+              {% with data=( { "heading":"Sector 2", "sector_index":1, "parent_data":data, "sector_id_prefix":"2",}) %}
+                {% include "components/configure_sector.html" %}
+              {% endwith %}
+
+          <!-- nested sector 3 -->
+              {% with data=( { "heading":"Sector 3", "sector_index":2, "parent_data":data, "sector_id_prefix":"3",}) %}
+                {% include "components/configure_sector.html" %}
+              {% endwith %}
+
+           <!-- nested sector 4 -->
+              {% with data=( { "heading":"Sector 4", "sector_index":3, "parent_data":data, "sector_id_prefix":"4",}) %}
+                {% include "components/configure_sector.html" %}
+              {% endwith %}
+
+           <!-- OPTIONAL nested sector 5 -->
+            {% if data.sectorcount==5 %}
+              {% with data=( { "heading":"Sector 5", "sector_index":4, "parent_data":data, "sector_id_prefix":"5",}) %}
+                {% include "components/configure_sector.html" %}
+              {% endwith %}
+            {% endif %}
+        </div>
+			</div>

@@ -213,6 +213,7 @@ var engine = {
             submitURL = '/compass/update/';
         }
         if (data) {
+            console.log(data);
             fetch(submitURL, {
                 method: 'POST',
                 body: JSON.stringify(data),
@@ -223,7 +224,15 @@ var engine = {
             }).then(function (response) {
                 return response.json();
             }).then(function (response) {
-
+                console.log(response);
+                console.log(evt.srcElement)
+                /** TODO get better data in the response */
+                if (response.compass_updated) {
+                    document.location.reload();
+                }else{
+                    // TODO: alert the user that the update failed, and why. This will depend on the 
+                    // back-end returning a better response object with error messages etc.
+                }
             });
         }
     },
@@ -231,7 +240,8 @@ var engine = {
     // handle configure tabber
     tabHandler: function (evt, tablist) {
         // we also need the list of panels to show/hide:
-        let panel_list = document.getElementsByClassName("gutterpanel");
+        let panel_list = document.querySelectorAll("[data-identifier='gutterpanel']");
+        // let panel_list = document.getElementsByClassName("gutterpanel");
         for (x = 0; x < tablist.length; x++) {
             tablist[x].classList.remove("panel_selector_tab_selected");
             panel_list[x].classList.add("hidden");
@@ -267,17 +277,23 @@ var engine = {
      */
     selectHandler: function (evt, selectlist, current_option_value, current_dropdown_index, prefix) {
         // let id = selectlist[current_dropdown_index].id;
-        console.log(`${selectlist[current_dropdown_index].id}_description_changed`);
-        document.getElementById(`${selectlist[current_dropdown_index].id}_description_changed`).innerText = ""
+        // console.log(evt)
+        // console.log(`${selectlist[current_dropdown_index].id}_description_changed`);
+        // document.getElementById(`${selectlist[current_dropdown_index].id}_description_changed`).innerText = "";
+        document.getElementById(`${selectlist[current_dropdown_index].id}_description`).classList.remove("changed");
         if (current_option_value !== selectlist[current_dropdown_index].selectedIndex) {
-            document.getElementById(`${selectlist[current_dropdown_index].id}_description_changed`).innerText = "*"
+            document.getElementById(`${selectlist[current_dropdown_index].id}_description`).classList.add("changed");
+            // document.getElementById(`${selectlist[current_dropdown_index].id}_description_changed`).innerText = "*"
         }
         // apply description to display DIV:
         document.getElementById(`${selectlist[current_dropdown_index].id}_description`).innerText = document.getElementById(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex + 1}`).innerText;
+        // and apply the title attribute to the dropdown itself, so the user can hover and see the description:
+        console.log(`${prefix}_summary_${selectlist[current_dropdown_index].selectedIndex + 1}`);
+        selectlist[current_dropdown_index].setAttribute("title", document.getElementById(`${prefix}_summary_${selectlist[current_dropdown_index].selectedIndex + 1}`).innerText);
     },
 
     descriptionHoverHandler: function (evt) {
-        console.log(evt);
+        // console.log(evt.srcElement );
         evt.srcElement.setAttribute("title", evt.srcElement.innerText);
     },
 };

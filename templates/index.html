@@ -392,7 +392,11 @@ compass for me: <input type="text" id="compass_id" value="{{ user.compass_id }}"
 <script src="/static/js/common.js"></script> 
 <script src="/static/js/engine-index.js"></script>
 <script>
-	/** there should be a way of converting the entire User object in one go... */
+	/** 
+	 * Instantiate the user object in the engine, so that it can be used by the Jinja template 
+	 * engine. This is a bit of a hack, but it works. The alternative is to pass the user object 
+	 * as a parameter to the template, but that would require changing the way the template is rendered.
+	 * there should be a way of converting the entire User object in one go... */
 	engine.user = {};
 	// NOTE: VS Code doesn't like this unquoted syntax, but it works just fine:
 	engine.user.id = {{user.id }};

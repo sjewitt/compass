@@ -39,10 +39,7 @@
 			<img class="tab_icon" src="/static/images/one-quarter_trans.png" alt="Quadrant 1 icon" title="Quadrant 1" />
 			Quadrant 1
 		</div>
-		<div data-tabid="3" class="pt-0 panel_selector_tab" id="tab_3">
-			<img class="tab_icon rotate_90" src="/static/images/one-quarter_trans.png" alt="Home" title="Quadrant 2" />
-			Quadrant 2
-		</div>
+		<div data-tabid="3" class="panel_selector_tab" id="tab_3">Quadrant 2</div>
 		<div data-tabid="4" class="panel_selector_tab" id="tab_4">Quadrant 3</div>
 		<div data-tabid="5" class="panel_selector_tab" id="tab_5">Quadrant 4</div>
 		<div data-tabid="6" class="panel_selector_tab" id="tab_6">Ratings</div>
@@ -128,153 +125,119 @@
 				</div>
 			</div>
 
-			<div>
 			<!-- outer wrapper -->
-			<!-- TODO: I also need to pass in the DOM IDs (or, aty least a way to 
-			  mathematically construct them) so the rendered HTML elements do not 
-			  regress from having the unique IDs and data-attributes 
-			 OK, sectorcount currently acts as a boolean... 
-			  -->
-			{% with data=( { "quadrant_index":0, "sectorcount":5,"quadrant_id_prefix":1, "compass_data":compass_data, "quadrant_titles":quadrant_titles, "sectors":sectors, "sector_titles":sector_titles }) %}
+			{% with data=( {
+				"quadrant":0,
+				"sectorcount":5,
+				"compass_data":compass_data,
+				"quadrant_titles":quadrant_titles,
+				"sectors":sectors,
+				"sector_titles":sector_titles
+			}) %}
   				{% include "components/configure_quadrant.html" %}
 			{% endwith %}
 
-			</div>
-			<!-- end outer wrapper -->
-		</div>
-
-		<!-- Q2 edit -->
-		<div class="p5 hidden" data-panelid="3" data-identifier="gutterpanel">
-			<h3>Manage Quadrant 2</h3>
 			<div>
-				[intro content]
-			</div>
-
-			<!-- outer wrapper -->
-			<div>
-
-			{% with data=( { "quadrant_index":1, "sectorcount":4,"quadrant_id_prefix":2, "compass_data":compass_data, "quadrant_titles":quadrant_titles, "sectors":sectors, "sector_titles":sector_titles }) %}
-  				{% include "components/configure_quadrant.html" %}
-			{% endwith %}
-
-				<div class="panelnested">
-					<div>Title #1</div>
-					<select data-fieldname="q2_tp1">
+				<div class="gutterpanel">
+					<h4>Title parts</h4>
+					<div>
+						<select data-fieldname="q1_tp1">
 							{% for title_part in quadrant_titles %}
-							<option value="{{ title_part.id }}" {% if compass_data and
-								title_part.id==compass_data.data_quadrants[1].title[0].id %} selected="selected" {% endif
-								%}>{{ funcs.replace_empty_string(title_part.title_part) }}</option>
+								{% if compass_data and title_part.id==compass_data.data_quadrants[0].title[0].id %}
+							<option value="{{ title_part.id }}" selected="selected">* {{ funcs.replace_empty_string(title_part.title_part) }} </option>
+								{% else %}
+							<option value="{{ title_part.id }}"> {{ funcs.replace_empty_string(title_part.title_part) }} </option>
+								{% endif %}>
 							{% endfor %}
-					</select>
+						</select>
 
-					<div>Title #2</div>
-					<select data-fieldname="q2_tp2">
-						{% for title_part in quadrant_titles %}
-						<option value="{{ title_part.id }}" {% if compass_data and
-							title_part.id==compass_data.data_quadrants[1].title[1].id %} selected="selected" {% endif
-							%}>{{ funcs.replace_empty_string(title_part.title_part) }}</option>
-						{% endfor %}
-					</select>
+						<select data-fieldname="q1_tp2"><!-- TODO: get the selected value as the title attribute here, as per summary, below -->
+							{% for title_part in quadrant_titles %}
+								{% if compass_data and title_part.id==compass_data.data_quadrants[0].title[1].id %}
+							<option value="{{ title_part.id }}" selected="selected">* {{ funcs.replace_empty_string(title_part.title_part) }} </option>
+								{% else %}
+							<option value="{{ title_part.id }}"> {{ funcs.replace_empty_string(title_part.title_part) }} </option>
+								{% endif %}>	
+							{% endfor %}
+						</select>
+					</div>
 
-					<div>Summary</div>
-					<!-- <select data-fieldname="quadrant_2">
-						{% for quadrant in quadrants %}
-						<option value="{{ quadrant.id }}" {% if compass_data and
-							quadrant.id==compass_data.data_quadrants[1].id %} selected="selected" {% endif %}>{{
-							quadrant.quadrant_summary }}</option>
-						{% endfor %}
-					</select> -->
-					<div class="threecolpanel">
-						<div class="min_width_170">
-						<select data-fieldname="quadrant_2" id="quadrant_2" data-identifier="quadrant_dropdown">
+					<h4>Summary</h4>
+					<div class="min_width_170">
+						<!-- this needs to default to showing the current summary for this compass quadrant 1: -->
+						<select class="full_width" data-fieldname="quadrant_1" id="quadrant_1" data-identifier="quadrant_dropdown" title="{% if compass_data %} {{ compass_data.data_quadrants[0].quadrant_summary }} {% endif %}">
 							{% for quadrant in quadrants %}
-							<option value="{{ quadrant.id }}" {% if compass_data and quadrant.id==compass_data.data_quadrants[1].id %} selected="selected" {% endif %}>
-								{{ quadrant.quadrant_summary }}
+							<option value="{{ quadrant.id }}" {% if compass_data and quadrant.id==compass_data.data_quadrants[0].id %} selected="selected" {% endif %}>
+								{{ funcs.truncate_displayed_text(quadrant.quadrant_summary) }}
 							</option>
 							{% endfor %}
 						</select>
-						</div>
-					
-						<div id="quadrant_2_description_changed" class="align_bottom"  title="Changed">
-					<!-- Dynamically filled -->
-						</div>
-					
-						<div>
-						<div class="inline_block ellipsis_100pc" id="quadrant_2_description" data-identifier="quadrant_description">
-							{% if compass_data %}
-							{{ compass_data.data_quadrants[1].quadrant_description }}
-							{% endif %}
-						</div>
+					</div>
+
+					<h4>Description</h4>
+					<div>
+						<!-- initially, show the current description for this compass quadrant 1: -->
+						<div class="inline_block ellipsis_100pc" id="quadrant_1_description" data-identifier="quadrant_description">
+							{% if compass_data %} {{ compass_data.data_quadrants[0].quadrant_description }} {% endif %}
 						</div>
 					</div>
 				</div>
 
-				<div class="panelnested">
-					<div>Sector 1</div>
+				<hr /><!-- maybe... -->
+				<div class="gutterpanel">
+					<h4>Sector 1</h4>
 					<div>
 						<div>
-							Title #1
-							<select data-fieldname="q2_s1_tp1">
+							<!-- Title #1 
+							could use this instead: `class=w-var" style="--w:120px;"` -->
+							<div class="italics inline_block w-100">Title parts: </div>
+							<select data-fieldname="q1_s1_tp1">
 								{% for title_part in sector_titles %}
-								<option value="{{ title_part.id }}" 
-								{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[0].title[0].id %}
-								selected="selected" 
-								{% endif %}>
-								{{ funcs.replace_empty_string(title_part.title_part) }}
-								</option>
+									{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[0].title[0].id %}
+								<option value="{{ title_part.id }}" selected="selected">* {{ funcs.replace_empty_string(title_part.title_part) }} </option>
+									{% else %}
+								<option value="{{ title_part.id }}"> {{ funcs.replace_empty_string(title_part.title_part) }} </option>
+									{% endif %}>
 								{% endfor %}
 							</select>
-						</div>
-						<div>
-							Title #2
-							<select data-fieldname="q2_s1_tp2">
+
+							<!-- Title #2 -->
+							<select data-fieldname="q1_s1_tp2">
 								{% for title_part in sector_titles %}
-								<option value="{{ title_part.id }}" 
-								{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[0].title[1].id %}
-								selected="selected" 
-								{% endif %}>
-								{{ funcs.replace_empty_string(title_part.title_part) }}
-								</option>
+									{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[0].title[1].id %}
+								<option value="{{ title_part.id }}" selected="selected">* {{ funcs.replace_empty_string(title_part.title_part) }} </option>
+									{% else %}
+								<option value="{{ title_part.id }}"> {{ funcs.replace_empty_string(title_part.title_part) }} </option>
+									{% endif %}>								
 								{% endfor %}
+							</select>
+
+							<div class="italics inline_block w-100">Summary: </div>
+							<select class="inline_block" id="sector_1" data-fieldname="quadrant_1_sector_1"  data-identifier="sector_dropdown">
+									{% for sector in sectors %}
+									<option value="{{ sector.id }}" 
+									{% if compass_data and
+										sector.id==compass_data.data_quadrants[0].sectors[0].id %} selected="selected" {% endif %}>
+										{{ funcs.truncate_displayed_text(sector.summary) }}</option>
+									{% endfor %}
 							</select>
 						</div>
 
 						<!-- and get sector summary/descriptions: -->
-						<div class="threecolpanel"> 
-							<div class="min_width_170">
-								<div class="inline">Text</div>
-								<select class="inline_block" id="sector_6" data-fieldname="quadrant_2_sector_1"  data-identifier="sector_dropdown">
-									{% for sector in sectors %}
-									<option value="{{ sector.id }}" 
-									{% if compass_data and
-										sector.id==compass_data.data_quadrants[1].sectors[0].id %} selected="selected" {% endif %}>
-										{{funcs.truncate_displayed_text(sector.summary) }}</option>
-									{% endfor %}
-								</select>
-							</div>
-						
-							<div id="sector_6_description_changed" class="align_bottom"  title="Changed">
-							<!-- Dynamically filled -->
-							</div>
-							<div>
-								<div class="inline_block ellipsis_100pc" id="sector_6_description" data-identifier="sector_description">
-									{% if compass_data %}
-									{{ compass_data.data_quadrants[1].sectors[0].description }}
-								{%endif%}
-								</div>
-							</div>
+						<div class="inline_block ellipsis_100pc mt-10" id="sector_1_description" data-identifier="sector_description">
+							<div class="italics inline_block w-100">Description: </div>
+							{% if compass_data %} {{ compass_data.data_quadrants[0].sectors[0].description }} {% endif %}
 						</div>
-
 					</div>
 
-					<div>Sector 2</div>
+					<h4>Sector 2</h4>
 					<div>
 						<div>
 							Title #1
-							<select data-fieldname="q2_s2_tp1">
+							<select data-fieldname="q1_s2_tp1">
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
-								{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[1].title[0].id %}
+								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[1].title[0].id %}
 								selected="selected" 
 								{% endif %}>
 								{{ funcs.replace_empty_string(title_part.title_part) }}
@@ -284,10 +247,10 @@
 						</div>
 						<div>
 							Title #2
-							<select data-fieldname="q2_s2_tp2">
+							<select data-fieldname="q1_s2_tp2">
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
-								{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[1].title[1].id %}
+								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[1].title[1].id %}
 								selected="selected" 
 								{% endif %}>
 								{{ funcs.replace_empty_string(title_part.title_part) }}
@@ -299,24 +262,24 @@
 						<div class="threecolpanel"> 
 							<div class="min_width_170">
 								<div class="inline">Text</div>
-								<select class="inline_block" id="sector_7" data-fieldname="quadrant_2_sector_2"  data-identifier="sector_dropdown">
+								<select class="inline_block" id="sector_2" data-fieldname="quadrant_1_sector_2"  data-identifier="sector_dropdown">
 									{% for sector in sectors %}
 									<option value="{{ sector.id }}" 
 									{% if compass_data and
-										sector.id==compass_data.data_quadrants[1].sectors[1].id %} selected="selected" {% endif %}>
+										sector.id==compass_data.data_quadrants[0].sectors[1].id %} selected="selected" {% endif %}>
 										{{ funcs.truncate_displayed_text(sector.summary) }}</option>
 									{% endfor %}
 								</select>
 							</div>
 						
-							<div id="sector_7_description_changed" class="align_bottom"  title="Changed">
+							<div id="sector_2_description_changed" class="align_bottom"  title="Changed">
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block ellipsis_100pc" id="sector_7_description" data-identifier="sector_description">
+								<div class="inline_block ellipsis_100pc" id="sector_2_description" data-identifier="sector_description">
 									{% if compass_data %}
-									{{ compass_data.data_quadrants[1].sectors[1].description }}
-									{%endif%}
+									{{ compass_data.data_quadrants[0].sectors[1].description }}
+									{% endif %}
 								</div>
 							</div>
 						</div>
@@ -326,10 +289,10 @@
 					<div>
 						<div>
 							Title #1
-							<select data-fieldname="q2_s3_tp1">
+							<select data-fieldname="q1_s3_tp1">
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
-								{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[2].title[0].id %}
+								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[2].title[0].id %}
 								selected="selected" 
 								{% endif %}>
 								{{ funcs.replace_empty_string(title_part.title_part) }}
@@ -339,10 +302,10 @@
 						</div>
 						<div>
 							Title #2
-							<select data-fieldname="q2_s3_tp2">
+							<select data-fieldname="q1_s3_tp2">
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
-								{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[2].title[1].id %}
+								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[2].title[1].id %}
 								selected="selected" 
 								{% endif %}>
 								{{ funcs.replace_empty_string(title_part.title_part) }}
@@ -355,24 +318,24 @@
 						<div class="threecolpanel"> 
 							<div class="min_width_170">
 								<div class="inline">Text</div>
-								<select class="inline_block" id="sector_8" data-fieldname="quadrant_2_sector_3"  data-identifier="sector_dropdown">
+								<select class="inline_block" id="sector_3" data-fieldname="quadrant_1_sector_3"  data-identifier="sector_dropdown">
 									{% for sector in sectors %}
 									<option value="{{ sector.id }}" 
 									{% if compass_data and
-										sector.id==compass_data.data_quadrants[1].sectors[2].id %} selected="selected" {% endif %}>
+										sector.id==compass_data.data_quadrants[0].sectors[2].id %} selected="selected" {% endif %}>
 										{{ funcs.truncate_displayed_text(sector.summary) }}</option>
 									{% endfor %}
 								</select>
 							</div>
 						
-							<div id="sector_8_description_changed" class="align_bottom"  title="Changed">
+							<div id="sector_3_description_changed" class="align_bottom"  title="Changed">
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block ellipsis_100pc" id="sector_8_description" data-identifier="sector_description">
+								<div class="inline_block ellipsis_100pc" id="sector_3_description" data-identifier="sector_description">
 									{% if compass_data %}
-									{{ compass_data.data_quadrants[1].sectors[2].description }}
-								{%endif%}
+									{{ compass_data.data_quadrants[0].sectors[2].description }}
+									{%endif%}
 								</div>
 							</div>
 						</div>
@@ -382,10 +345,10 @@
 					<div>
 						<div>
 							Title #1
-							<select data-fieldname="q2_s4_tp1">
+							<select data-fieldname="q1_s4_tp1">
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
-								{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[3].title[0].id %}
+								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[3].title[0].id %}
 								selected="selected" 
 								{% endif %}>
 								{{ funcs.replace_empty_string(title_part.title_part) }}
@@ -395,10 +358,10 @@
 						</div>
 						<div>
 							Title #2
-							<select data-fieldname="q2_s4_tp2">
+							<select data-fieldname="q1_s4_tp2">
 								{% for title_part in sector_titles %}
 								<option value="{{ title_part.id }}" 
-								{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[3].title[1].id %}
+								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[3].title[1].id %}
 								selected="selected" 
 								{% endif %}>
 								{{ funcs.replace_empty_string(title_part.title_part) }}
@@ -410,24 +373,79 @@
 						<div class="threecolpanel"> 
 							<div class="min_width_170">
 								<div class="inline">Text</div>
-								<select class="inline_block" id="sector_9" data-fieldname="quadrant_2_sector_4"  data-identifier="sector_dropdown">
+								<select class="inline_block" id="sector_4" data-fieldname="quadrant_1_sector_4"  data-identifier="sector_dropdown">
 									{% for sector in sectors %}
 									<option value="{{ sector.id }}" 
 									{% if compass_data and
-										sector.id==compass_data.data_quadrants[1].sectors[3].id %} selected="selected" {% endif %}>
+										sector.id==compass_data.data_quadrants[0].sectors[3].id %} selected="selected" {% endif %}>
 										{{ funcs.truncate_displayed_text(sector.summary) }}</option>
 									{% endfor %}
 								</select>
 							</div>
 						
-							<div id="sector_9_description_changed" class="align_bottom"  title="Changed">
+							<div id="sector_4_description_changed" class="align_bottom"  title="Changed">
 							<!-- Dynamically filled -->
 							</div>
 							<div>
-								<div class="inline_block ellipsis_100pc" id="sector_9_description" data-identifier="sector_description">
+								<div class="inline_block ellipsis_100pc" id="sector_4_description" data-identifier="sector_description">
 									{% if compass_data %}
-									{{ compass_data.data_quadrants[1].sectors[3].description }}
-								{%endif%}
+									{{ compass_data.data_quadrants[0].sectors[3].description }}
+									{%endif%}
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div>Sector 5</div>
+					<div>
+						<div>
+							Title #1
+							<select data-fieldname="q1_s5_tp1">
+								{% for title_part in sector_titles %}
+								<option value="{{ title_part.id }}" 
+								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[4].title[0].id %}
+								selected="selected" 
+								{% endif %}>
+								{{ funcs.replace_empty_string(title_part.title_part) }}
+								</option>
+								{% endfor %}
+							</select>
+						</div>
+						<div>
+							Title #2
+							<select data-fieldname="q1_s5_tp2">
+								{% for title_part in sector_titles %}
+								<option value="{{ title_part.id }}" 
+								{% if compass_data and title_part.id==compass_data.data_quadrants[0].sectors[4].title[1].id %}
+								selected="selected" 
+								{% endif %}>
+								{{ funcs.replace_empty_string(title_part.title_part) }}
+								</option>
+								{% endfor %}
+							</select>
+						</div>
+						<!-- and get sector summary/descriptions: -->
+						<div class="threecolpanel"> 
+							<div class="min_width_170">
+								<div class="inline">Text</div>
+								<select class="inline_block" id="sector_5" data-fieldname="quadrant_1_sector_5"  data-identifier="sector_dropdown">
+									{% for sector in sectors %}
+									<option value="{{ sector.id }}" 
+									{% if compass_data and
+										sector.id==compass_data.data_quadrants[0].sectors[4].id %} selected="selected" {% endif %}>
+										{{ funcs.truncate_displayed_text(sector.summary ) }}</option>
+									{% endfor %}
+								</select>
+							</div>
+						
+							<div id="sector_5_description_changed" class="align_bottom"  title="Changed">
+							<!-- Dynamically filled -->
+							</div>
+							<div>
+								<div class="inline_block ellipsis_100pc" id="sector_5_description" data-identifier="sector_description">
+									{% if compass_data %}
+									{{ compass_data.data_quadrants[0].sectors[4].description }}
+									{%endif%}
 								</div>
 							</div>
 						</div>
@@ -436,6 +454,297 @@
 			</div>
 			<!-- end outer wrapper -->
 		</div>
+
+			<!-- Q2 edit -->
+			<div class="gutterpanel hidden" data-panelid="3" data-identifier="gutterpanel">
+				<div>
+					<h2>
+						<div class="button button-static inline_block ">
+							<img src="/static/images/one-quarter_trans.png" class="rotate_90" alt="Home"
+								title="Quadrant 2" />
+						</div>
+						Quadrant 2
+					</h2>
+				</div>
+				<div>
+					<div class="panelnested">
+						<div>Title #1</div>
+						<select data-fieldname="q2_tp1">
+							{% for title_part in quadrant_titles %}
+							<option value="{{ title_part.id }}" {% if compass_data and
+								title_part.id==compass_data.data_quadrants[1].title[0].id %} selected="selected" {% endif
+								%}>{{ funcs.replace_empty_string(title_part.title_part) }}</option>
+							{% endfor %}
+						</select>
+
+						<div>Title #2</div>
+						<select data-fieldname="q2_tp2">
+							{% for title_part in quadrant_titles %}
+							<option value="{{ title_part.id }}" {% if compass_data and
+								title_part.id==compass_data.data_quadrants[1].title[1].id %} selected="selected" {% endif
+								%}>{{ funcs.replace_empty_string(title_part.title_part) }}</option>
+							{% endfor %}
+						</select>
+
+						<div>Summary</div>
+						<!-- <select data-fieldname="quadrant_2">
+							{% for quadrant in quadrants %}
+							<option value="{{ quadrant.id }}" {% if compass_data and
+								quadrant.id==compass_data.data_quadrants[1].id %} selected="selected" {% endif %}>{{
+								quadrant.quadrant_summary }}</option>
+							{% endfor %}
+						</select> -->
+						<div class="threecolpanel">
+						<div class="min_width_170">
+							<select data-fieldname="quadrant_2" id="quadrant_2" data-identifier="quadrant_dropdown">
+								{% for quadrant in quadrants %}
+								<option value="{{ quadrant.id }}" {% if compass_data and quadrant.id==compass_data.data_quadrants[1].id %} selected="selected" {% endif %}>
+									{{ quadrant.quadrant_summary }}
+								</option>
+								{% endfor %}
+							</select>
+						</div>
+						
+						<div id="quadrant_2_description_changed" class="align_bottom"  title="Changed">
+						<!-- Dynamically filled -->
+						</div>
+						
+						<div>
+							<div class="inline_block ellipsis_100pc" id="quadrant_2_description" data-identifier="quadrant_description">
+								{% if compass_data %}
+								{{ compass_data.data_quadrants[1].quadrant_description }}
+								{% endif %}
+							</div>
+						</div>
+					</div>
+					</div>
+
+					<div class="panelnested">
+						<div>Sector 1</div>
+						<div>
+							<div>
+								Title #1
+								<select data-fieldname="q2_s1_tp1">
+									{% for title_part in sector_titles %}
+									<option value="{{ title_part.id }}" 
+									{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[0].title[0].id %}
+									selected="selected" 
+									{% endif %}>
+									{{ funcs.replace_empty_string(title_part.title_part) }}
+									</option>
+									{% endfor %}
+								</select>
+							</div>
+							<div>
+								Title #2
+								<select data-fieldname="q2_s1_tp2">
+									{% for title_part in sector_titles %}
+									<option value="{{ title_part.id }}" 
+									{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[0].title[1].id %}
+									selected="selected" 
+									{% endif %}>
+									{{ funcs.replace_empty_string(title_part.title_part) }}
+									</option>
+									{% endfor %}
+								</select>
+							</div>
+
+							<!-- and get sector summary/descriptions: -->
+							<div class="threecolpanel"> 
+								<div class="min_width_170">
+									<div class="inline">Text</div>
+									<select class="inline_block" id="sector_6" data-fieldname="quadrant_2_sector_1"  data-identifier="sector_dropdown">
+										{% for sector in sectors %}
+										<option value="{{ sector.id }}" 
+										{% if compass_data and
+											sector.id==compass_data.data_quadrants[1].sectors[0].id %} selected="selected" {% endif %}>
+											{{funcs.truncate_displayed_text(sector.summary) }}</option>
+										{% endfor %}
+									</select>
+								</div>
+							
+								<div id="sector_6_description_changed" class="align_bottom"  title="Changed">
+								<!-- Dynamically filled -->
+								</div>
+								<div>
+									<div class="inline_block ellipsis_100pc" id="sector_6_description" data-identifier="sector_description">
+										{% if compass_data %}
+										{{ compass_data.data_quadrants[1].sectors[0].description }}
+									{%endif%}
+									</div>
+								</div>
+							</div>
+
+						</div>
+
+						<div>Sector 2</div>
+						<div>
+							<div>
+								Title #1
+								<select data-fieldname="q2_s2_tp1">
+									{% for title_part in sector_titles %}
+									<option value="{{ title_part.id }}" 
+									{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[1].title[0].id %}
+									selected="selected" 
+									{% endif %}>
+									{{ funcs.replace_empty_string(title_part.title_part) }}
+									</option>
+									{% endfor %}
+								</select>
+							</div>
+							<div>
+								Title #2
+								<select data-fieldname="q2_s2_tp2">
+									{% for title_part in sector_titles %}
+									<option value="{{ title_part.id }}" 
+									{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[1].title[1].id %}
+									selected="selected" 
+									{% endif %}>
+									{{ funcs.replace_empty_string(title_part.title_part) }}
+									</option>
+									{% endfor %}
+								</select>
+							</div>
+							<!-- and get sector summary/descriptions: -->
+							<div class="threecolpanel"> 
+								<div class="min_width_170">
+									<div class="inline">Text</div>
+									<select class="inline_block" id="sector_7" data-fieldname="quadrant_2_sector_2"  data-identifier="sector_dropdown">
+										{% for sector in sectors %}
+										<option value="{{ sector.id }}" 
+										{% if compass_data and
+											sector.id==compass_data.data_quadrants[1].sectors[1].id %} selected="selected" {% endif %}>
+											{{ funcs.truncate_displayed_text(sector.summary) }}</option>
+										{% endfor %}
+									</select>
+								</div>
+							
+								<div id="sector_7_description_changed" class="align_bottom"  title="Changed">
+								<!-- Dynamically filled -->
+								</div>
+								<div>
+									<div class="inline_block ellipsis_100pc" id="sector_7_description" data-identifier="sector_description">
+										{% if compass_data %}
+										{{ compass_data.data_quadrants[1].sectors[1].description }}
+										{%endif%}
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div>Sector 3</div>
+						<div>
+							<div>
+								Title #1
+								<select data-fieldname="q2_s3_tp1">
+									{% for title_part in sector_titles %}
+									<option value="{{ title_part.id }}" 
+									{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[2].title[0].id %}
+									selected="selected" 
+									{% endif %}>
+									{{ funcs.replace_empty_string(title_part.title_part) }}
+									</option>
+									{% endfor %}
+								</select>
+							</div>
+							<div>
+								Title #2
+								<select data-fieldname="q2_s3_tp2">
+									{% for title_part in sector_titles %}
+									<option value="{{ title_part.id }}" 
+									{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[2].title[1].id %}
+									selected="selected" 
+									{% endif %}>
+									{{ funcs.replace_empty_string(title_part.title_part) }}
+									</option>
+									{% endfor %}
+								</select>
+							</div>
+
+							<!-- and get sector summary/descriptions: -->
+							<div class="threecolpanel"> 
+								<div class="min_width_170">
+									<div class="inline">Text</div>
+									<select class="inline_block" id="sector_8" data-fieldname="quadrant_2_sector_3"  data-identifier="sector_dropdown">
+										{% for sector in sectors %}
+										<option value="{{ sector.id }}" 
+										{% if compass_data and
+											sector.id==compass_data.data_quadrants[1].sectors[2].id %} selected="selected" {% endif %}>
+											{{ funcs.truncate_displayed_text(sector.summary) }}</option>
+										{% endfor %}
+									</select>
+								</div>
+							
+								<div id="sector_8_description_changed" class="align_bottom"  title="Changed">
+								<!-- Dynamically filled -->
+								</div>
+								<div>
+									<div class="inline_block ellipsis_100pc" id="sector_8_description" data-identifier="sector_description">
+										{% if compass_data %}
+										{{ compass_data.data_quadrants[1].sectors[2].description }}
+									{%endif%}
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div>Sector 4</div>
+						<div>
+							<div>
+								Title #1
+								<select data-fieldname="q2_s4_tp1">
+									{% for title_part in sector_titles %}
+									<option value="{{ title_part.id }}" 
+									{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[3].title[0].id %}
+									selected="selected" 
+									{% endif %}>
+									{{ funcs.replace_empty_string(title_part.title_part) }}
+									</option>
+									{% endfor %}
+								</select>
+							</div>
+							<div>
+								Title #2
+								<select data-fieldname="q2_s4_tp2">
+									{% for title_part in sector_titles %}
+									<option value="{{ title_part.id }}" 
+									{% if compass_data and title_part.id==compass_data.data_quadrants[1].sectors[3].title[1].id %}
+									selected="selected" 
+									{% endif %}>
+									{{ funcs.replace_empty_string(title_part.title_part) }}
+									</option>
+									{% endfor %}
+								</select>
+							</div>
+							<!-- and get sector summary/descriptions: -->
+							<div class="threecolpanel"> 
+								<div class="min_width_170">
+									<div class="inline">Text</div>
+									<select class="inline_block" id="sector_9" data-fieldname="quadrant_2_sector_4"  data-identifier="sector_dropdown">
+										{% for sector in sectors %}
+										<option value="{{ sector.id }}" 
+										{% if compass_data and
+											sector.id==compass_data.data_quadrants[1].sectors[3].id %} selected="selected" {% endif %}>
+											{{ funcs.truncate_displayed_text(sector.summary) }}</option>
+										{% endfor %}
+									</select>
+								</div>
+							
+								<div id="sector_9_description_changed" class="align_bottom"  title="Changed">
+								<!-- Dynamically filled -->
+								</div>
+								<div>
+									<div class="inline_block ellipsis_100pc" id="sector_9_description" data-identifier="sector_description">
+										{% if compass_data %}
+										{{ compass_data.data_quadrants[1].sectors[3].description }}
+									{%endif%}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
 			<!-- Q3 edit -->
 			<div class="gutterpanel hidden" data-panelid="4" data-identifier="gutterpanel">
