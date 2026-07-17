@@ -288,8 +288,9 @@ var engine = {
         // apply description to display DIV:
         document.getElementById(`${selectlist[current_dropdown_index].id}_description`).innerText = document.getElementById(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex + 1}`).innerText;
         // and apply the title attribute to the dropdown itself, so the user can hover and see the description:
-        console.log(`${prefix}_summary_${selectlist[current_dropdown_index].selectedIndex + 1}`);
-        selectlist[current_dropdown_index].setAttribute("title", document.getElementById(`${prefix}_summary_${selectlist[current_dropdown_index].selectedIndex + 1}`).innerText);
+        console.log(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex + 1}`);
+        console.log(document.getElementById(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex + 1}`))
+        selectlist[current_dropdown_index].setAttribute("title", document.getElementById(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex + 1}`).innerText);
     },
 
     descriptionHoverHandler: function (evt) {

@@ -1,6 +1,4 @@
 					<h4>{{ data.heading }}</h4>
-                    <!-- sector:{{ data.sector_index }}
-                    quadrant:{{ data.parent_data.quadrant_index }} -->
 					<div>
 						<div>
 							<!-- Title #1 
@@ -18,7 +16,7 @@
 							</select>
 
 							<!-- Title #2 -->
-                            XXX {{ data.parent_data.quadrant_id_prefix }} <!-- this is just for debugging -->
+                            <!-- {{ data.parent_data.quadrant_id_prefix }} this is just for debugging -->
 							<select data-fieldname="q{{ data.parent_data.quadrant_id_prefix }}_s{{ data.sector_id_prefix }}_tp2">
 								{% for title_part in sector_titles %}
 									{% if compass_data and title_part.id==compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].title[1].id %}
@@ -29,8 +27,8 @@
 								{% endfor %}
 							</select>
 
-							<div class="italics inline_block w-100">Summary: </div>
-							<select class="inline_block" id="sector_{{ data.sector_id_prefix }}" data-fieldname="quadrant_1_sector_{{ data.sector_id_prefix }}"  data-identifier="sector_dropdown">
+							<div class="italics inline_block w-100">Summary: </div>{{data.parent_data.sector_identifiers[data.sector_index]}}
+							<select class="inline_block" id="sector_{{data.parent_data.sector_identifiers[data.sector_index]}}" data-fieldname="quadrant_{{ data.parent_data.quadrant_id_prefix }}_sector_{{ data.sector_id_prefix }}"  data-identifier="sector_dropdown">
 									{% for sector in sectors %}
 									<option value="{{ sector.id }}" 
 									{% if compass_data and
@@ -41,7 +39,7 @@
 						</div>
 
 						<!-- and get sector summary/descriptions: -->
-						<div class="inline_block ellipsis_100pc mt-10" id="sector_{{data.parent_data.sector_id_prefix}}_description" data-identifier="sector_description">
+						<div class="inline_block ellipsis_100pc mt-10" id="sector_{{data.parent_data.sector_identifiers[data.sector_index]}}_description" data-identifier="sector_description">
 							<div class="italics inline_block w-100">Description: </div>
 							{% if compass_data %} {{ compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].description }} {% endif %}
 						</div>

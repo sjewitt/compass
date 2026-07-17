@@ -16,13 +16,11 @@
 
 
 <!-- Sector data - 5th one is optional -->
-
-
 			<div>
 				<div class="gutterpanel">
 					<h4>Title parts</h4>
 					<div>
-						<select data-fieldname="q1_tp1">
+						<select data-fieldname="q{{ data.quadrant_id_prefix }}_tp1">
 							{% for title_part in quadrant_titles %}
 								{% if compass_data and title_part.id==compass_data.data_quadrants[data.quadrant_index].title[0].id %}
 							<option value="{{ title_part.id }}" selected="selected">* {{ funcs.replace_empty_string(title_part.title_part) }} </option>
@@ -32,7 +30,7 @@
 							{% endfor %}
 						</select>
 
-						<select data-fieldname="q1_tp2"><!-- TODO: get the selected value as the title attribute here, as per summary, below -->
+						<select data-fieldname="q{{ data.quadrant_id_prefix }}_tp2"><!-- TODO: get the selected value as the title attribute here, as per summary, below -->
 							{% for title_part in quadrant_titles %}
 								{% if compass_data and title_part.id==compass_data.data_quadrants[data.quadrant_index].title[1].id %}
 							<option value="{{ title_part.id }}" selected="selected">* {{ funcs.replace_empty_string(title_part.title_part) }} </option>
@@ -45,8 +43,8 @@
 
 					<h4>Summary</h4>
 					<div class="min_width_170">
-						<!-- this needs to default to showing the current summary for this compass quadrant 1: -->
-						<select class="full_width" data-fieldname="quadrant_1" id="quadrant_1" data-identifier="quadrant_dropdown" title="{% if compass_data %} {{ compass_data.data_quadrants[data.quadrant_index].quadrant_summary }} {% endif %}">
+						<!-- this needs to default to showing the current summary for this compass quadrant {{ data.quadrant_id_prefix }}: -->
+						<select class="full_width" data-fieldname="quadrant_{{ data.quadrant_id_prefix }}" id="quadrant_{{ data.quadrant_id_prefix }}" data-identifier="quadrant_dropdown" title="{% if compass_data %} {{ compass_data.data_quadrants[data.quadrant_index].quadrant_summary }} {% endif %}">
 							{% for quadrant in quadrants %}
 							<option value="{{ quadrant.id }}" {% if compass_data and quadrant.id==compass_data.data_quadrants[data.quadrant_index].id %} selected="selected" {% endif %}>
 								{{ funcs.truncate_displayed_text(quadrant.quadrant_summary) }}
@@ -57,8 +55,8 @@
 
 					<h4>Description</h4>
 					<div>
-						<!-- initially, show the current description for this compass quadrant 1: -->
-						<div class="inline_block ellipsis_100pc" id="quadrant_1_description" data-identifier="quadrant_description">
+						<!-- initially, show the current description for this compass quadrant {{ data.quadrant_id_prefix }}: -->
+						<div class="inline_block ellipsis_100pc" id="quadrant_{{ data.quadrant_id_prefix }}_description" data-identifier="quadrant_description">
 							{% if compass_data %} {{ compass_data.data_quadrants[data.quadrant_index].quadrant_description }} {% endif %}
 						</div>
 					</div>
