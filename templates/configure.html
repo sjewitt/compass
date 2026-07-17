@@ -213,10 +213,10 @@
 		</div>
 
 		<!-- configure ratings -->
-		<div class="gutterpanel hidden" data-panelid="6" data-identifier="gutterpanel">
+		<div class="p5 hidden" data-panelid="6" data-identifier="gutterpanel">
 			<div>
 				<h3>
-					Ratings
+					Configure ratings for {{ compass_data.title }}
 				</h3>
 			</div>
 			<div>
@@ -226,169 +226,37 @@
 				<p>
 					You can also configure additional Ratings <a href="#" title="Configure Ratings">here</a> if so required.
 				</p>
+<hr/ >
 
-				<div class="threecolpanel">
-					<!-- Rating 1 -->
-					<div>
-						<h4>Rating 1 (least)</h4>
-						<select name="rating_1" id="rating_1" data-fieldname="rating_1" data-identifier="rating_dropdown">
-							{% for rating in ratings %}
-							<option value="{{rating.id}}"
-							{% if compass_data and rating.id  == compass_data.rating_description_lookup[0].id %} selected="selected" {% endif %}
-							>{{rating.title}}
-							</option>
-							{% endfor %}
-						</select>
-					</div>
-					<div id="rating_1_description_changed" class="align_bottom" title="Changed">
-					</div>
-					<div>
-						<h4>Description</h4>
-						<div class="inline_block ellipsis_100pc" id="rating_1_description" data-identifier="rating_description">
-							{% if compass_data and compass_data.rating_description_lookup[0] %}{{ compass_data.rating_description_lookup[0].description }}{% endif %}
-						</div>
-					</div>
-					
-					<!-- Rating 2 -->
-					<div>
-						<h4>Rating 2</h4>
-						<select name="rating_2" id="rating_2" data-fieldname="rating_2" data-identifier="rating_dropdown">
-							{% for rating in ratings %}
-							<option value="{{rating.id}}"
-							{% if compass_data and rating.id  == compass_data.rating_description_lookup[1].id %}
-							selected="selected"
-							{% endif %}
-							>{{rating.title}}
-							</option>
-							{% endfor %}
-						</select>
-					</div>
-					<div id="rating_2_description_changed" class="align_bottom"  title="Changed">
-					</div>
-					<div>
-						<h4>Description</h4>
-						<div class="inline_block ellipsis_100pc" id="rating_2_description" data-identifier="rating_description">
-							{% if compass_data and compass_data.rating_description_lookup[1] %}{{ compass_data.rating_description_lookup[1].description }}{% endif %}
-						</div>
-					</div>
 
-					<!-- Rating 3 -->
-					<div>
-						<h4>Rating 3</h4>
-						<select name="rating_3" id="rating_3" data-fieldname="rating_3" data-identifier="rating_dropdown">
-							{% for rating in ratings %}
-							<option value="{{rating.id}}"
-							{% if compass_data and rating.id  == compass_data.rating_description_lookup[2].id %}
-							selected="selected"
-							{% endif %}
-							>{{rating.title}}
-							</option>
-							{% endfor %}
-						</select>
-					</div>
-					<div id="rating_3_description_changed" class="align_bottom"  title="Changed">
-					</div>
-					<div>
-						<h4>Description</h4>
-						<div class="inline_block ellipsis_100pc" id="rating_3_description" data-identifier="rating_description">
-							{% if compass_data and compass_data.rating_description_lookup[2] %}{{ compass_data.rating_description_lookup[2].description }}{% endif %}
-						</div>
-					</div>
+			{% with data=( { "rating_index":0, "rating_identifier":1,"compass_data":compass_data }) %}
+  				{% include "components/configure_rating.html" %}
+			{% endwith %}
 
-					<!-- Rating 4 -->
-					<div>
-						<h4>Rating 4</h4>
-						<select name="rating_4" id="rating_4" data-fieldname="rating_4" data-identifier="rating_dropdown">
-							{% for rating in ratings %}
-							<option value="{{rating.id}}"
-							{% if compass_data and rating.id  == compass_data.rating_description_lookup[3].id %}
-							selected="selected"
-							{% endif %}
-							>{{rating.title}}
-							</option>
-							{% endfor %}
-						</select>
-					</div>
-					<div id="rating_4_description_changed" class="align_bottom"  title="Changed">
-					</div>
-					<div>
-						<h4>Description</h4>
-						<div class="inline_block ellipsis_100pc" id="rating_4_description" data-identifier="rating_description">
-							{% if compass_data and compass_data.rating_description_lookup[3] %}{{ compass_data.rating_description_lookup[3].description }}{% endif %}
-						</div>
-					</div>
+			{% with data=( { "rating_index":1, "rating_identifier":2,"compass_data":compass_data }) %}
+  				{% include "components/configure_rating.html" %}
+			{% endwith %}
 
-					<!-- Rating 5 -->
-					<div>
-						<h4>Rating 5</h4>
-						<select name="rating_5" id="rating_5" data-fieldname="rating_5" data-identifier="rating_dropdown">
-							{% for rating in ratings %}
-							<option value="{{rating.id}}"
-							{% if compass_data and rating.id  == compass_data.rating_description_lookup[4].id %}
-							selected="selected"
-							{% endif %}
-							>{{rating.title}}
-							</option>
-							{% endfor %}
-						</select>
-					</div>
-					<div id="rating_5_description_changed" class="align_bottom"  title="Changed">
-					</div>
-					<div>
-						<h4>Description</h4>
-						<div class="inline_block ellipsis_100pc" id="rating_5_description" data-identifier="rating_description">
-							{% if compass_data and compass_data.rating_description_lookup[4] %}{{ compass_data.rating_description_lookup[4].description }}{% endif %}
-						</div>
-					</div>
+			{% with data=( { "rating_index":2, "rating_identifier":3,"compass_data":compass_data }) %}
+  				{% include "components/configure_rating.html" %}
+			{% endwith %}
 
-					<!-- Rating 6 -->
-					<div>
-						<h4>Rating 6</h4>
-						<select name="rating_6" id="rating_6" data-fieldname="rating_6" data-identifier="rating_dropdown">
-							{% for rating in ratings %}
-							<option value="{{rating.id}}"
-							{% if compass_data and rating.id  == compass_data.rating_description_lookup[5].id %}
-							selected="selected"
-							{% endif %}
-							>{{rating.title}}
-							</option>
-							{% endfor %}
-						</select>
-					</div>
-					<div id="rating_6_description_changed" class="align_bottom"  title="Changed">
-					</div>
-					<div>
-						<h4>Description</h4>
-						<div class="inline_block ellipsis_100pc" id="rating_6_description"  data-identifier="rating_description">
-							{% if compass_data and compass_data.rating_description_lookup[5] %}{{ compass_data.rating_description_lookup[5].description }}{% endif %}
-						</div>
-					</div>
+			{% with data=( { "rating_index":3, "rating_identifier":4,"compass_data":compass_data }) %}
+  				{% include "components/configure_rating.html" %}
+			{% endwith %}
 
-					<!-- Rating 7 -->
-					<div>
-						<h4>Rating 7 (most)</h4>
-						<select name="rating_7" id="rating_7" data-fieldname="rating_7" data-identifier="rating_dropdown">
-							{% for rating in ratings %}
-							<option value="{{rating.id}}"
-							{% if compass_data and rating.id  == compass_data.rating_description_lookup[6].id %}
-							selected="selected"
-							{% endif %}
-							>{{rating.title}}
-							</option>
-							{% endfor %}
-						</select>
-					</div>
-					<div id="rating_7_description_changed" class="align_bottom"  title="Changed">
-					</div>
-					<div>
-						<h4>Description</h4>
-						<div class="inline_block ellipsis_100pc" id="rating_7_description" data-identifier="rating_description">
-							{% if compass_data and compass_data.rating_description_lookup[6] %}{{ compass_data.rating_description_lookup[6].description }}{% endif %}
-						</div>
-					</div>
-				</div>
-			</div>
-			<div>
+			{% with data=( { "rating_index":4, "rating_identifier":5,"compass_data":compass_data }) %}
+  				{% include "components/configure_rating.html" %}
+			{% endwith %}
+
+			{% with data=( { "rating_index":5, "rating_identifier":6,"compass_data":compass_data }) %}
+  				{% include "components/configure_rating.html" %}
+			{% endwith %}
+
+			{% with data=( { "rating_index":6, "rating_identifier":7,"compass_data":compass_data }) %}
+  				{% include "components/configure_rating.html" %}
+			{% endwith %}
+
 			</div>
 		</div> 
 	</div>

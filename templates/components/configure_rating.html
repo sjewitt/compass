@@ -1,0 +1,30 @@
+				<!-- outer wrapper -->
+				<div>
+                    <div class="gutterpanel">
+					<!-- Rating {{data.rating_identifier}} -->
+						<h4>Rating {{data.rating_identifier}}</h4>
+						<div>
+							<select 
+                                name="rating_{{data.rating_identifier}}" 
+                                id="rating_{{data.rating_identifier}}" 
+                                data-fieldname="rating_{{data.rating_identifier}}" 
+                                data-identifier="rating_dropdown"
+                                title="{% if compass_data and compass_data.rating_description_lookup[data.rating_index] %}{{ compass_data.rating_description_lookup[data.rating_index].description }}{% endif %}"
+                                >
+								{% for rating in ratings %}
+								<!-- if currently selected, indicate as such as well as defaulting to selecting it -->
+									{% if compass_data and rating.id  == compass_data.rating_description_lookup[0].id %}
+								<option value="{{rating.id}}" selected="selected" >* {{ funcs.truncate_displayed_text(rating.title) }}</option>
+									{% else %}
+								<option value="{{rating.id}}">{{ funcs.truncate_displayed_text(rating.title) }}</option>
+									{% endif %}
+								
+								{% endfor %}
+							</select>
+						</div>
+							<h4>Description</h4>
+							<div class="inline_block ellipsis_100pc" id="rating_{{data.rating_identifier}}_description" data-identifier="rating_description">
+								{% if compass_data and compass_data.rating_description_lookup[data.rating_index] %}{{ compass_data.rating_description_lookup[data.rating_index].description }}{% endif %}
+							</div>
+					</div>
+                </div>
