@@ -1,17 +1,14 @@
 					<h4>{{ data.heading }}</h4>
 					<div>
 						<div>
-							<!-- Title #1 
-							could use this instead: `class=w-var" style="--w:120px;"` -->
+							<!-- Title #1 - could use this instead: `class=w-var" style="--w:120px;"` -->
 							<div class="italics inline_block w-100">Title parts: </div>
 							<select data-fieldname="q{{ data.parent_data.quadrant_id_prefix }}_s{{ data.sector_id_prefix }}_tp1">
                                 <!-- CARE!! This will, by default use parent hierarchy template variables. Therefore, we need to pass the correct context -->
-								{% for title_part in sector_titles %}
-									{% if compass_data and title_part.id==compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].title[0].id %}
-								<option value="{{ title_part.id }}" selected="selected">* {{ funcs.replace_empty_string(title_part.title_part) }} </option>
-									{% else %}
+								{% for title_part in sector_titles %} {% if compass_data and title_part.id==compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].title[0].id %}
+								<option value="{{ title_part.id }}" selected="selected">* {{ funcs.replace_empty_string(title_part.title_part) }} </option>{% else %}
 								<option value="{{ title_part.id }}"> {{ funcs.replace_empty_string(title_part.title_part) }} </option>
-									{% endif %}>
+									{% endif %}
 								{% endfor %}
 							</select>
 
@@ -23,18 +20,21 @@
 								<option value="{{ title_part.id }}" selected="selected">* {{ funcs.replace_empty_string(title_part.title_part) }} </option>
 									{% else %}
 								<option value="{{ title_part.id }}"> {{ funcs.replace_empty_string(title_part.title_part) }} </option>
-									{% endif %}>								
+									{% endif %}								
 								{% endfor %}
 							</select>
 
-							<div class="italics inline_block w-100">Summary: </div>{{data.parent_data.sector_identifiers[data.sector_index]}}
-							<select class="inline_block" id="sector_{{data.parent_data.sector_identifiers[data.sector_index]}}" data-fieldname="quadrant_{{ data.parent_data.quadrant_id_prefix }}_sector_{{ data.sector_id_prefix }}"  data-identifier="sector_dropdown">
-									{% for sector in sectors %}
-									<option value="{{ sector.id }}" 
-									{% if compass_data and
-										sector.id==compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].id %} selected="selected" {% endif %}>
-										{{ funcs.truncate_displayed_text(sector.summary) }}</option>
-									{% endfor %}
+							
+							<div class="italics inline_block w-100">Summary: </div><!-- {{data.parent_data.sector_identifiers[data.sector_index]}} -->
+							<select 
+								class="inline_block" 
+								title="{% if compass_data and compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].id %}  {{ compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].summary }}  {% endif %}" 
+								id="sector_{{data.parent_data.sector_identifiers[data.sector_index]}}" 
+								data-fieldname="quadrant_{{ data.parent_data.quadrant_id_prefix }}_sector_{{ data.sector_id_prefix }}"  
+								data-identifier="sector_dropdown"
+							>{% for sector in sectors %} {% if compass_data and sector.id==compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].id %}
+											<option value="{{ sector.id }}"selected="selected">* {{ funcs.truncate_displayed_text(sector.summary) }}</option> {% else %}
+											<option value="{{ sector.id }}">{{ funcs.truncate_displayed_text(sector.summary) }}</option> {% endif %} {% endfor %}
 							</select>
 						</div>
 
