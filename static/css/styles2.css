@@ -391,7 +391,7 @@ where e.g. 100px is the desired width */
 
 /* rationalise the button styles: */
 .btn_base{
-  background-color: #eee;
+  background-color: #ddd;
   border:#555 solid 1px;
   border-radius: 3px;
 }
