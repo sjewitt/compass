@@ -280,16 +280,16 @@ var engine = {
         // console.log(evt)
         // console.log(`${selectlist[current_dropdown_index].id}_description_changed`);
         // document.getElementById(`${selectlist[current_dropdown_index].id}_description_changed`).innerText = "";
-        document.getElementById(`${selectlist[current_dropdown_index].id}_description`).classList.remove("changed");
+        document.getElementById(`${selectlist[current_dropdown_index].id}_description`).getElementsByTagName("span")[0].classList.remove("changed");
         if (current_option_value !== selectlist[current_dropdown_index].selectedIndex) {
-            document.getElementById(`${selectlist[current_dropdown_index].id}_description`).classList.add("changed");
+            document.getElementById(`${selectlist[current_dropdown_index].id}_description`).getElementsByTagName("span")[0].classList.add("changed");
             // document.getElementById(`${selectlist[current_dropdown_index].id}_description_changed`).innerText = "*"
         }
         // apply description to display DIV:
-        document.getElementById(`${selectlist[current_dropdown_index].id}_description`).innerText = document.getElementById(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex + 1}`).innerText;
+        document.getElementById(`${selectlist[current_dropdown_index].id}_description`).getElementsByTagName("span")[0].innerText = document.getElementById(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex + 1}`).innerText;
         // and apply the title attribute to the dropdown itself, so the user can hover and see the description:
-        console.log(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex + 1}`);
-        console.log(document.getElementById(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex + 1}`))
+        // console.log(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex + 1}`);
+        // console.log(document.getElementById(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex + 1}`))
         selectlist[current_dropdown_index].setAttribute("title", document.getElementById(`${prefix}_description_${selectlist[current_dropdown_index].selectedIndex + 1}`).innerText);
     },
 

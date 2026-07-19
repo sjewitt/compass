@@ -41,6 +41,6 @@
 						<!-- and get sector summary/descriptions: -->
 						<div class="inline_block ellipsis_100pc mt-10" id="sector_{{data.parent_data.sector_identifiers[data.sector_index]}}_description" data-identifier="sector_description">
 							<div class="italics inline_block w-100">Description: </div>
-							{% if compass_data %} {{ compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].description }} {% endif %}
+							<span>{% if compass_data %} {{ compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].description }} {% endif %}</span>
 						</div>
 					</div>
