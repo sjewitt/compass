@@ -12,7 +12,7 @@
 */
 
 var engine = {
-    
+
     init: function () {
         // apply handler to tabs:
         let tabber_elems = document.getElementsByClassName("panel_selector_tab");
@@ -36,6 +36,29 @@ var engine = {
                 });
                 elem.dispatchEvent(evt);
             }
+        }
+
+        /** 
+         * Handle the cases where a link from thje compass configuration screen has been followed
+         * in order to edit that component. Eventually, the passed ID will reflect the actively 
+         * selected item. Currently, it is the saved item. 
+         * In order to achieve this, the passed ID will need to be updated to reflect that selected 
+         * by the user.
+         */
+        if(window.location.search){
+            // console.log(window.location.search);
+            sp = new URLSearchParams(window.location.search);
+            // console.log(sp);
+            // console.log(sp.get("sector_id"));   // OK
+            // call function to trigger the dropdown change to the specified ID:
+            // This works to select the dropdown, but the subsequent events to populate the 
+            // other data are not triggered, even with a .click();...
+            // probably need a conditional here:
+            this.setSectorDropdownOnNavigateTo(sp.get("sector_id"));
+            this.setQuadrantDropdownOnNavigateTo(sp.get("quadrant_id"));
+            this.setRatingDropdownOnNavigateTo(sp.get("rating_id"));
+            this.setQuadrantTitleDropdownOnNavigateTo(sp.get("quadrant_title_id"));
+            this.setSectorTitleDropdownOnNavigateTo(sp.get("sector_title_id"));
         }
 
         /**
@@ -102,6 +125,84 @@ var engine = {
             this.selectComponentUIChangeHandler(event = e, prefix = "rating", submitBtn = submitBtnRatings, hiddenDataElemsIdList = ["title", "description"])
         })
         /** END OF COMPONENTS PAGE HANDLERS */
+    },
+
+    
+    /** 
+     * Manage autoselection of dropdown if coming form the compass configure page 
+     * */
+    setSectorDropdownOnNavigateTo : function(sectorId){
+        // get the sector dropdown by it's ID:
+        let elem = document.getElementById('manage_sectors_select');
+
+        for(child of elem.children){
+            if(child.value === sectorId){
+                child.setAttribute("selected","selected");
+                // now retrieve the hidden data:
+                document.getElementById("sector_summary").innerText = document.getElementById(`sector_summary_${sectorId}`).innerText;
+                document.getElementById("sector_description").innerText = document.getElementById(`sector_description_${sectorId}`).innerText;
+                document.getElementById("sector_component_submit").value = "Update existing sector";
+                break;
+            }
+        }
+    },
+
+    setQuadrantDropdownOnNavigateTo: function(quadrantId){
+        console.log(quadrantId);
+        let elem = document.getElementById('manage_quadrants_select');
+        for(child of elem.children){
+            if(child.value === quadrantId){
+                child.setAttribute("selected","selected");
+                // now retrieve the hidden data:
+                document.getElementById("quadrant_summary").innerText = document.getElementById(`quadrant_summary_${quadrantId}`).innerText;
+                document.getElementById("quadrant_description").innerText = document.getElementById(`quadrant_description_${quadrantId}`).innerText;
+                document.getElementById("quadrant_component_submit").value = "Update existing quadrant";
+                break;
+            }
+        }
+    },
+
+    setRatingDropdownOnNavigateTo : function(ratingId){
+        console.log(ratingId);
+        let elem = document.getElementById('manage_quadrants_select');
+        for(child of elem.children){
+            if(child.value === ratingId){
+                child.setAttribute("selected","selected");
+                // now retrieve the hidden data:
+                document.getElementById("rating_title").value = document.getElementById(`rating_title_${ratingId}`).innerText;
+                document.getElementById("rating_description").innerText = document.getElementById(`rating_description_${ratingId}`).innerText;
+                document.getElementById("rating_component_submit").value = "Update existing rating";
+                break;
+            }
+        }
+    },
+
+    setQuadrantTitleDropdownOnNavigateTo : function(quadrantTitleId){
+        console.log(quadrantTitleId);
+        let elem = document.getElementById('manage_quadrant_titles_select');
+        for(child of elem.children){
+            if(child.value === quadrantTitleId){
+                child.setAttribute("selected","selected");
+                // now retrieve the hidden data:
+                document.getElementById("quadrant_title_part").value = document.getElementById(`quadrant_title_part_${quadrantTitleId}`).innerText;
+                document.getElementById("quadrant_title_component_submit").value = "Update existing quadrant title";
+                break;
+            }
+        }
+    },
+
+    setSectorTitleDropdownOnNavigateTo : function(sectorTitleId){
+        console.log(sectorTitleId)
+        let elem = document.getElementById('manage_sector_titles_select');
+        for(child of elem.children){
+            if(child.value === sectorTitleId){
+                child.setAttribute("selected","selected");
+                // now retrieve the hidden data:
+                document.getElementById("sector_title_part").value = document.getElementById(`quadrant_title_part_${sectorTitleId}`).innerText;
+                document.getElementById("sector_title_component_submit").value = "Update existing sector title";
+                break;
+            }
+        }
     },
 
     /** 
@@ -247,6 +348,7 @@ var engine = {
     // dropdown handler for manage components page. We are populaing a form, so it is different to the 
     // full compass one above] The key is the lookup data in the hidden DOM elements 
     selectComponentUIChangeHandler: function (event = event, prefix = prefix, submitBtn = submitBtn, hiddenDataElemsIdList = hiddenDataElemsIdList) {
+        console.log("select event handler triggered")
         // the database ID textbox. Will be hidden, is an int
         document.getElementById(`${prefix}_id`).value = event.srcElement[event.srcElement.selectedIndex].value;
 
@@ -269,6 +371,13 @@ var engine = {
 
 document.addEventListener("DOMContentLoaded",
     (evt) => {
+        // console.log(window.location);
         engine.init();  //no arg
     }
-)
+);
+
+// I may need this as well as the init() loading of the querystring:
+// window.addEventListener("focus",(evt)=>{
+//     console.log("focus")
+//     console.log(window.location);
+// })
