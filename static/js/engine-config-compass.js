@@ -12,6 +12,34 @@ var engine = {
                 })
             }
 
+
+            // Add handlers for edit sectors links (POC)
+            let sector_edit_links = document.querySelectorAll("[data-identifier='sector_edit_links']");
+            for(let x=0;x<sector_edit_links.length;x++){
+                sector_edit_links[x].addEventListener("click",(event)=>{
+                    window.open(`/configure/components?sector_id=${event.target.getAttribute("data-current-id")}#tab_3_selected`,"components")
+                    event.preventDefault();
+                })
+            }
+
+            // Add handlers for edit quadrant links (POC)
+            let quadrant_edit_links = document.querySelectorAll("[data-identifier='quadrant_edit_links']");
+            for(let x=0;x<quadrant_edit_links.length;x++){
+                quadrant_edit_links[x].addEventListener("click",(event)=>{
+                    window.open(`/configure/components?quadrant_id=${event.target.getAttribute("data-current-id")}#tab_1_selected`,"components")
+                    event.preventDefault();
+                })
+            }
+
+            // Add handlers for edit quadrant title links (POC)
+            let quadrant_title_edit_links = document.querySelectorAll("[data-identifier='quadrant_title_edit_links']");
+            for(let x=0;x<quadrant_title_edit_links.length;x++){
+                quadrant_title_edit_links[x].addEventListener("click",(event)=>{
+                    window.open(`/configure/components?quadrant_title_id=${event.target.getAttribute("data-current-id")}#tab_2_selected`,"components")
+                    event.preventDefault();
+                })
+            }
+
             // and apply handler for submit button (accounts for add and update actions)
             let btn_submit_compass_data = document.getElementById("btn_submit_compass_data");
             if (btn_submit_compass_data) {
