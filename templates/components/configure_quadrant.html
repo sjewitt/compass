@@ -29,7 +29,22 @@
 								{% endif %}>
 							{% endfor %}
 						</select>
-
+						<a href="#" 
+							title="Edit currently assigned component"
+							id="edit_quadrant_title_1_{{data.quadrant_id_prefix}}" 
+							data-current-id="{{ compass_data.data_quadrants[data.quadrant_index].title[0].id }}"  
+							data-identifier='quadrant_title_edit_links'>
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+								data-current-id="{{ compass_data.data_quadrants[data.quadrant_index].title[0].id }}"
+								class="v-centre button_orange"
+							>
+								<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+								<path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+								<!-- need the additional attribute here, otherwise I sometimes get the ID passed as null -->
+								<path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415" 
+									data-current-id="{{ compass_data.data_quadrants[data.quadrant_index].title[0].id }}" />
+								<path d="M16 5l3 3" />
+							</svg></a>
 						<select data-fieldname="q{{ data.quadrant_id_prefix }}_tp2"><!-- TODO: get the selected value as the title attribute here, as per summary, below -->
 							{% for title_part in quadrant_titles %}
 								{% if compass_data and title_part.id==compass_data.data_quadrants[data.quadrant_index].title[1].id %}
@@ -39,6 +54,24 @@
 								{% endif %}>	
 							{% endfor %}
 						</select>
+						<a href="#" 
+							title="Edit currently assigned component"
+							id="edit_quadrant_title_2_{{data.quadrant_id_prefix}}" 
+							data-current-id="{{ compass_data.data_quadrants[data.quadrant_index].title[1].id }}"  
+							data-identifier='quadrant_title_edit_links'>
+								<!-- [edit] -->
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+								data-current-id="{{ compass_data.data_quadrants[data.quadrant_index].title[1].id }}"
+								class="v-centre button_orange"
+							>
+								<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+								<path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+								<!-- need the additional attribute here, otherwise I sometimes get the ID passed as null -->
+								<path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415" 
+									data-current-id="{{ compass_data.data_quadrants[data.quadrant_index].title[1].id }}" />
+								<path d="M16 5l3 3" />
+							</svg>
+						</a>
 					</div>
 
 					<h4>Summary</h4>
@@ -46,18 +79,40 @@
 						<!-- this needs to default to showing the current summary for this compass quadrant {{ data.quadrant_id_prefix }}: -->
 						<select class="full_width" data-fieldname="quadrant_{{ data.quadrant_id_prefix }}" id="quadrant_{{ data.quadrant_id_prefix }}" data-identifier="quadrant_dropdown" title="{% if compass_data %} {{ compass_data.data_quadrants[data.quadrant_index].quadrant_summary }} {% endif %}">
 							{% for quadrant in quadrants %}
-							<option value="{{ quadrant.id }}" {% if compass_data and quadrant.id==compass_data.data_quadrants[data.quadrant_index].id %} selected="selected" {% endif %}>
-								{{ funcs.truncate_displayed_text(quadrant.quadrant_summary) }}
-							</option>
+								{% if compass_data and quadrant.id==compass_data.data_quadrants[data.quadrant_index].id %}
+									<option value="{{ quadrant.id }}" selected="selected" >* {{ funcs.truncate_displayed_text(quadrant.quadrant_summary) }}</option>
+								{% else %}
+									<option value="{{ quadrant.id }}">{{ funcs.truncate_displayed_text(quadrant.quadrant_summary) }}</option>
+								{% endif %}
 							{% endfor %}
 						</select>
+
+						<!-- edit icons here - if the select is changed, the JS needs to update this link... -->
+						<a href="#" 
+							title="Edit currently assigned component"
+							id="edit_quadrant_{{data.quadrant_id_prefix}}" 
+							data-current-id="{{ compass_data.data_quadrants[data.quadrant_index].id }}" 
+							data-identifier='quadrant_edit_links'>
+							<!-- from https://tabler.io/icons?icon=edit -->
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+								data-current-id="{{ compass_data.data_quadrants[data.quadrant_index].id }}"
+								class="v-centre button_orange"
+							>
+								<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+								<path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+								<!-- need the additional attribute here, otherwise I sometimes get the ID passed as null -->
+								<path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415" 
+									data-current-id="{{ compass_data.data_quadrants[data.quadrant_index].id }}" />
+								<path d="M16 5l3 3" />
+							</svg>
+						</a>
 					</div>
 
 					<h4>Description</h4>
 					<div>
 						<!-- initially, show the current description for this compass quadrant {{ data.quadrant_id_prefix }}: -->
 						<div class="inline_block ellipsis_100pc" id="quadrant_{{ data.quadrant_id_prefix }}_description" data-identifier="quadrant_description">
-							{% if compass_data %} {{ compass_data.data_quadrants[data.quadrant_index].quadrant_description }} {% endif %}
+							<span>{% if compass_data %} {{ compass_data.data_quadrants[data.quadrant_index].quadrant_description }} {% endif %}</span>
 						</div>
 					</div>
 				</div>
