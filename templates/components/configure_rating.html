@@ -17,7 +17,7 @@
 						</div>
 						<h4>Description</h4>
 						<div class="inline_block ellipsis_100pc" id="rating_{{data.rating_identifier}}_description" data-identifier="rating_description">
-							{% if compass_data and compass_data.rating_description_lookup[data.rating_index] %}{{ compass_data.rating_description_lookup[data.rating_index].description }}{% endif %}
+							<span>{% if compass_data and compass_data.rating_description_lookup[data.rating_index] %}{{ compass_data.rating_description_lookup[data.rating_index].description }}{% endif %}</span>
 						</div>
 					</div>
                 </div>
