@@ -360,3 +360,8 @@ if a NEW user:
  - breaks upon loading and editing (with or without a compass applied):
  - WITHOUT:
    - 
+
+
+# SVG icons:
+
+https://tabler.io/icons
