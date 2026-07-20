@@ -137,6 +137,15 @@ body{
  * UTILITIES
  ***************************************************/
 
+ /* SVG */
+ .button_orange{
+  stroke: lightgray;
+}
+.button_orange:hover{
+  stroke: #f7a701;
+}
+
+
 .italics{
   font-style: italic;
 }
@@ -149,6 +158,10 @@ body{
 h4.h4-tall{
   margin-top: 20px;
   margin-bottom: 20px;
+}
+
+.v-centre{
+  vertical-align: middle;
 }
 
 /* border radius stuff */
