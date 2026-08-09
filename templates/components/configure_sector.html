@@ -37,6 +37,7 @@
 											<option value="{{ sector.id }}">{{ funcs.truncate_displayed_text(sector.summary) }}</option> {% endif %} {% endfor %}
 							</select>
 							<!-- edit icons here - if the select is changed, the JS needs to update this link... -->
+							{% if compass_data %}
 							<a href="#" id="edit_sector_{{data.parent_data.sector_identifiers[data.sector_index]}}" data-current-id="{{ compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].id }}"  data-identifier='sector_edit_links'>
 								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
 									data-current-id="{{ compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].id }}"
@@ -50,6 +51,7 @@
 									<path d="M16 5l3 3" />
 								</svg>
 							</a>
+							{%endif%}
 						</div>
 
 						<!-- and get sector summary/descriptions: -->
