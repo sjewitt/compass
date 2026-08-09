@@ -164,7 +164,7 @@ var engine = {
 
     setRatingDropdownOnNavigateTo : function(ratingId){
         console.log(ratingId);
-        let elem = document.getElementById('manage_quadrants_select');
+        let elem = document.getElementById('manage_ratings_select');
         for(child of elem.children){
             if(child.value === ratingId){
                 child.setAttribute("selected","selected");
