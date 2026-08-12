@@ -40,6 +40,23 @@ var engine = {
                 })
             }
 
+            // add handlers for sector component title edit links:
+            let sector_title_edit_links = document.querySelectorAll("[data-identifier='sector_title_edit_links']");
+            for(let x=0;x<sector_title_edit_links.length;x++){
+                sector_title_edit_links[x].addEventListener("click",(event)=>{
+                    window.open(`/configure/components?sector_title_id=${event.target.getAttribute("data-current-id")}#tab_4_selected`,"components")
+                    event.preventDefault();
+                })
+            }
+
+            let rating_edit_links = document.querySelectorAll("[data-identifier='rating_edit_links']");
+            for(let x=0;x<rating_edit_links.length;x++){
+                rating_edit_links[x].addEventListener("click",(event)=>{
+                    window.open(`/configure/components?rating_id=${event.target.getAttribute("data-current-id")}#tab_5_selected`,"components")
+                    event.preventDefault();
+                })
+            }
+
             // and apply handler for submit button (accounts for add and update actions)
             let btn_submit_compass_data = document.getElementById("btn_submit_compass_data");
             if (btn_submit_compass_data) {
