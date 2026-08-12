@@ -198,7 +198,7 @@ var engine = {
             if(child.value === sectorTitleId){
                 child.setAttribute("selected","selected");
                 // now retrieve the hidden data:
-                document.getElementById("sector_title_part").value = document.getElementById(`quadrant_title_part_${sectorTitleId}`).innerText;
+                document.getElementById("sector_title_part").value = document.getElementById(`sector_title_part_${sectorTitleId}`).innerText;
                 document.getElementById("sector_title_component_submit").value = "Update existing sector title";
                 break;
             }
