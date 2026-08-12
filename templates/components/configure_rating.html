@@ -14,6 +14,24 @@
 								<option value="{{rating.id}}" selected="selected" >* {{ funcs.truncate_displayed_text(rating.title) }}</option>{% else %}
 								<option value="{{rating.id}}">{{ funcs.truncate_displayed_text(rating.title) }}</option>{% endif %} {% endfor %}
 							</select>
+							{% if compass_data %}
+							<a href="#" 
+								title="Edit currently assigned component"
+								id="edit_rating_{{data.rating_identifier}}" 
+								data-current-id="{{compass_data.rating_description_lookup[data.rating_index].id}}"  
+								data-identifier='rating_edit_links'>
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+									data-current-id="{{compass_data.rating_description_lookup[data.rating_index].id}}"
+									class="v-centre button_orange"
+								>
+									<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+									<path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+									<!-- need the additional attribute here, otherwise I sometimes get the ID passed as null -->
+									<path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415" 
+										data-current-id="{{compass_data.rating_description_lookup[data.rating_index].id}}" />
+									<path d="M16 5l3 3" />
+								</svg></a>
+						    {%endif%}
 						</div>
 						<h4>Description</h4>
 						<div class="inline_block ellipsis_100pc" id="rating_{{data.rating_identifier}}_description" data-identifier="rating_description">
