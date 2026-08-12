@@ -5,12 +5,32 @@
 							<div class="italics inline_block w-100">Title parts: </div>
 							<select data-fieldname="q{{ data.parent_data.quadrant_id_prefix }}_s{{ data.sector_id_prefix }}_tp1">
                                 <!-- CARE!! This will, by default use parent hierarchy template variables. Therefore, we need to pass the correct context -->
-								{% for title_part in sector_titles %} {% if compass_data and title_part.id==compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].title[0].id %}
-								<option value="{{ title_part.id }}" selected="selected">* {{ funcs.replace_empty_string(title_part.title_part) }} </option>{% else %}
+								{% for title_part in sector_titles %} 
+									{% if compass_data and title_part.id==compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].title[0].id %}
+								<option value="{{ title_part.id }}" selected="selected">* {{ funcs.replace_empty_string(title_part.title_part) }} </option>
+									{% else %}
 								<option value="{{ title_part.id }}"> {{ funcs.replace_empty_string(title_part.title_part) }} </option>
 									{% endif %}
 								{% endfor %}
 							</select>
+							{% if compass_data %}
+							<a href="#" 
+								title="Edit currently assigned component"
+								id="edit_sector_title_1_q{{data.parent_data.quadrant_id_prefix}}_s{{data.sector_id_prefix}}" 
+								data-current-id="{{compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].title[0].id}}"  
+								data-identifier='sector_title_edit_links'>
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+									data-current-id="{{compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].title[0].id}}"
+									class="v-centre button_orange"
+								>
+									<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+									<path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+									<!-- need the additional attribute here, otherwise I sometimes get the ID passed as null -->
+									<path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415" 
+										data-current-id="{{compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].title[0].id}}" />
+									<path d="M16 5l3 3" />
+								</svg></a>
+						    {%endif%}
 
 							<!-- Title #2 -->
                             <!-- {{ data.parent_data.quadrant_id_prefix }} this is just for debugging -->
@@ -23,6 +43,24 @@
 									{% endif %}								
 								{% endfor %}
 							</select>
+							{% if compass_data %}
+							<a href="#" 
+								title="Edit currently assigned component"
+								id="edit_sector_title_2_q{{data.parent_data.quadrant_id_prefix}}_s{{data.sector_id_prefix}}" 
+								data-current-id="{{compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].title[1].id}}"  
+								data-identifier='sector_title_edit_links'>
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+									data-current-id="{{compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].title[1].id}}"
+									class="v-centre button_orange"
+								>
+									<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+									<path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+									<!-- need the additional attribute here, otherwise I sometimes get the ID passed as null -->
+									<path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415" 
+										data-current-id="{{compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].title[1].id}}" />
+									<path d="M16 5l3 3" />
+								</svg></a>
+						    {%endif%}
 
 							
 							<div class="italics inline_block w-100">Summary: </div><!-- {{data.parent_data.sector_identifiers[data.sector_index]}} -->
