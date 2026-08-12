@@ -31,7 +31,7 @@
 						</select>
 						{% if compass_data %}
 						<a href="#" 
-							title="Edit currently assigned component"
+							title="Edit currently assigned component ('{{ compass_data.data_quadrants[data.quadrant_index].title[0].title_part }}')"
 							id="edit_quadrant_title_1_{{data.quadrant_id_prefix}}" 
 							data-current-id="{{ compass_data.data_quadrants[data.quadrant_index].title[0].id }}"  
 							data-identifier='quadrant_title_edit_links'>
@@ -45,8 +45,7 @@
 								<path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415" 
 									data-current-id="{{ compass_data.data_quadrants[data.quadrant_index].title[0].id }}" />
 								<path d="M16 5l3 3" />
-							</svg>
-						</a>
+							</svg></a><!-- if this anchor tag is on a new line, we get a ghost underscore. But ONLY on the first one. WTF? -->
 						{% endif %}
 
 						<select data-fieldname="q{{ data.quadrant_id_prefix }}_tp2"><!-- TODO: get the selected value as the title attribute here, as per summary, below -->
@@ -60,7 +59,7 @@
 						</select>
 						{% if compass_data %}
 						<a href="#" 
-							title="Edit currently assigned component"
+							title="Edit currently assigned component ('{{ compass_data.data_quadrants[data.quadrant_index].title[1].title_part }}')"
 							id="edit_quadrant_title_2_{{data.quadrant_id_prefix}}" 
 							data-current-id="{{ compass_data.data_quadrants[data.quadrant_index].title[1].id }}"  
 							data-identifier='quadrant_title_edit_links'>
@@ -112,8 +111,7 @@
 									data-current-id="{{ compass_data.data_quadrants[data.quadrant_index].id }}" />
 								<path d="M16 5l3 3" />
 							</svg>
-						</a>
-						{%endif%}
+						</a>						{%endif%}
 					</div>
 
 					<h4>Description</h4>
