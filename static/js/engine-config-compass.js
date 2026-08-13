@@ -57,7 +57,7 @@ var engine = {
                 })
             }
 
-            // and apply handler for submit button (accounts for add and update actions)
+            // and apply handler for submit button (accounts for add and update actio/compassns)
             let btn_submit_compass_data = document.getElementById("btn_submit_compass_data");
             if (btn_submit_compass_data) {
                 btn_submit_compass_data.addEventListener("click", this.btnSubmitCompassData)
@@ -237,6 +237,7 @@ var engine = {
         // they are all dropdowns...
         let elems = document.getElementsByTagName("select");
         let compass_id = parseInt(document.getElementById("compass_id").value);
+        let taskTypeString = "add";
         if (compass_id === NaN) {
             compass_id = null;
         }
@@ -255,9 +256,12 @@ var engine = {
         /** determine whether to add or update */
         let submitURL = '/compass/';    // the add endpoint (if POST)
         if (compass_id > 0) {
+            taskTypeString = "update";
             submitURL = '/compass/update/';
         }
         if (data) {
+            // let api_response_code;
+            let api_response_message;
             console.log(data);
             fetch(submitURL, {
                 method: 'POST',
@@ -267,17 +271,58 @@ var engine = {
                     'Content-Type': 'application/json'
                 },
             }).then(function (response) {
+                // this is the response object:
+                console.log(response)
+                api_response_code = response.status;
                 return response.json();
             }).then(function (response) {
+                // and THIS is the JSON returned from the create endpoint:
                 console.log(response);
-                console.log(evt.srcElement)
+                // console.log(evt.srcElement)
                 /** TODO get better data in the response */
-                if (response.compass_updated) {
-                    document.location.reload();
+                // if (response.compass_updated) {
+                if (response.id > 0) {
+                    // becauise I am now returning a negative int on duplicated name - which is NOT a validation error
+                    // I need to test for that here.
+                    // document.location.href = `${document.location.hostname}?id=${response.id}`;
+                    api_response_message = `Compass ${taskTypeString}ed successfully`;
                 }else{
                     // TODO: alert the user that the update failed, and why. This will depend on the 
                     // back-end returning a better response object with error messages etc.
+                    // let msg = JSON.parse(response.message)
+                    // console.log(typeof(msg))
+                    // here, `response` may be the dummy CompassSummary object with id=-1 and name="compass name already exists. Cannot add new compass definition."
+                    // or may be actual error object with status_code, error, message etc. - depending on the back-end implementation.
+                    if(response.status_code){
+                        console.log(response.status_code);
+                        console.log(response.error);
+                        console.log(response.message);
+                        api_response_code = response.status_code;
+                        let x = JSON.stringify(response);
+                        console.log(x);
+                        let y = JSON.parse(x);
+                        console.log(y);
+                        // api_response_message = response.message;
+                    }
+                    if(response.id){
+                        api_response_message = response.name;
+                    }
+                    
+                    // console.log(JSON.parse(response));
+                    // let z = JSON.parse(y);
+                    // console.log(z);
+                    // alert(`Update failed: ${z.detail}`);
+                    
+
                 }
+                let msgBox = document.getElementById("message");
+                // if(api_response_code !== 200){    
+                    msgBox.innerText = `Update failed: ${api_response_message}`;
+                    // msgBox.classList.remove("hidden");  
+                // }
+                // else{
+                //     msgBox.classList.add("hidden");  
+                // }
             });
         }
     },
