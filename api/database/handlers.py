@@ -587,6 +587,16 @@ def get_all_compasses(engine) -> list[CompassSummary]:
     print("error")
     return []
 
+
+def check_compass_name_exists(engine, name:str) -> bool:
+    with Session(engine) as session:
+        _exists = session.query(DB_CompassDefinition).where(DB_CompassDefinition.name == name).first()
+        if _exists:
+            return True
+        else:
+            return False
+
+
 # retrieve current compass data
 # re #72, this may be a good placve to return the static coords data (I think
 # the dababase column is ignored - though returned.)
@@ -748,128 +758,136 @@ def get_compass(engine, id:int) -> CompassData:
 def set_compass(engine, definition:CompassData) -> int:
     # add new
     with Session(engine) as session:
-
+        _exists = check_compass_name_exists(engine, definition.name)
         # add new compass definition:
         # construct a DB model for the compass:
-        _compass = DB_CompassDefinition(
-            name = definition.name,
-            description = definition.description,
-            quadrant_1 = definition.quadrant_1,
-            quadrant_2 = definition.quadrant_2,
-            quadrant_3 = definition.quadrant_3,
-            quadrant_4 = definition.quadrant_4,
+        if not _exists:
+            _compass = DB_CompassDefinition(
+                name = definition.name,
+                description = definition.description,
+                quadrant_1 = definition.quadrant_1,
+                quadrant_2 = definition.quadrant_2,
+                quadrant_3 = definition.quadrant_3,
+                quadrant_4 = definition.quadrant_4,
 
-            # Quadrant title IDs (note FK-enforced second - how to handle? Special case?)
-            q1_tp1= definition.q1_tp1,
-            q1_tp2= definition.q1_tp2,
-            q2_tp1= definition.q2_tp1,
-            q2_tp2= definition.q2_tp2,
-            q3_tp1= definition.q3_tp1,
-            q3_tp2= definition.q3_tp2,
-            q4_tp1= definition.q4_tp1,
-            q4_tp2= definition.q4_tp2,
+                # Quadrant title IDs (note FK-enforced second - how to handle? Special case?)
+                q1_tp1= definition.q1_tp1,
+                q1_tp2= definition.q1_tp2,
+                q2_tp1= definition.q2_tp1,
+                q2_tp2= definition.q2_tp2,
+                q3_tp1= definition.q3_tp1,
+                q3_tp2= definition.q3_tp2,
+                q4_tp1= definition.q4_tp1,
+                q4_tp2= definition.q4_tp2,
 
-            # Q1 Sectors:
-            quadrant_1_sector_1 = definition.quadrant_1_sector_1,
-            quadrant_1_sector_2 = definition.quadrant_1_sector_2,
-            quadrant_1_sector_3 = definition.quadrant_1_sector_3,
-            quadrant_1_sector_4 = definition.quadrant_1_sector_4,
-            quadrant_1_sector_5 = definition.quadrant_1_sector_4,
+                # Q1 Sectors:
+                quadrant_1_sector_1 = definition.quadrant_1_sector_1,
+                quadrant_1_sector_2 = definition.quadrant_1_sector_2,
+                quadrant_1_sector_3 = definition.quadrant_1_sector_3,
+                quadrant_1_sector_4 = definition.quadrant_1_sector_4,
+                quadrant_1_sector_5 = definition.quadrant_1_sector_4,
 
-            # Q1 Sector titles:
-            q1_s1_tp1=definition.q1_s1_tp1,
-            q1_s1_tp2=definition.q1_s1_tp2,
-            q1_s2_tp1=definition.q1_s2_tp1,
-            q1_s2_tp2=definition.q1_s2_tp2,
-            q1_s3_tp1=definition.q1_s3_tp1,
-            q1_s3_tp2=definition.q1_s3_tp2,
-            q1_s4_tp1=definition.q1_s4_tp1,
-            q1_s4_tp2=definition.q1_s4_tp2,
-            q1_s5_tp1=definition.q1_s5_tp1,
-            q1_s5_tp2=definition.q1_s5_tp2,
+                # Q1 Sector titles:
+                q1_s1_tp1=definition.q1_s1_tp1,
+                q1_s1_tp2=definition.q1_s1_tp2,
+                q1_s2_tp1=definition.q1_s2_tp1,
+                q1_s2_tp2=definition.q1_s2_tp2,
+                q1_s3_tp1=definition.q1_s3_tp1,
+                q1_s3_tp2=definition.q1_s3_tp2,
+                q1_s4_tp1=definition.q1_s4_tp1,
+                q1_s4_tp2=definition.q1_s4_tp2,
+                q1_s5_tp1=definition.q1_s5_tp1,
+                q1_s5_tp2=definition.q1_s5_tp2,
 
-            # Q2 Sectors:
-            quadrant_2_sector_1 = definition.quadrant_2_sector_1,
-            quadrant_2_sector_2 = definition.quadrant_2_sector_2,
-            quadrant_2_sector_3 = definition.quadrant_2_sector_3,
-            quadrant_2_sector_4 = definition.quadrant_2_sector_4,
+                # Q2 Sectors:
+                quadrant_2_sector_1 = definition.quadrant_2_sector_1,
+                quadrant_2_sector_2 = definition.quadrant_2_sector_2,
+                quadrant_2_sector_3 = definition.quadrant_2_sector_3,
+                quadrant_2_sector_4 = definition.quadrant_2_sector_4,
 
-            # Q2 Sector titles:
-            q2_s1_tp1=definition.q2_s1_tp1,
-            q2_s1_tp2=definition.q2_s1_tp2,
-            q2_s2_tp1=definition.q2_s2_tp1,
-            q2_s2_tp2=definition.q2_s2_tp2,
-            q2_s3_tp1=definition.q2_s3_tp1,
-            q2_s3_tp2=definition.q2_s3_tp2,
-            q2_s4_tp1=definition.q2_s4_tp1,
-            q2_s4_tp2=definition.q2_s4_tp2,
+                # Q2 Sector titles:
+                q2_s1_tp1=definition.q2_s1_tp1,
+                q2_s1_tp2=definition.q2_s1_tp2,
+                q2_s2_tp1=definition.q2_s2_tp1,
+                q2_s2_tp2=definition.q2_s2_tp2,
+                q2_s3_tp1=definition.q2_s3_tp1,
+                q2_s3_tp2=definition.q2_s3_tp2,
+                q2_s4_tp1=definition.q2_s4_tp1,
+                q2_s4_tp2=definition.q2_s4_tp2,
 
-            # Q3 Sectors:
-            quadrant_3_sector_1 = definition.quadrant_3_sector_1,
-            quadrant_3_sector_2 = definition.quadrant_3_sector_2,
-            quadrant_3_sector_3 = definition.quadrant_3_sector_3,
-            quadrant_3_sector_4 = definition.quadrant_3_sector_4,
+                # Q3 Sectors:
+                quadrant_3_sector_1 = definition.quadrant_3_sector_1,
+                quadrant_3_sector_2 = definition.quadrant_3_sector_2,
+                quadrant_3_sector_3 = definition.quadrant_3_sector_3,
+                quadrant_3_sector_4 = definition.quadrant_3_sector_4,
 
-            # Q3 Sector titles:
-            q3_s1_tp1=definition.q3_s1_tp1,
-            q3_s1_tp2=definition.q3_s1_tp2,
-            q3_s2_tp1=definition.q3_s2_tp1,
-            q3_s2_tp2=definition.q3_s2_tp2,
-            q3_s3_tp1=definition.q3_s3_tp1,
-            q3_s3_tp2=definition.q3_s3_tp2,
-            q3_s4_tp1=definition.q3_s4_tp1,
-            q3_s4_tp2=definition.q3_s4_tp2,
+                # Q3 Sector titles:
+                q3_s1_tp1=definition.q3_s1_tp1,
+                q3_s1_tp2=definition.q3_s1_tp2,
+                q3_s2_tp1=definition.q3_s2_tp1,
+                q3_s2_tp2=definition.q3_s2_tp2,
+                q3_s3_tp1=definition.q3_s3_tp1,
+                q3_s3_tp2=definition.q3_s3_tp2,
+                q3_s4_tp1=definition.q3_s4_tp1,
+                q3_s4_tp2=definition.q3_s4_tp2,
 
-            # Q4 Sectors:
-            quadrant_4_sector_1 = definition.quadrant_4_sector_1,
-            quadrant_4_sector_2 = definition.quadrant_4_sector_2,
-            quadrant_4_sector_3 = definition.quadrant_4_sector_3,
-            quadrant_4_sector_4 = definition.quadrant_4_sector_4,
+                # Q4 Sectors:
+                quadrant_4_sector_1 = definition.quadrant_4_sector_1,
+                quadrant_4_sector_2 = definition.quadrant_4_sector_2,
+                quadrant_4_sector_3 = definition.quadrant_4_sector_3,
+                quadrant_4_sector_4 = definition.quadrant_4_sector_4,
 
-            # Q4 Sector titles:
-            q4_s1_tp1=definition.q4_s1_tp1,
-            q4_s1_tp2=definition.q4_s1_tp2,
-            q4_s2_tp1=definition.q4_s2_tp1,
-            q4_s2_tp2=definition.q4_s2_tp2,
-            q4_s3_tp1=definition.q4_s3_tp1,
-            q4_s3_tp2=definition.q4_s3_tp2,
-            q4_s4_tp1=definition.q4_s4_tp1,
-            q4_s4_tp2=definition.q4_s4_tp2,
+                # Q4 Sector titles:
+                q4_s1_tp1=definition.q4_s1_tp1,
+                q4_s1_tp2=definition.q4_s1_tp2,
+                q4_s2_tp1=definition.q4_s2_tp1,
+                q4_s2_tp2=definition.q4_s2_tp2,
+                q4_s3_tp1=definition.q4_s3_tp1,
+                q4_s3_tp2=definition.q4_s3_tp2,
+                q4_s4_tp1=definition.q4_s4_tp1,
+                q4_s4_tp2=definition.q4_s4_tp2,
 
-            # Ratings
-            rating_1 = definition.rating_1,
-            rating_2 = definition.rating_2,
-            rating_3 = definition.rating_3,
-            rating_4 = definition.rating_4,
-            rating_5 = definition.rating_5,
-            rating_6 = definition.rating_6,
-            rating_7 = definition.rating_7,
-        )
-        try:
-            session.add(_compass)
-            session.flush()
-            # get ID:
-            new_compass_id = _compass.id
-            session.commit()
-            return new_compass_id
-        except Exception as ex:
-            print(f"Exception attempting to insert new compass definition: {ex}")
+                # Ratings
+                rating_1 = definition.rating_1,
+                rating_2 = definition.rating_2,
+                rating_3 = definition.rating_3,
+                rating_4 = definition.rating_4,
+                rating_5 = definition.rating_5,
+                rating_6 = definition.rating_6,
+                rating_7 = definition.rating_7,
+            )
+            try:
+                session.add(_compass)
+                session.flush()
+                # get ID:
+                new_compass_id = _compass.id
+                session.commit()
+                return new_compass_id
+            except Exception as ex:
+                print(f"Exception attempting to insert new compass definition: {ex}")
+                session.rollback()
+        else:
+            logging.warning(f"Compass name {definition.name} already exists. Cannot add new compass definition.")
+            return -1   
 
     # if fails:
     return -2
+
 
 # generate compass data using extisting quadrants and sectors:
 def update_compass(engine, definition:CompassDefinition) -> int:
     # update
     with Session(engine) as session:
-        # get the matching CompassSummary:
+        # get the matching CompassDefinition:
         _compass_to_update = session.query(DB_CompassDefinition).where(DB_CompassDefinition.id == definition.id).first()
         if _compass_to_update:
             # Now update the DB_CompassDefinition object from the incoming
             # CompassDefinition object.
             # I need to explicitly address each field - not sure I can enumerate and
             # dynamically use a fieldname...
-            _compass_to_update.name = definition.name
+
+            # don't update the name:
+            # _compass_to_update.name = definition.name
             _compass_to_update.description = definition.description
 
             _compass_to_update.quadrant_1 = definition.quadrant_1
