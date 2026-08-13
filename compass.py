@@ -1,7 +1,8 @@
 import logging
 import re
 import datetime
-from fastapi.responses import JSONResponse, FileResponse, StreamingResponse, RedirectResponse
+import json
+from fastapi.responses import JSONResponse, FileResponse, StreamingResponse, RedirectResponse, PlainTextResponse
 
 # see https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-with-yield/
 from contextlib import asynccontextmanager
@@ -62,10 +63,37 @@ app = FastAPI(
 # TODO: move to module?
 
 @app.exception_handler(RequestValidationError)
-async def handle_request_validation_error(request,exc:RequestValidationError):
+async def validation_exception_handler(request,exc:RequestValidationError):
+    logger.error(request)
     logger.error(f"RequestValidationError occurred: {exc}")
+    # https://fastapi.tiangolo.com/tutorial/handling-errors/#override-request-validation-exceptions
     # https://stackoverflow.com/questions/62986778/fastapi-handling-and-redirecting-404
-    return RedirectResponse("/static/404.html")
+    # return RedirectResponse("/static/404.html")
+    ## FFS! This has been working all along!
+    '''
+    
+    '''
+
+
+    x = f"{{\"message\":\"{str(exc)}\"}}"
+
+    # extract the message manually from the exc object:
+    _msg = exc.args[0][0]["msg"]
+
+    # _json = x.replace("'",'"')
+    # _jsonobject = json.loads(_json)
+    # _jsonstring = json.dumps(_jsonobject)
+    # exc = json.loads(str(exc).replace("'",'"'))
+    # ARSE! it looks like I need to build the response object myself because the JSON has single quotes...]
+    # Hmmm... I think this might be a bug in FastAPI - i'm getting 'json' with single quotes for fieldnames.
+    # This may be wy the example in the fasapi docs is using a PlainTextResponse...
+    return JSONResponse({
+        "status_code": 422,
+        "error":"RequestValidationError",
+        # "message": str(exc),
+        "message": _msg
+    })
+    return PlainTextResponse(f"{{\"message\":\"{str(exc)}\"}}", status_code=422)
 
 @app.exception_handler(ResponseValidationError)
 async def handle_response_validation_error(request,exc:ResponseValidationError):

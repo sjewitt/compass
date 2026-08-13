@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter
 
 from api.models import Quadrant, QuadrantIn, QuadrantBase, QuadrantTitles, \
@@ -55,6 +57,10 @@ def get_data(id:int) -> CompassData:
 @router.post("/")
 def set_data(definition:CompassDefinitionIn) -> CompassSummary:
     result = handlers.set_compass(engine,definition)
+    if result == -1:
+        logging.error( Exception(f"Compass name {definition.name} already exists. Cannot add new compass definition."))
+        # return False
+        return CompassSummary(id=-1,name="compass name already exists. Cannot add new compass definition.")
     return CompassSummary(id=result,name=definition.name)
 
 @router.post("/update/")
