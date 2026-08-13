@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 	<title>Compass interactive: Configure Compasses</title>
@@ -108,6 +109,7 @@
 				<input type="text" data-fieldname="name" id="compass_name"
 					{% if compass_data %}
 					value="{{ compass_data.title }}"
+					disabled="disabled"
 					{% endif %}	
 				>
 			</div>
@@ -265,6 +267,8 @@
 	<div class="panelwrapper small">
 		<div class="p5">
 		<div class="gutterpanel mt-0">
+			<h4>Messages</h4>
+			<div id="message">[nothing submitted yet]</div>
 			<h4 class="h4-tall">Save changes</h4>
 			{% if compass_data %}
 				<input type="button" data-action="update" class="btn_base" id="btn_submit_compass_data" value="Update existing Compass"/>
@@ -272,8 +276,6 @@
 				<input type="button" data-action="add" class="btn_base" id="btn_submit_compass_data" value="Create new Compass"/>
 			{% endif %}
 
-			<!-- <h4>Messages</h4>
-			<div id="message">[nothing submitted yet - TODO:]</div> -->
 		</div>
 		</div>
 	</div>
