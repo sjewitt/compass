@@ -15,6 +15,8 @@ class CompetencyOutOfRange(HTTPException):
 class CompetenciesForUserNotFound(HTTPException):
     pass
 
+class CompassNotFound(HTTPException):
+    pass
 
 class CompassForUserNotFound(HTTPException):
     pass
