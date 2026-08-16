@@ -1,4 +1,24 @@
+// APIResponseMessage = {
+//     message:"",
+//     success:true,
+//     source:"",
+//     data:{},
+// }
+
+
+function isAPIResponseMessage(obj){
+    console.log(Object.keys(obj))
+    if("message" in obj && "success" in obj && "source" in obj && "data" in obj){
+        console.log("its an APIResponseMessage")
+        return(true);
+    }
+    else{
+        console.log("its not an APIResponseMessage")
+        return(false);
+    }
+}
 var engine = {
+
     init: function () {
 
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
@@ -260,7 +280,7 @@ var engine = {
             submitURL = '/compass/update/';
         }
         if (data) {
-            // let api_response_code;
+            let api_response_code;
             let api_response_message;
             console.log(data);
             fetch(submitURL, {
@@ -285,15 +305,18 @@ var engine = {
                     // becauise I am now returning a negative int on duplicated name - which is NOT a validation error
                     // I need to test for that here.
                     // document.location.href = `${document.location.hostname}?id=${response.id}`;
-                    api_response_message = `Compass ${taskTypeString}ed successfully`;
+                    api_response_message = `Compass ${taskTypeString} successful.`;
                 }else{
+                    // Ideally I want to return APIResponseMessage for anything that does not return compass data, and check the
+                    // `success` field
                     // TODO: alert the user that the update failed, and why. This will depend on the 
                     // back-end returning a better response object with error messages etc.
                     // let msg = JSON.parse(response.message)
                     // console.log(typeof(msg))
                     // here, `response` may be the dummy CompassSummary object with id=-1 and name="compass name already exists. Cannot add new compass definition."
                     // or may be actual error object with status_code, error, message etc. - depending on the back-end implementation.
-                    if(response.status_code){
+                    // if(response.status_code || response.id < 0){
+                    if(isAPIResponseMessage(response) || response.status_code || response.id < 0){
                         console.log(response.status_code);
                         console.log(response.error);
                         console.log(response.message);
@@ -302,27 +325,32 @@ var engine = {
                         console.log(x);
                         let y = JSON.parse(x);
                         console.log(y);
-                        // api_response_message = response.message;
+                        api_response_message = response.message;
+                        console.log(api_response_message);
                     }
                     if(response.id){
+                        // if we get back the dummy CompassSummary, with ID=-1, we
+                        // know that an error occurred. The only one atthe moment is
+                        // checking for a duplicated compass name, so we need to set the
+                        // error message to that, and that it FAILED. Because it doesn't
+                        // create it...:
                         api_response_message = response.name;
                     }
-                    
-                    // console.log(JSON.parse(response));
-                    // let z = JSON.parse(y);
-                    // console.log(z);
-                    // alert(`Update failed: ${z.detail}`);
-                    
-
+                    console.log(api_response_message);
                 }
+                console.log(api_response_message);
                 let msgBox = document.getElementById("message");
-                // if(api_response_code !== 200){    
-                    msgBox.innerText = `Update failed: ${api_response_message}`;
+                let submitBtn = document.getElementById("btn_submit_compass_data");
+                if(api_response_code !== 200 || response.id === -1){   
+                    msgBox.innerText = `Save failed: ${api_response_message} (response code: ${api_response_code})`;
                     // msgBox.classList.remove("hidden");  
-                // }
-                // else{
-                //     msgBox.classList.add("hidden");  
-                // }
+                }
+                else{
+                    msgBox.innerText = `Update succeeded: ${api_response_message} (response code: ${api_response_code})`;
+                    // msgBox.classList.add("hidden"); 
+                    // submitBtn.classList.add("disabled");
+                    // submitBtn.setAttribute("disabled","");
+                }
             });
         }
     },
