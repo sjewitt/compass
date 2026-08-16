@@ -20,7 +20,7 @@ from utilities.template_utils import Funcs
 from routers import competency_router, ratings_router, user_router, \
     settings_router,compass_data_router  #,api_router
 
-from api.models import User,  UserCompetencies
+from api.models import User,  UserCompetencies, APIResponseMessage
 from api.database import handlers
 from api.database.engine import get_engine
 from api.db_models import  Base
@@ -63,7 +63,7 @@ app = FastAPI(
 # TODO: move to module?
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request,exc:RequestValidationError):
+async def validation_exception_handler(request,exc:RequestValidationError) -> APIResponseMessage:
     logger.error(request)
     logger.error(f"RequestValidationError occurred: {exc}")
     # https://fastapi.tiangolo.com/tutorial/handling-errors/#override-request-validation-exceptions
@@ -80,6 +80,9 @@ async def validation_exception_handler(request,exc:RequestValidationError):
     # extract the message manually from the exc object:
     _msg = exc.args[0][0]["msg"]
 
+    # this doesnt work, so lets simulate it with the JSONresponse
+    # return APIResponseMessage(message="test",success=False,source="validation_exception_handler", data={})
+
     # _json = x.replace("'",'"')
     # _jsonobject = json.loads(_json)
     # _jsonstring = json.dumps(_jsonobject)
@@ -87,11 +90,13 @@ async def validation_exception_handler(request,exc:RequestValidationError):
     # ARSE! it looks like I need to build the response object myself because the JSON has single quotes...]
     # Hmmm... I think this might be a bug in FastAPI - i'm getting 'json' with single quotes for fieldnames.
     # This may be wy the example in the fasapi docs is using a PlainTextResponse...
+    # Actually, I think I can create an APIResponseMessage and jsonify it to return... 
     return JSONResponse({
         "status_code": 422,
-        "error":"RequestValidationError",
-        # "message": str(exc),
-        "message": _msg
+        "message":f"RequestValidationError: {_msg}",
+        "success":False,
+        "source" : "validation_exception_handler",
+        "data": {},
     })
     return PlainTextResponse(f"{{\"message\":\"{str(exc)}\"}}", status_code=422)
 
