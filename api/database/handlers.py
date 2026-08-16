@@ -596,6 +596,18 @@ def check_compass_name_exists(engine, name:str) -> bool:
         else:
             return False
 
+def check_compass_definition_complete(definition: DB_CompassDefinition) -> bool:
+    ''' 
+    Ensure that all fields have a valid component ID. This includes:
+     - non-zero
+     - not null
+     - maps to a valid component ID
+    The last will require database lookup(s). maybe a compound query with a count? to reserch.
+    Note that the model definition itself is handled by the fasAPI api validation.
+    '''
+    # placeholder:
+    return True
+
 
 # retrieve current compass data
 # re #72, this may be a good placve to return the static coords data (I think
@@ -759,6 +771,9 @@ def set_compass(engine, definition:CompassData) -> int:
     # add new
     with Session(engine) as session:
         _exists = check_compass_name_exists(engine, definition.name)
+
+        _incomplete = check_compass_definition_complete(definition)
+
         # add new compass definition:
         # construct a DB model for the compass:
         if not _exists:
