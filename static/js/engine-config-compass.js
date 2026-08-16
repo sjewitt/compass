@@ -1,3 +1,5 @@
+// consider one of the methods [here](https://stackoverflow.com/questions/14368596/how-can-i-check-that-two-objects-have-the-same-set-of-property-names)
+// to compare the response with the APIResponseMessage
 // APIResponseMessage = {
 //     message:"",
 //     success:true,
