@@ -26,29 +26,12 @@ compass_config_data = {"status":"unset", "configuration":{}}
 # TODO: This needs to account for multiple compass IDs
 def load_config_data(source:DataSource=DataSource['DATABASE'], engine=None, caller=None,compass_id=None):
     print(f"IN load_config_data(), called by {caller}:")
-    # print(engine)
-    # print(source)
-    
-    # THIS CAN GO...
-    # if source == DataSource.FILESYSTEM:
-    #     # This is the container filesystem path:
-    #     with open(mode="r",file="/code/static/data/display_data_rationalised.json") as display_data:
-    #         compass_config_data["configuration"] = json.load(display_data)
-    #         compass_config_data["status"] = "set"
 
-    # if source == DataSource.DATABASE:
     with Session(engine) as session:
         try:
-            # TO SORT:
             if compass_id:
                 compass_config_data["configuration"] = handlers.get_compass(engine,compass_id)
-            # else:
-            #     compass_config_data["configuration"] = handlers.get_compass(engine,1)
                 compass_config_data["status"] = "set"
-            # # print("DATABASE DRIVEN COMPASS DATA")
-            # # _test = session.query(DB_Competency).all()
-            # # print(_test)
-            # print("set")
             else:
                 raise IndexError()   # the API page exists, but no data is returned. see https://stackoverflow.com/questions/9595151
 
