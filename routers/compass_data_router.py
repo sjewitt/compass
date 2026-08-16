@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Response, status
 
 from api.models import Quadrant, QuadrantIn, QuadrantBase, QuadrantTitles, \
         QuadrantTitlesIn, Sector, SectorIn, \
@@ -38,38 +38,37 @@ def get_data() -> list[CompassSummary]:
 # so I need to allow a compass ID to be passed from the currently
 # logged-in/selected user. TODO: 
 @router.get("/{id}", response_model=CompassData|APIResponseMessage)
-def get_data(id:int) -> CompassData:
+def get_data(id:int, response: Response) -> CompassData:
     ''' retrieve the definition by ID and compose the actual data in the handler '''
     try:
         result = handlers.get_compass(engine,id)
         if not result:
-            raise CompassForUserNotFound(status_code=200)   # the API page exists, but no data is returned. see https://stackoverflow.com/questions/9595151 
+            raise CompassForUserNotFound(status_code=404)   # the API page exists, but no data is returned. see https://stackoverflow.com/questions/9595151 
 
         return result
     except CompassForUserNotFound as ex:
         print(ex)
         # return None
-        return APIResponseMessage(message=f"Compass with id '{id}' not found", success=False, source="get_data", data={})
+        response.status_code=status.HTTP_404_NOT_FOUND
+        return APIResponseMessage(message=f"Compass with id '{id}' not found", success=False, source="get_data", data={}, status_code=status.HTTP_404_NOT_FOUND)
     except Exception as ex:
         print(ex)
         # return handlers.get_compass(engine,0)   # return a dummy to prevent errors (TO FIX PROPERLY!)
         return APIResponseMessage(message=f"Error occurred while fetching compass with id '{id}'", success=False, source="get_data", data={})
 
 @router.post("/")
-def set_data(definition:CompassDefinitionIn) -> CompassSummary|APIResponseMessage:
+def set_data(definition:CompassDefinitionIn, response:Response) -> CompassSummary|APIResponseMessage:
     try:
         result = handlers.set_compass(engine,definition)
         if result == -1:
             logging.error( Exception(f"Compass name {definition.name} already exists. Cannot add new compass definition."))
-            # return False
-            # return CompassSummary(id=-1,name="compass name already exists. Cannot add new compass definition.")
-            # or, do I raise an exception here with a status code?
-            raise CompassDefinitionIncomplete(status_code=200)
+            raise CompassDefinitionIncomplete(status_code=status.HTTP_400_BAD_REQUEST)
 
         return CompassSummary(id=result,name=definition.name)
     except CompassDefinitionIncomplete as ex:
         if result == -1:
-            return APIResponseMessage(message=f"Duplicate Compass name ({definition.name}). Try another name.", success=False, source="set_data",data={})
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return APIResponseMessage(message=f"Duplicate Compass name ({definition.name}). Try another name.", success=False, source="set_data",data={}, status_code = status.HTTP_400_BAD_REQUEST)
         return APIResponseMessage(message=f"something went wrong with the definition!", success=False, source="set_data",data={})
     except Exception as ex:
         return APIResponseMessage(message=f"something went really wrong! (exception was {ex})", success=False, source="set_data",data={})
