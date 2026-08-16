@@ -1,5 +1,6 @@
 from enum import Enum
 import json
+import logging
 
 from sqlalchemy.orm import Session
 
@@ -11,6 +12,7 @@ from sqlalchemy.orm import Session
 import api.database.handlers as handlers
 from api.models import Competency, CompassData  # adde usercompetencies model
 from api.db_models import DB_Competency
+from api.exceptions import CompassNotFound
 
 # enum for data source
 class DataSource(Enum):
@@ -23,7 +25,7 @@ compass_config_data = {"status":"unset", "configuration":{}}
 
 # TODO: This needs to account for multiple compass IDs
 def load_config_data(source:DataSource=DataSource['DATABASE'], engine=None, caller=None,compass_id=None):
-    # print(f"IN load_config_data(), called by {caller}:")
+    print(f"IN load_config_data(), called by {caller}:")
     # print(engine)
     # print(source)
     
@@ -40,15 +42,22 @@ def load_config_data(source:DataSource=DataSource['DATABASE'], engine=None, call
             # TO SORT:
             if compass_id:
                 compass_config_data["configuration"] = handlers.get_compass(engine,compass_id)
-            else:
-                compass_config_data["configuration"] = handlers.get_compass(engine,1)
-            compass_config_data["status"] = "set"
+            # else:
+            #     compass_config_data["configuration"] = handlers.get_compass(engine,1)
+                compass_config_data["status"] = "set"
             # # print("DATABASE DRIVEN COMPASS DATA")
             # # _test = session.query(DB_Competency).all()
             # # print(_test)
             # print("set")
+            else:
+                raise IndexError()   # the API page exists, but no data is returned. see https://stackoverflow.com/questions/9595151
+
+        except IndexError as ex:
+            logging.warning(f"error: {ex}: Compass with id '{compass_id}' not found")
+            compass_config_data["status"] = "unset"
+            compass_config_data["configuration"] = {}
 
         except Exception as ex:
-            print(f"error: {ex}")
+            print(f"error: {ex}: An exception ocurred")
 
     return compass_config_data
