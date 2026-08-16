@@ -9,6 +9,11 @@ services:
     # - $uid(id -u ${USER}) $gid(id -g ${USER}) docker compose up
     user: ${uid}:${gid}
 
+    # specify .env file:
+    # see https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/
+    env_file:
+      - .env  
+
     volumes:
      - type: bind
        source: ./database
