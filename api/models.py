@@ -1,6 +1,24 @@
 from pydantic import BaseModel, EmailStr, Field
 # see https://fastapi.tiangolo.com/it/tutorial/extra-models/#multiple-models
 
+# explanation of Field():
+#
+# https://stackoverflow.com/questions/60661687/what-is-the-purpose-of-using-field-as-a-default-value-in-pydantic-schemas
+# https://pydantic.dev/docs/validation/dev/concepts/fields/
+#
+# So not necessary for most of the below, BUT will be useful to at least partially answer the compasscefinition validation.
+# Currently, the fastapi /docs model uses zeroes so I can add an annotation to force > 0 (though this will not of
+# course validate the database content for that supplied ID...)
+
+
+class APIResponseMessage(BaseModel):
+    status_code:int = 200
+    message: str
+    success: bool   # easily accessible flag indicating whether the front-end should try to further process.
+    source: str     # the function/namespace.
+    data: dict = {} # arbitrary data placeholder.
+
+
 class User(BaseModel):
     id: int=Field()     # new - from DB ID field
     compass_id:int=Field()
@@ -29,9 +47,9 @@ class Competency(BaseModel):
     ''' this maps to the compass quadrants and sectors, and the current rating for each '''
     user_id:int = Field()        # FK to users table
     compass_id:int = Field()     # FK to compass_definition table
-    quadrant:int = Field(min=0, max=3)
-    sector:int = Field(min=0, max=4)
-    rating:int = Field(min=0, max=5)
+    quadrant:int = Field(min=0, max=3)  # zero-based indexes
+    sector:int = Field(min=0, max=4)    # zero-based indexes
+    rating:int = Field(min=0, max=5)    # zero-based indexes
 
 # https://fastapi.tiangolo.com/it/tutorial/body-nested-models/#define-a-submodel
 class UserCompetencies(BaseModel):
@@ -91,6 +109,7 @@ class Quadrant(QuadrantIn):
 class CompassSummary(BaseModel):
     id:int = Field()
     name:str = Field(min_length=4, max_length=128)
+    status_code:int = Field(200)
 
 
 class RatingIn(BaseModel):
@@ -119,93 +138,93 @@ class CompassDefinitionIn(BaseModel):
     description:str = Field()
 
     # Specify the quadrants (4)
-    quadrant_1 : int = Field()
-    quadrant_2 : int = Field()
-    quadrant_3 : int = Field()
-    quadrant_4 : int = Field()
+    quadrant_1 : int = Field(gt=0)  # database ID
+    quadrant_2 : int = Field(gt=0)
+    quadrant_3 : int = Field(gt=0)
+    quadrant_4 : int = Field(gt=0)
 
     # specify quadrant_title parts:
-    q1_tp1 : int = Field()
-    q1_tp2 : int = Field()
-    q2_tp1 : int = Field()
-    q2_tp2 : int = Field()
-    q3_tp1 : int = Field()
-    q3_tp2 : int = Field()
-    q4_tp1 : int = Field()
-    q4_tp2 : int = Field()
+    q1_tp1 : int = Field(gt=0)
+    q1_tp2 : int = Field(gt=0)
+    q2_tp1 : int = Field(gt=0)
+    q2_tp2 : int = Field(gt=0)
+    q3_tp1 : int = Field(gt=0)
+    q3_tp2 : int = Field(gt=0)
+    q4_tp1 : int = Field(gt=0)
+    q4_tp2 : int = Field(gt=0)
 
     # specify the sectors per quadrant (5, 4, 4, 4)
-    quadrant_1_sector_1 : int = Field()
-    quadrant_1_sector_2 : int = Field()
-    quadrant_1_sector_3 : int = Field()
-    quadrant_1_sector_4 : int = Field()
-    quadrant_1_sector_5 : int = Field()
+    quadrant_1_sector_1 : int = Field(gt=0)
+    quadrant_1_sector_2 : int = Field(gt=0)
+    quadrant_1_sector_3 : int = Field(gt=0)
+    quadrant_1_sector_4 : int = Field(gt=0)
+    quadrant_1_sector_5 : int = Field(gt=0)
 
     # specify q1 sector titles
-    q1_s1_tp1 : int = Field()
-    q1_s1_tp2 : int = Field()
-    q1_s2_tp1 : int = Field()
-    q1_s2_tp2 : int = Field()
-    q1_s3_tp1 : int = Field()
-    q1_s3_tp2 : int = Field()
-    q1_s4_tp1 : int = Field()
-    q1_s4_tp2 : int = Field()
-    q1_s5_tp1 : int = Field()
-    q1_s5_tp2 : int = Field()
+    q1_s1_tp1 : int = Field(gt=0)
+    q1_s1_tp2 : int = Field(gt=0)
+    q1_s2_tp1 : int = Field(gt=0)
+    q1_s2_tp2 : int = Field(gt=0)
+    q1_s3_tp1 : int = Field(gt=0)
+    q1_s3_tp2 : int = Field(gt=0)
+    q1_s4_tp1 : int = Field(gt=0)
+    q1_s4_tp2 : int = Field(gt=0)
+    q1_s5_tp1 : int = Field(gt=0)
+    q1_s5_tp2 : int = Field(gt=0)
 
-    quadrant_2_sector_1 : int = Field()
-    quadrant_2_sector_2 : int = Field()
-    quadrant_2_sector_3 : int = Field()
-    quadrant_2_sector_4 : int = Field()
+    quadrant_2_sector_1 : int = Field(gt=0)
+    quadrant_2_sector_2 : int = Field(gt=0)
+    quadrant_2_sector_3 : int = Field(gt=0)
+    quadrant_2_sector_4 : int = Field(gt=0)
 
     # specify q2 sector titles
-    q2_s1_tp1 : int = Field()
-    q2_s1_tp2 : int = Field()
-    q2_s2_tp1 : int = Field()
-    q2_s2_tp2 : int = Field()
-    q2_s3_tp1 : int = Field()
-    q2_s3_tp2 : int = Field()
-    q2_s4_tp1 : int = Field()
-    q2_s4_tp2 : int = Field()
+    q2_s1_tp1 : int = Field(gt=0)
+    q2_s1_tp2 : int = Field(gt=0)
+    q2_s2_tp1 : int = Field(gt=0)
+    q2_s2_tp2 : int = Field(gt=0)
+    q2_s3_tp1 : int = Field(gt=0)
+    q2_s3_tp2 : int = Field(gt=0)
+    q2_s4_tp1 : int = Field(gt=0)
+    q2_s4_tp2 : int = Field(gt=0)
 
-    quadrant_3_sector_1 : int = Field()
-    quadrant_3_sector_2 : int = Field()
-    quadrant_3_sector_3 : int = Field()
-    quadrant_3_sector_4 : int = Field()
+    quadrant_3_sector_1 : int = Field(gt=0)
+    quadrant_3_sector_2 : int = Field(gt=0)
+    quadrant_3_sector_3 : int = Field(gt=0)
+    quadrant_3_sector_4 : int = Field(gt=0)
 
     # specify q3 sector titles
-    q3_s1_tp1 : int = Field()
-    q3_s1_tp2 : int = Field()
-    q3_s2_tp1 : int = Field()
-    q3_s2_tp2 : int = Field()
-    q3_s3_tp1 : int = Field()
-    q3_s3_tp2 : int = Field()
-    q3_s4_tp1 : int = Field()
-    q3_s4_tp2 : int = Field()
+    q3_s1_tp1 : int = Field(gt=0)
+    q3_s1_tp2 : int = Field(gt=0)
+    q3_s2_tp1 : int = Field(gt=0)
+    q3_s2_tp2 : int = Field(gt=0)
+    q3_s3_tp1 : int = Field(gt=0)
+    q3_s3_tp2 : int = Field(gt=0)
+    q3_s4_tp1 : int = Field(gt=0)
+    q3_s4_tp2 : int = Field(gt=0)
 
-    quadrant_4_sector_1 : int = Field()
-    quadrant_4_sector_2 : int = Field()
-    quadrant_4_sector_3 : int = Field()
-    quadrant_4_sector_4 : int = Field()
+    quadrant_4_sector_1 : int = Field(gt=0)
+    quadrant_4_sector_2 : int = Field(gt=0)
+    quadrant_4_sector_3 : int = Field(gt=0)
+    quadrant_4_sector_4 : int = Field(gt=0)
 
     # specify q4 sector titles
-    q4_s1_tp1 : int = Field()
-    q4_s1_tp2 : int = Field()
-    q4_s2_tp1 : int = Field()
-    q4_s2_tp2 : int = Field()
-    q4_s3_tp1 : int = Field()
-    q4_s3_tp2 : int = Field()
-    q4_s4_tp1 : int = Field()
-    q4_s4_tp2 : int = Field()
+    q4_s1_tp1 : int = Field(gt=0)
+    q4_s1_tp2 : int = Field(gt=0)
+    q4_s2_tp1 : int = Field(gt=0)
+    q4_s2_tp2 : int = Field(gt=0)
+    q4_s3_tp1 : int = Field(gt=0)
+    q4_s3_tp2 : int = Field(gt=0)
+    q4_s4_tp1 : int = Field(gt=0)
+    q4_s4_tp2 : int = Field(gt=0)
 
     # and the Ratings (7!!):
-    rating_1 : int = Field()
-    rating_2 : int = Field()
-    rating_3 : int = Field()
-    rating_4 : int = Field()
-    rating_5 : int = Field()
-    rating_6 : int = Field()
-    rating_7 : int = Field()
+    rating_1 : int = Field(gt=0)
+    rating_2 : int = Field(gt=0)
+    rating_3 : int = Field(gt=0)
+    rating_4 : int = Field(gt=0)
+    rating_5 : int = Field(gt=0)
+    rating_6 : int = Field(gt=0)
+    rating_7 : int = Field(gt=0)
 
 class CompassDefinition(CompassDefinitionIn):
-    id:int = Field()
+    id:int = Field(gt=0)  # the database ID, which we will need for lookups etc.
