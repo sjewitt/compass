@@ -5,8 +5,8 @@ from fastapi import APIRouter
 from api.models import Quadrant, QuadrantIn, QuadrantBase, QuadrantTitles, \
         QuadrantTitlesIn, Sector, SectorIn, \
         SectorTitles,SectorTitlesIn,CompassData, CompassDefinition, CompassDefinitionIn, CompassSummary, \
-        Rating, RatingIn
-from api.exceptions import CompassForUserNotFound
+        Rating, RatingIn, APIResponseMessage
+from api.exceptions import CompassForUserNotFound, CompassDefinitionIncomplete
 # from api.db_models import DB_Quadrant, DB_QuadrantTitles,\
 #         DB_Sector,DB_SectorTitles, DB_Rating
 from api.database.engine import get_engine
@@ -37,7 +37,7 @@ def get_data() -> list[CompassSummary]:
 # Currently, {id} is hardcoded to 2 in the javascript,
 # so I need to allow a compass ID to be passed from the currently
 # logged-in/selected user. TODO: 
-@router.get("/{id}", response_model=CompassData|None)
+@router.get("/{id}", response_model=CompassData|APIResponseMessage)
 def get_data(id:int) -> CompassData:
     ''' retrieve the definition by ID and compose the actual data in the handler '''
     try:
@@ -48,20 +48,32 @@ def get_data(id:int) -> CompassData:
         return result
     except CompassForUserNotFound as ex:
         print(ex)
-        return None
+        # return None
+        return APIResponseMessage(message=f"Compass with id '{id}' not found", success=False, source="get_data", data={})
     except Exception as ex:
         print(ex)
         # return handlers.get_compass(engine,0)   # return a dummy to prevent errors (TO FIX PROPERLY!)
-        return None
+        return APIResponseMessage(message=f"Error occurred while fetching compass with id '{id}'", success=False, source="get_data", data={})
 
 @router.post("/")
-def set_data(definition:CompassDefinitionIn) -> CompassSummary:
-    result = handlers.set_compass(engine,definition)
-    if result == -1:
-        logging.error( Exception(f"Compass name {definition.name} already exists. Cannot add new compass definition."))
-        # return False
-        return CompassSummary(id=-1,name="compass name already exists. Cannot add new compass definition.")
-    return CompassSummary(id=result,name=definition.name)
+def set_data(definition:CompassDefinitionIn) -> CompassSummary|APIResponseMessage:
+    try:
+        result = handlers.set_compass(engine,definition)
+        if result == -1:
+            logging.error( Exception(f"Compass name {definition.name} already exists. Cannot add new compass definition."))
+            # return False
+            # return CompassSummary(id=-1,name="compass name already exists. Cannot add new compass definition.")
+            # or, do I raise an exception here with a status code?
+            raise CompassDefinitionIncomplete(status_code=200)
+
+        return CompassSummary(id=result,name=definition.name)
+    except CompassDefinitionIncomplete as ex:
+        if result == -1:
+            return APIResponseMessage(message=f"Duplicate Compass name ({definition.name}). Try another name.", success=False, source="set_data",data={})
+        return APIResponseMessage(message=f"something went wrong with the definition!", success=False, source="set_data",data={})
+    except Exception as ex:
+        return APIResponseMessage(message=f"something went really wrong! (exception was {ex})", success=False, source="set_data",data={})
+
 
 @router.post("/update/")
 def update_data(definition:CompassDefinition) -> CompassSummary: # TODO: Update this object with a status
