@@ -11,6 +11,8 @@ services:
 
     # specify .env file:
     # see https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/
+    # and https://stackoverflow.com/questions/49770999/docker-env-for-python-variables
+    # and https://khabdrick-dev.medium.com/use-an-env-file-in-docker-286ec79d4543
     env_file:
       - .env  
 
