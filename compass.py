@@ -65,6 +65,8 @@ app = FastAPI(
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request:Request,exc:RequestValidationError) -> APIResponseMessage:
+    # https://stackoverflow.com/questions/3050518/what-http-status-response-code-should-i-use-if-the-request-is-missing-a-required
+    # https://www.rfc-editor.org/info/rfc7231/#section-6.5.1
     Response.status_code = status.HTTP_400_BAD_REQUEST  
     logger.error(request)
     logger.error(f"RequestValidationError occurred: {exc}")
