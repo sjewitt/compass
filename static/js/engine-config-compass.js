@@ -1,4 +1,6 @@
-// consider one of the methods [here](https://stackoverflow.com/questions/14368596/how-can-i-check-that-two-objects-have-the-same-set-of-property-names)
+// consider one of the methods 
+// [here](https://stackoverflow.com/questions/14368596/how-can-i-check-that-two-objects-have-the-same-set-of-property-names)
+// or [here](https://stackoverflow.com/questions/455338/how-do-i-check-if-an-object-has-a-key-in-javascript)
 // to compare the response with the APIResponseMessage
 // APIResponseMessage = {
 //     message:"",
