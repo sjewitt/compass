@@ -12,7 +12,7 @@ from pydantic import BaseModel, EmailStr, Field
 
 
 class APIResponseMessage(BaseModel):
-    status_code:int = 200
+    # status_code:int = 200
     message: str
     success: bool   # easily accessible flag indicating whether the front-end should try to further process.
     source: str     # the function/namespace.
