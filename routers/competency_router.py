@@ -17,7 +17,6 @@ engine = get_engine()
 logging.debug("calling load config with Engine")
 logging.debug(engine)
 compass_config_data = load_config_data(engine=engine, caller="competency")
-# compass_config_data_by_compass = load_config_data(engine=engine, compass_id=1, caller="competency")
 logging.debug("loaded")
 
 @router.post("/add/")
