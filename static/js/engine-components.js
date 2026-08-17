@@ -348,15 +348,49 @@ var engine = {
     // dropdown handler for manage components page. We are populaing a form, so it is different to the 
     // full compass one above] The key is the lookup data in the hidden DOM elements 
     selectComponentUIChangeHandler: function (event = event, prefix = prefix, submitBtn = submitBtn, hiddenDataElemsIdList = hiddenDataElemsIdList) {
+        /** 
+         * Updated to use evt.currentTarget.selectedIndex, because it turns out that `srcElement` is deprecated, and "works"
+         * differently in Chrome vs Firefox. Was getting weird shit with FF. Did some research, and rather than hacking a fix,
+         * refactored the code to use 
+         * 
+         *     `event.currentTarget[event.currentTarget.selectedIndex].value` 
+         * 
+         * which works in FF and Chrome.
+         * 
+         * https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/418
+         * https://developer.mozilla.org/en-US/docs/Web/API/Event/target
+         * This has a succinct difference summary:
+         * https://medium.com/@bloodturtle/difference-between-event-target-and-event-currenttarget-0d229cc7f9eb
+         */
+
         console.log("select event handler triggered")
+        console.log(event);
+        console.log(event.target); 
+        console.log(event.target.selectedIndex);    // chrome
+        console.log(event.target.index);            // FF
+        console.log(event.currentTarget.selectedIndex);    // BOTH?
+        console.log(event.currentTarget.index);
+        console.log(event.currentTarget[7]);            // FF
+        console.log(event.target[7]);               //
+        console.log(event.currentTarget[event.currentTarget.index]);
+        console.log(prefix);
+        console.log(hiddenDataElemsIdList);
+        console.log(submitBtn);
+
+        // let _targetindex ? event.target.selectedIndex:event.target.index
+
         // the database ID textbox. Will be hidden, is an int
-        document.getElementById(`${prefix}_id`).value = event.srcElement[event.srcElement.selectedIndex].value;
+        // USING TARGET INSTEAD:
+        // document.getElementById(`${prefix}_id`).value = event.target[event.target.selectedIndex].value;
+        document.getElementById(`${prefix}_id`).value = event.currentTarget[event.currentTarget.selectedIndex].value;
 
         // now figure out whetehr we are ADDING or UPDATING, and change the UI accordingly
-        if (event.srcElement[event.srcElement.selectedIndex].value !== "-1") {
+        // if (event.srcElement[event.srcElement.selectedIndex].value !== "-1") {
+        if (event.currentTarget[event.currentTarget.selectedIndex].value !== "-1") {
             /** Retrieve the current data for the selected database ID from the jinja template markup rendered elems holding the current values */
             for (let elemCount = 0; elemCount < hiddenDataElemsIdList.length; elemCount++) {
-                document.getElementById(`${prefix}_${hiddenDataElemsIdList[elemCount]}`).value = document.getElementById(`${prefix}_${hiddenDataElemsIdList[elemCount]}_${event.srcElement[event.srcElement.selectedIndex].value}`).innerText;
+                // document.getElementById(`${prefix}_${hiddenDataElemsIdList[elemCount]}`).value = document.getElementById(`${prefix}_${hiddenDataElemsIdList[elemCount]}_${event.srcElement[event.srcElement.selectedIndex].value}`).innerText;
+                document.getElementById(`${prefix}_${hiddenDataElemsIdList[elemCount]}`).value = document.getElementById(`${prefix}_${hiddenDataElemsIdList[elemCount]}_${event.currentTarget[event.currentTarget.selectedIndex].value}`).innerText;
             }
             submitBtn.value = `Update existing ${prefix.replace('_', ' ')}`;
         }
