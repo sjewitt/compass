@@ -72,8 +72,12 @@ class SectorIn(BaseModel):
 
 class Sector(SectorIn):
     id:int = Field()
+    # see note on /templates/configured_sector.html, ln 9
     title : list[SectorTitles] = Field(max_length=2, default_factory=list)  # probably don't need this
 
+# temp(?) class modelling a sector input data - to hide the array in the API/swagger docs
+class SectorEdit(SectorIn):
+    id:int = Field()
 
 class QuadrantTitlesIn(BaseModel):
     title_part:str=Field()
