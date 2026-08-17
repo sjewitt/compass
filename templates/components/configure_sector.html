@@ -6,6 +6,7 @@
 							<select data-fieldname="q{{ data.parent_data.quadrant_id_prefix }}_s{{ data.sector_id_prefix }}_tp1">
                                 <!-- CARE!! This will, by default use parent hierarchy template variables. Therefore, we need to pass the correct context -->
 								{% for title_part in sector_titles %} 
+								<!-- TODO! I am still referring to sector.title here: This needs to change to the compass data??? So the original Secto model must retain the `title_parts` array. ARSE! -->
 									{% if compass_data and title_part.id==compass_data.data_quadrants[data.parent_data.quadrant_index].sectors[data.sector_index].title[0].id %}
 								<option value="{{ title_part.id }}" selected="selected">* {{ funcs.replace_empty_string(title_part.title_part) }} </option>
 									{% else %}
