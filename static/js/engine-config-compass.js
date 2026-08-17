@@ -22,7 +22,8 @@ function isAPIResponseMessage(obj){
     }
 }
 var engine = {
-
+    // action display text
+    action:"Create",
     init: function () {
 
         var page = document.getElementsByTagName('body')[0].getAttribute('data-page');
@@ -173,6 +174,7 @@ var engine = {
         // and use the above as a key to determine which endpoint we send to...
         let endpoint = engine.ENDPOINT_MAPPER[itemSelectDOMId]["endpoint"];   // hacky!!
         if (component_id !== -1) {
+            engine.action = "Update";
             endpoint += "update/";
         }
         // once we have determined which endpoint to use, collect the data to POST:
@@ -279,9 +281,11 @@ var engine = {
         console.log(data);
         /** determine whether to add or update */
         let submitURL = '/compass/';    // the add endpoint (if POST)
+        engine.action = "Create"
         if (compass_id > 0) {
             taskTypeString = "update";
             submitURL = '/compass/update/';
+            engine.action = "Update"
         }
         if (data) {
             let api_response_code;
@@ -344,13 +348,16 @@ var engine = {
                 }
                 console.log(api_response_message);
                 let msgBox = document.getElementById("message");
+                msgBox.setAttribute("title","");
                 let submitBtn = document.getElementById("btn_submit_compass_data");
                 if(api_response_code !== 200 || response.id === -1){   
-                    msgBox.innerText = `Save failed: ${api_response_message} (response code: ${api_response_code})`;
+                    msgBox.innerText = `${engine.action} failed (hover for details)`;
+                    msgBox.setAttribute("title",`${engine.action} failed: ${api_response_message} (response code: ${api_response_code})`);
                     // msgBox.classList.remove("hidden");  
                 }
                 else{
-                    msgBox.innerText = `Update succeeded: ${api_response_message} (response code: ${api_response_code})`;
+                    msgBox.innerText = `${engine.action} succeeded`;
+                    msgBox.setAttribute("title",`${engine.action} succeeded: ${api_response_message} (response code: ${api_response_code})`);
                     // msgBox.classList.add("hidden"); 
                     // submitBtn.classList.add("disabled");
                     // submitBtn.setAttribute("disabled","");
