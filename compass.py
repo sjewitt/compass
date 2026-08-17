@@ -2,6 +2,7 @@ import logging
 import re
 import datetime
 import json
+from fastapi import Response, status
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse, RedirectResponse, PlainTextResponse
 
 # see https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-with-yield/
@@ -63,7 +64,8 @@ app = FastAPI(
 # TODO: move to module?
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request,exc:RequestValidationError) -> APIResponseMessage:
+async def validation_exception_handler(request:Request,exc:RequestValidationError) -> APIResponseMessage:
+    Response.status_code = status.HTTP_400_BAD_REQUEST  
     logger.error(request)
     logger.error(f"RequestValidationError occurred: {exc}")
     # https://fastapi.tiangolo.com/tutorial/handling-errors/#override-request-validation-exceptions
@@ -91,21 +93,44 @@ async def validation_exception_handler(request,exc:RequestValidationError) -> AP
     # Hmmm... I think this might be a bug in FastAPI - i'm getting 'json' with single quotes for fieldnames.
     # This may be wy the example in the fasapi docs is using a PlainTextResponse...
     # Actually, I think I can create an APIResponseMessage and jsonify it to return... 
-    return JSONResponse({
-        "status_code": 422,
-        "message":f"RequestValidationError: {_msg}",
-        "success":False,
-        "source" : "validation_exception_handler",
-        "data": {},
-    })
-    return PlainTextResponse(f"{{\"message\":\"{str(exc)}\"}}", status_code=422)
+    
+    _out = APIResponseMessage(
+        # status_code=status.HTTP_400_BAD_REQUEST, 
+        message=f"RequestValidationError occurred: {exc}",
+        success=False,
+        source=__name__,
+        data={}
+        )
+    # https://pydantic.dev/docs/validation/dev/concepts/serialization/
+    print(_out.model_dump())
+    # set response code on JSON response:
+    # https://github.com/fastapi/fastapi/discussions/12325
+    return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,content=_out.model_dump())
+    # return JSONResponse({
+    #     "status_code": 422,
+    #     "message":f"RequestValidationError: {_msg}",
+    #     "success":False,
+    #     "source" : "validation_exception_handler",
+    #     "data": {},
+    # })
+    # return PlainTextResponse(f"{{\"message\":\"{str(exc)}\"}}", status_code=422)
 
 @app.exception_handler(ResponseValidationError)
-async def handle_response_validation_error(request,exc:ResponseValidationError):
+async def handle_response_validation_error(request, response:Response,exc:ResponseValidationError):
     logger.error(f"ResponseValidationError occurred: {exc}")
+    response.status_code = status.HTTP_400_BAD_REQUEST
     # As advised by Copilot code review, we should return a JSON response with the error message and a 500 status code. This will help in debugging and provide
-    # a clear indication of what went wrong. 
-    return JSONResponse({"error":"ResponseValidationError occurred","message": str(exc)}, status_code=500)
+    # a clear indication of what went wrong.
+    # wrap in APIResponseMessage, then JSONify:
+    _out = APIResponseMessage(
+        status_code=status.HTTP_400_BAD_REQUEST, 
+        message=f"ResponseValidationError occurred: {exc}",
+        success=False,
+        source=__name__,
+        data={}
+        )
+    return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"error":"ResponseValidationError occurred","message": str(exc)})
+    # return JSONResponse(_out)
     # return RedirectResponse("/static/404.html") # could pass error here to a template and display the error?
 
 
@@ -114,11 +139,7 @@ app.include_router(settings_router.router)
 app.include_router(competency_router.router)
 app.include_router(ratings_router.router)
 app.include_router(compass_data_router.router)
-# lets separate the API routes from the template routes, so we can mount the API at /api/ and the templates at /
-# There's only one...
-# app.include_router(api_router.router)
 
-# compass_config_data = load_config_data(engine=engine, caller="root")
 app.mount("/static", StaticFiles(directory="static", html=True, ),name="static")
 
 # declare location of template(s)
