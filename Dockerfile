@@ -9,6 +9,8 @@ COPY requirements.txt requirements.txt
 # put the reqs in the container:
 # RUN pip install --no-cache-dir --upgrade -r requirements.txt
 RUN pip install -r requirements.txt
+
+# start the debug connector:
 RUN pip install --no-cache-dir debugpy
 
 EXPOSE 8080
@@ -17,4 +19,6 @@ EXPOSE 8080
 COPY . .
 
 # CMD ["python", "compass.py", "--port", "8080"]
+
+# and listen for debug:
 CMD ["python", "-m", "debugpy", "--listen", "0.0.0.0:5678",  "compass.py"]

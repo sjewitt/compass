@@ -82,42 +82,46 @@ var engine = {
 
         let _render_titles = document.getElementById("static_titles");
         _render_titles.innerHTML = "";
-
         // iterate over quadrants:
-        for (let qt = 0; qt < this.data_quadrants.length; qt++) {
-            let _polygon = document.createElementNS("http://www.w3.org/2000/svg", 'polygon');
+        if(this.data_quadrants){
+            for (let qt = 0; qt < this.data_quadrants.length; qt++) {
+                let _polygon = document.createElementNS("http://www.w3.org/2000/svg", 'polygon');
 
-            _polygon.setAttribute("class", `svg_title svg_quadrant_${qt + 1}`);
-            _polygon.setAttribute("points", engine.coordinate_lookup.quadrants[qt].points);
+                _polygon.setAttribute("class", `svg_title svg_quadrant_${qt + 1}`);
+                _polygon.setAttribute("points", engine.coordinate_lookup.quadrants[qt].points);
 
-            // and append to the wrapper:
-            _render_titles.appendChild(_polygon);
+                // and append to the wrapper:
+                _render_titles.appendChild(_polygon);
 
-            // iterate over title parts for each quadrant (0, 1 or 2):
-            for (let qtp = 0; qtp < this.data_quadrants[qt].title.length; qtp++) {
-                let _title = document.createElementNS("http://www.w3.org/2000/svg", 'text');
-                _title.setAttribute('id', `svg_title_${qt + 1}_${qtp + 1}`);
-                _title.setAttribute('class', `svg_quad_title svg_quadrant_${qt + 1}`);
-                _title.setAttribute('font-size', '24');
-                _title.setAttribute('x', engine.coordinate_lookup.quadrants[qt].title[qtp].coords[0]);
-                _title.setAttribute('y', engine.coordinate_lookup.quadrants[qt].title[qtp].coords[1]);
+                // iterate over title parts for each quadrant (0, 1 or 2):
+                for (let qtp = 0; qtp < this.data_quadrants[qt].title.length; qtp++) {
+                    let _title = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                    _title.setAttribute('id', `svg_title_${qt + 1}_${qtp + 1}`);
+                    _title.setAttribute('class', `svg_quad_title svg_quadrant_${qt + 1}`);
+                    _title.setAttribute('font-size', '24');
+                    _title.setAttribute('x', engine.coordinate_lookup.quadrants[qt].title[qtp].coords[0]);
+                    _title.setAttribute('y', engine.coordinate_lookup.quadrants[qt].title[qtp].coords[1]);
 
-                _render_titles.appendChild(_title);
-            }
+                    _render_titles.appendChild(_title);
+                }
 
-            // and for each quadrant, generate the sector titles:
-            for (let stp = 0; stp < this.data_quadrants[qt].sectors.length; stp++) {
-                let sector_title_array = this.data_quadrants[qt].sectors[stp].title;
-                // and for each of these, generate a <text> element:
-                for (let xx = 0; xx < sector_title_array.length; xx++) {
-                    let _sector_title = document.createElementNS("http://www.w3.org/2000/svg", 'text');
-                    _sector_title.setAttribute('id', `svg_sector_${qt + 1}_${stp + 1}_${xx + 1}`);
-                    _sector_title.setAttribute('font-size', '14');
-                    _sector_title.setAttribute('x', engine.coordinate_lookup.quadrants[qt].sectors[stp][xx].coords[0]);
-                    _sector_title.setAttribute('y', engine.coordinate_lookup.quadrants[qt].sectors[stp][xx].coords[1]);
-                    _render_titles.appendChild(_sector_title);
+                // and for each quadrant, generate the sector titles:
+                for (let stp = 0; stp < this.data_quadrants[qt].sectors.length; stp++) {
+                    let sector_title_array = this.data_quadrants[qt].sectors[stp].title;
+                    // and for each of these, generate a <text> element:
+                    for (let xx = 0; xx < sector_title_array.length; xx++) {
+                        let _sector_title = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                        _sector_title.setAttribute('id', `svg_sector_${qt + 1}_${stp + 1}_${xx + 1}`);
+                        _sector_title.setAttribute('font-size', '14');
+                        _sector_title.setAttribute('x', engine.coordinate_lookup.quadrants[qt].sectors[stp][xx].coords[0]);
+                        _sector_title.setAttribute('y', engine.coordinate_lookup.quadrants[qt].sectors[stp][xx].coords[1]);
+                        _render_titles.appendChild(_sector_title);
+                    }
                 }
             }
+        }
+        else{
+            console.error("'data_quadrants' is not defined. Check underlying compass data is valid (non-zero field values)");
         }
     },
 
@@ -126,37 +130,42 @@ var engine = {
      * to the user being displayed
      */
     renderDisplayedTexts: function () {
-        for (let x = 1; x <= this.data_quadrants.length; x++) {
-            // get the array of words for the current title elems:
-            let current_words = this.data_quadrants[x - 1];
+        if(this.data_quadrants){ 
+            for (let x = 1; x <= this.data_quadrants.length; x++) {
+                // get the array of words for the current title elems:
+                let current_words = this.data_quadrants[x - 1];
 
-            // identify the text elements by ID:
-            for (let y = 1; y <= current_words.title.length; y++) {
-                let elem_id = `svg_title_${x}_${y}`;
-                try {
-                    let elem = document.getElementById(elem_id);
-                    let txt = document.createTextNode(current_words.title[y - 1].title_part);
-                    elem.appendChild(txt);
-                }
-                catch (ex) {
-                    console.log(`Cannot process quadrant title parts: ${ex}`);
-                }
-            }
-
-            // now get the segment titles: we do a double loop to get each segment, and the lines array for each:
-            for (let z = 1; z <= current_words.sectors.length; z++) {
-                for (let xx = 1; xx <= current_words.sectors[z - 1].title.length; xx++) {
-                    let elem_id = `svg_sector_${x}_${z}_${xx}`;
+                // identify the text elements by ID:
+                for (let y = 1; y <= current_words.title.length; y++) {
+                    let elem_id = `svg_title_${x}_${y}`;
                     try {
                         let elem = document.getElementById(elem_id);
-                        let txt = document.createTextNode(current_words.sectors[z - 1].title[xx - 1].title_part);
+                        let txt = document.createTextNode(current_words.title[y - 1].title_part);
                         elem.appendChild(txt);
                     }
                     catch (ex) {
-                        console.log(`Cannot process segment title parts: ${ex}`);
+                        console.log(`Cannot process quadrant title parts: ${ex}`);
+                    }
+                }
+
+                // now get the segment titles: we do a double loop to get each segment, and the lines array for each:
+                for (let z = 1; z <= current_words.sectors.length; z++) {
+                    for (let xx = 1; xx <= current_words.sectors[z - 1].title.length; xx++) {
+                        let elem_id = `svg_sector_${x}_${z}_${xx}`;
+                        try {
+                            let elem = document.getElementById(elem_id);
+                            let txt = document.createTextNode(current_words.sectors[z - 1].title[xx - 1].title_part);
+                            elem.appendChild(txt);
+                        }
+                        catch (ex) {
+                            console.log(`Cannot process segment title parts: ${ex}`);
+                        }
                     }
                 }
             }
+        }
+        else{
+            console.error("'data_quadrants' is not defined. Check underlying compass data is valid (non-zero field values)");
         }
     },
 
@@ -280,83 +289,88 @@ var engine = {
          * This is scrappy AF. It's confusing and needs rationalising and making clearer!
          * i.e. split into branching out to explicit sub-functions. 
          */
-        var self = document.getElementById(this.getAttribute('id'));
-        if (self) {
-            engine.setSectorSVGDisplay(self, true);
-            var sector_rating = -1;
-            var lookup = JSON.parse(this.getAttribute('data-lookup'));
-            this.current_quad = lookup[0];
-            this.current_sector = lookup[1];
-            this.current_score = lookup[2];
-            var quad_description = "";
-            var quad_title = "";
-            var sector_title = "";
-            if (lookup[0] > -1) {
-                quad_description = engine.data_quadrants[lookup[0]].quadrant_summary;
-                quad_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].title);
-            }
-            var sector_title_description = '';
-            if (lookup[1] > -1) {
-                sector_title_description = engine.data_quadrants[lookup[0]].sectors[lookup[0]].description;
-                sector_title = engine.data_quadrants[lookup[0]].sectors[lookup[0]].title;
-            }
-            var sector_block_description = '';
-            if (lookup[2] > -1) {
-                sector_title = engine.data_quadrants[lookup[0]].sectors[lookup[0]].title;
-                sector_rating = parseInt(this.getAttribute('data-rating'));
-                this.current_rating = sector_rating;
-                // note use of title rather than description for rating, because the description is too long to display in a tooltip
-                sector_block_description = [
-                    engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].sectors[lookup[2]].title),
-                    engine.rating_description_lookup[sector_rating].title
-                ].join('\n\n');
-            }
-            // Outer sector titles:
-            if (lookup[1] > -1 && lookup[2] === -1) {
-                try {
-                    sector_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].sectors[lookup[1]].title);
-                    sector_block_description = engine.data_quadrants[lookup[0]].sectors[lookup[1]].description;
+        if(engine.data_quadrants){
+            var self = document.getElementById(this.getAttribute('id'));
+            if (self) {
+                engine.setSectorSVGDisplay(self, true);
+                var sector_rating = -1;
+                var lookup = JSON.parse(this.getAttribute('data-lookup'));
+                this.current_quad = lookup[0];
+                this.current_sector = lookup[1];
+                this.current_score = lookup[2];
+                var quad_description = "";
+                var quad_title = "";
+                var sector_title = "";
+                if (lookup[0] > -1) {
+                    quad_description = engine.data_quadrants[lookup[0]].quadrant_summary;
+                    quad_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].title);
                 }
-                catch (e) {
-                    console.log(e);
+                var sector_title_description = '';
+                if (lookup[1] > -1) {
+                    sector_title_description = engine.data_quadrants[lookup[0]].sectors[lookup[0]].description;
+                    sector_title = engine.data_quadrants[lookup[0]].sectors[lookup[0]].title;
                 }
+                var sector_block_description = '';
+                if (lookup[2] > -1) {
+                    sector_title = engine.data_quadrants[lookup[0]].sectors[lookup[0]].title;
+                    sector_rating = parseInt(this.getAttribute('data-rating'));
+                    this.current_rating = sector_rating;
+                    // note use of title rather than description for rating, because the description is too long to display in a tooltip
+                    sector_block_description = [
+                        engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].sectors[lookup[2]].title),
+                        engine.rating_description_lookup[sector_rating].title
+                    ].join('\n\n');
+                }
+                // Outer sector titles:
+                if (lookup[1] > -1 && lookup[2] === -1) {
+                    try {
+                        sector_title = engine.getQuadrantTitleFromData(engine.data_quadrants[lookup[0]].sectors[lookup[1]].title);
+                        sector_block_description = engine.data_quadrants[lookup[0]].sectors[lookup[1]].description;
+                    }
+                    catch (e) {
+                        console.log(e);
+                    }
+                }
+                var output_rating = '';
+                if (sector_rating > -1) {
+                    output_rating = engine.rating_description_lookup[sector_rating].title;
+                }
+                var elem_quad_title = document.getElementById('quad_title');
+                var elem_quad_description = document.getElementById('quad_description');
+                var elem_sector_title = document.getElementById('sector_title');
+                var elem_sector_title_description = document.getElementById('sector_title_description');
+                var elem_block_description = document.getElementById('sector_block_description');
+                var elem_rating = document.getElementById('rating');
+                if (elem_quad_title)
+                    elem_quad_title.innerText = quad_title;
+                if (elem_quad_description)
+                    elem_quad_description.innerText = quad_description;
+                if (elem_sector_title)
+                    elem_sector_title.innerText = sector_title;
+                if (elem_sector_title_description)
+                    elem_sector_title_description.innerText = sector_title_description;
+                if (elem_block_description)
+                    elem_block_description.innerText = sector_block_description;
+                if (elem_rating)
+                    elem_rating.innerText = output_rating;
+                var elem_title = [];
+                if (quad_title && lookup[2] === -1)
+                    elem_title.push(quad_title);
+                if (quad_description && lookup[2] === -1 && lookup[1] === -1)   //quad hover titles
+                    elem_title.push(quad_description);
+                if (quad_description && lookup[2] === -1 && lookup[1] > -1)   //sector hover titles
+                    elem_title.push(sector_block_description);
+                if (sector_title && lookup[2] === -1)
+                    elem_title.push(sector_title);
+                if (sector_title_description && lookup[2] !== -1)
+                    elem_title.push(sector_title_description);
+                if (sector_block_description && lookup[2] !== -1)
+                    elem_title.push(sector_block_description);
+                self.setAttribute('title', elem_title.join('\n\n'));
             }
-            var output_rating = '';
-            if (sector_rating > -1) {
-                output_rating = engine.rating_description_lookup[sector_rating].title;
-            }
-            var elem_quad_title = document.getElementById('quad_title');
-            var elem_quad_description = document.getElementById('quad_description');
-            var elem_sector_title = document.getElementById('sector_title');
-            var elem_sector_title_description = document.getElementById('sector_title_description');
-            var elem_block_description = document.getElementById('sector_block_description');
-            var elem_rating = document.getElementById('rating');
-            if (elem_quad_title)
-                elem_quad_title.innerText = quad_title;
-            if (elem_quad_description)
-                elem_quad_description.innerText = quad_description;
-            if (elem_sector_title)
-                elem_sector_title.innerText = sector_title;
-            if (elem_sector_title_description)
-                elem_sector_title_description.innerText = sector_title_description;
-            if (elem_block_description)
-                elem_block_description.innerText = sector_block_description;
-            if (elem_rating)
-                elem_rating.innerText = output_rating;
-            var elem_title = [];
-            if (quad_title && lookup[2] === -1)
-                elem_title.push(quad_title);
-            if (quad_description && lookup[2] === -1 && lookup[1] === -1)   //quad hover titles
-                elem_title.push(quad_description);
-            if (quad_description && lookup[2] === -1 && lookup[1] > -1)   //sector hover titles
-                elem_title.push(sector_block_description);
-            if (sector_title && lookup[2] === -1)
-                elem_title.push(sector_title);
-            if (sector_title_description && lookup[2] !== -1)
-                elem_title.push(sector_title_description);
-            if (sector_block_description && lookup[2] !== -1)
-                elem_title.push(sector_block_description);
-            self.setAttribute('title', elem_title.join('\n\n'));
+        }
+        else{
+            console.error("'data_quadrants' is not defined. Check underlying compass data is valid (non-zero field values)");
         }
     },
 

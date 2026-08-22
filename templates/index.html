@@ -36,9 +36,12 @@
 			<img src="/static/images/edit-user-64.png" alt="Edit user icon" title="Edit user" />
 		</a>
 	</div>
+	<!-- {{ compass }} -->
 	{{user.name}} <span class="grey">
 		{%if compass and compass.title %}
 			{{ compass.title }}
+		{% elif compass.message %}
+		  [<span title="{{compass.message}}">Error retrieving compass with ID {{ user.compass_id }}</span>]
 		{% else %}
 			[No compass assigned]
 		{% endif %}

@@ -10,6 +10,10 @@ from api.exceptions import CompassForUserNotFound, CompassDefinitionIncomplete
 from api.database.engine import get_engine
 from api.database import handlers
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+
 router = APIRouter(
     prefix="/compass",
     tags=["CompassData"],
@@ -54,7 +58,7 @@ def set_data(definition:CompassDefinitionIn, response:Response) -> CompassSummar
     try:
         result = handlers.set_compass(engine,definition)
         if result == -1:
-            logging.error( Exception(f"Compass name {definition.name} already exists. Cannot add new compass definition."))
+            logger.error( Exception(f"Compass name {definition.name} already exists. Cannot add new compass definition."))
             raise CompassDefinitionIncomplete(status_code=status.HTTP_400_BAD_REQUEST)
 
         return CompassSummary(id=result,name=definition.name)

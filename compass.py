@@ -32,7 +32,7 @@ from fastapi.exceptions import RequestValidationError, ResponseValidationError
 # https://github.com/fastapi/fastapi/discussions/12254
 # This doesn't quite feel right...
 engine = get_engine()
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # from https://fastapi.tiangolo.com/advanced/events/#lifespan
@@ -162,9 +162,20 @@ async def root(request: Request):
 
 @app.get("/{user_id}")
 async def compass_for_user(request: Request,user_id:int):
-    _user = handlers.get_user(engine, user_id)
-    _compass = handlers.get_compass(engine, _user.compass_id)
-    # If we get here with _compass == {}, then there is currently no compass applied to the user. We need to handle this at the template...
+    try:
+        _user = handlers.get_user(engine, user_id)
+        _compass = handlers.get_compass(engine, _user.compass_id)
+        # If we get here with _compass == {}, then there is currently no compass applied to the user. We need to handle this at the template...
+    except Exception as ex:
+        logger.warning("Error getting compass for user: %s", ex)
+        # if we error here, return the API response and conditionally process on the template: 
+        _compass = APIResponseMessage(
+            # status_code=status.HTTP_400_BAD_REQUEST, 
+            message=f"Error returning compass: {ex}",
+            success=False,
+            source=__name__,
+            data={}
+            )
     return templates.TemplateResponse(
         request=request,name="index.html", context={"user":_user, "compass":_compass}
     )
@@ -279,47 +290,69 @@ async def compass_summaries(request: Request):
 # do I leave these here? [from Copilot]: I think so, as they are the API endpoints for the user data download. They are not part of the
 # template routes, but they are part of the API routes. So I will leave them here for now. Nice Interaction BTW.
 @app.get("/{user_id}/data/csv",response_class=StreamingResponse)
-async def download_user_data_csv(user_id:int):   # -> UserCompetencies:
-    user_data = handlers.get_user_data(engine, user_id)
-
-    # This is needed so we can determine the compass title for the user,
-    # and also the sector titles. We need to pass in the compass ID to
-    # get the correct config data for this user.
-    compass_data = handlers.get_compass(engine, user_data.user.compass_id)
-    
-    # CONFIG DATA is not being used consistently. It IS needed, but here it is erroneously loaded with
-    # incorrect compass ID. Therefore, pass current user compass ID to the settings_router.get_json_config_as_dict() 
-    # function to get the correct config data for this user.
-    # (note that this is a legacy of the old code, which was loading the config data with a hardcoded compass ID of 1. 
-    #  This is not correct, as it will not work for users with different compass IDs.)
-    config_data = settings_router.get_json_config_as_dict(compass_id=user_data.user.compass_id)
-    csv_data = ""
-    header = ",".join(['Compass','Quadrant','Sector','Rating',"Description"])
-    header = header+"\n"
-    csv_data = header
-    
-    for comp in user_data.competencies:
-        _test = get_sector_title_from_data(config_data["configuration"].data_quadrants[comp.quadrant].title)
-        row = ",".join([
-            compass_data.title,
-            _test,
-            # https://stackoverflow.com/questions/47187792/writing-csv-with-quotes-around-strings-python
-            get_sector_title_from_data(config_data["configuration"].data_quadrants[comp.quadrant].sectors[comp.sector].title),
-            config_data["configuration"].rating_description_lookup[comp.rating].title,
-            # remove control chars (TODO: quote the fields - probably use the CSV module...)
-            # # see: https://www.geeksforgeeks.org/python/python-program-to-remove-all-control-characters/
-            re.sub(r'[\x00-\x1f]', '', config_data["configuration"].rating_description_lookup[comp.rating].description)
-        ])
-        csv_data = csv_data+row+"\n"
-    response = StreamingResponse(csv_data)
+async def download_user_data_csv(user_id:int,request:Request):   # -> UserCompetencies:
     try:
-        _dtformat = "%Y-%m-%d_%H-%M-%S"
-        _cd = f"attachment; filename={user_data.user.username}_{datetime.datetime.now().strftime(_dtformat)}.csv"
-        response.headers["Content-Disposition"] = _cd
-        return response
+        user_data = handlers.get_user_data(engine, user_id)
+
+        # This is needed so we can determine the compass title for the user,
+        # and also the sector titles. We need to pass in the compass ID to
+        # get the correct config data for this user.
+        compass_data = handlers.get_compass(engine, user_data.user.compass_id)
+        
+        # CONFIG DATA is not being used consistently. It IS needed, but here it is erroneously loaded with
+        # incorrect compass ID. Therefore, pass current user compass ID to the settings_router.get_json_config_as_dict() 
+        # function to get the correct config data for this user.
+        # (note that this is a legacy of the old code, which was loading the config data with a hardcoded compass ID of 1. 
+        #  This is not correct, as it will not work for users with different compass IDs.)
+        config_data = settings_router.get_json_config_as_dict(compass_id=user_data.user.compass_id)
+        csv_data = ""
+        header = ",".join(['Compass','Quadrant','Sector','Rating',"Description"])
+        header = header+"\n"
+        csv_data = header
+        
+        for comp in user_data.competencies:
+            _test = get_sector_title_from_data(config_data["configuration"].data_quadrants[comp.quadrant].title)
+            row = ",".join([
+                compass_data.title,
+                _test,
+                # https://stackoverflow.com/questions/47187792/writing-csv-with-quotes-around-strings-python
+                get_sector_title_from_data(config_data["configuration"].data_quadrants[comp.quadrant].sectors[comp.sector].title),
+                config_data["configuration"].rating_description_lookup[comp.rating].title,
+                # remove control chars (TODO: quote the fields - probably use the CSV module...)
+                # # see: https://www.geeksforgeeks.org/python/python-program-to-remove-all-control-characters/
+                re.sub(r'[\x00-\x1f]', '', config_data["configuration"].rating_description_lookup[comp.rating].description)
+            ])
+            csv_data = csv_data+row+"\n"
+        response = StreamingResponse(csv_data)
+        try:
+            _dtformat = "%Y-%m-%d_%H-%M-%S"
+            _cd = f"attachment; filename={user_data.user.username}_{datetime.datetime.now().strftime(_dtformat)}.csv"
+            response.headers["Content-Disposition"] = _cd
+            return response
+        # For the errors, we need to switch from download (content_disposition) to loading a template:
+        except Exception as ex:
+            logger.error(f"Exception in download_user_data_csv: {ex}")
+            return templates.TemplateResponse(
+                request=request,
+                name="error.html",
+                context={"exception":"Formatting exception in download_user_data_csv"}
+            )
+            return JSONResponse({"error":"Exception in download_user_data_csv","message": str(ex)}, status_code=500)
+    except IndexError as ex:
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"exception":"IndexError in download_user_data_csv"}
+        )
+        return JSONResponse({"error":"IndexError in download_user_data_csv","message": str(ex)}, status_code=500)
     except Exception as ex:
-        logger.error(f"Exception in download_user_data_csv: {ex}")
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"exception":"Exception in download_user_data_csv"}
+        )
         return JSONResponse({"error":"Exception in download_user_data_csv","message": str(ex)}, status_code=500)
+
 
 
 @app.get("/{user_id}/data/json",response_class=FileResponse)

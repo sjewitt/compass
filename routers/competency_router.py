@@ -12,12 +12,13 @@ router = APIRouter(
     tags=["Competencies"],
 )
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 engine = get_engine()
-logging.debug("calling load config with Engine")
-logging.debug(engine)
+logger.debug("calling load config with Engine")
+logger.debug(engine)
 compass_config_data = load_config_data(engine=engine, caller="competency")
-logging.debug("loaded")
+logger.debug("loaded")
 
 @router.post("/add/")
 async def add_competency(competency:Competency):

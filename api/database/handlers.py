@@ -11,11 +11,12 @@ from fastapi.exceptions import RequestValidationError, ResponseValidationError
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def check_quadrant_bounds(index:int) -> bool:
     if index < 0 or index > 3:
-        logging.warning("Quadrant is out of bounds")
+        logger.warning("Quadrant is out of bounds")
         return False
     return True
 
@@ -25,20 +26,20 @@ def check_sector_bounds(quadrant_index:int, sector_index) -> bool:
     if quadrant_index == 0:
         upper_bound = 4
     if sector_index < 0 or sector_index > upper_bound:
-        logging.warning("Sector is out of bounds")
+        logger.warning("Sector is out of bounds")
         return False
     return True
 
 def check_ratings_bounds(rating:int):
     if rating < 1 or rating > 6:
-        logging.warning("Rating is out of bounds")
+        logger.warning("Rating is out of bounds")
         return False
     return True
 
 def check_user_exists(engine, user_id:int) -> bool:
     if get_user(engine, user_id):
         return True
-    logging.warning("User does not exist")
+    logger.warning("User does not exist")
     return False
 
 def check_competency_is_applied_to_user_already(engine,competency:DB_Competency) -> bool:
@@ -121,7 +122,7 @@ def get_users(engine) -> list[User]|None:
         if _results:
             return _results
 
-        logging.warning("no users found")
+        logger.warning("no users found")
         # raise UserNotFound("user with id %s not found" % user_id)
         return []
 
@@ -144,7 +145,7 @@ def get_user(engine, user_id:int) -> User|None:
             result.append(_usr)   # new: A User()
         if result:
             return result[0]    # the first found user
-        logging.warning(f"user with id {user_id} not found")
+        logger.warning(f"user with id {user_id} not found")
         raise UserNotFound(404, "user with id %s not found" % user_id)
 
 # All new
@@ -171,7 +172,7 @@ def get_user_data(engine, user_id:int) -> UserCompetencies: # to type!
                 result.competencies.append(_competency)
             return result
         except Exception as ex:
-            print(ex)
+            logger.warning(ex)
             return {"status":"error", "message":ex}
 
 def get_competency(engine, competency_id:int) -> Competency|None:
@@ -504,7 +505,7 @@ def add_rating(engine, rating:Rating) -> bool:
             session.commit()
             return True
         except Exception as ex:
-            logging.warning(f"Failed to add rating: {ex}")
+            logger.warning(f"Failed to add rating: {ex}")
             return False
 
 def update_rating(engine, rating:Rating) -> Rating:
@@ -516,7 +517,7 @@ def update_rating(engine, rating:Rating) -> Rating:
             session.commit()
             return rating
         except Exception as ex:
-            logging.warning(f"Failed to add rating: {ex}")
+            logger.warning(f"Failed to add rating: {ex}")
             return False
 
 def get_ratings(engine) -> list[Rating]:
@@ -534,7 +535,7 @@ def get_ratings(engine) -> list[Rating]:
                 _ratings.append(_rating)
             return _ratings
         except Exception as ex:
-            logging.warning(f"Failed to retrieve ratings: {ex}")
+            logger.warning(f"Failed to retrieve ratings: {ex}")
 
 def get_rating(engine, id:int) -> Rating:
     ''' get a rating by database ID '''
@@ -548,7 +549,7 @@ def get_rating(engine, id:int) -> Rating:
             )
             return _rating
         except Exception as ex:
-            logging.warning(f"Failed to retrieve rating {id}: {ex}")
+            logger.warning(f"Failed to retrieve rating {id}: {ex}")
 
 
 
@@ -619,9 +620,12 @@ def get_compass(engine, id:int) -> CompassData:
         # THIS syntax works as a compound query:
         # result = session.query(DB_CompassDefinition,DB_Quadrant).where(DB_CompassDefinition.id==id).where(DB_Quadrant.id==DB_CompassDefinition.quadrant_1).first()
         _db_compass_def = session.query(DB_CompassDefinition).where(DB_CompassDefinition.id==id).first()
+        # It's legacy, but we may get here and retrieve a compass with zero as component IDs - that is resolved by the 
+        # model enforcing a range, but just in case, needs to handle that edge case here.
+
         _compass = {}
         if _db_compass_def:
-
+            # as per above comment, we MIGHT get zeros from legacy definitions for any or all of the below properties...
             # explicitly retrieve each quad (even if it's the same one twice):
             _db_quadrants = []
             _db_quadrants.append(session.query(DB_Quadrant).where(DB_Quadrant.id == _db_compass_def.quadrant_1).first())
@@ -709,10 +713,21 @@ def get_compass(engine, id:int) -> CompassData:
             # Then construct the pydantic model from the database models returned:
             # [I already have teh title IDs, so use them here?]
 
-            _q1_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_1,_db_q1_sectors,_q1_sectors_titles)
-            _q2_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_2,_db_q2_sectors,_q2_sectors_titles)
-            _q3_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_3,_db_q3_sectors,_q3_sectors_titles)
-            _q4_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_4,_db_q4_sectors,_q4_sectors_titles)
+            # This is where it actually breaks if zeros are passed as component IDs:
+            try:
+                _q1_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_1,_db_q1_sectors,_q1_sectors_titles)
+                _q2_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_2,_db_q2_sectors,_q2_sectors_titles)
+                _q3_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_3,_db_q3_sectors,_q3_sectors_titles)
+                _q4_sectors = _get_sector_models_from_db_models(_db_compass_def.quadrant_4,_db_q4_sectors,_q4_sectors_titles)
+            except AttributeError as ex:
+                logger.warning("AttributeError: Error retrieving sectors from compass data: %s", ex)
+                raise ex
+            except IndexError as ex:
+                logger.warning("IndexError: Error retrieving sectors from compass data: %s", ex)
+                raise ex
+            except Exception as ex:
+                logger.warning("Exception: Error retrieving sectors from compass data: %s", ex)
+                raise ex
 
             # these are pydantic models:
             _sectors = [_q1_sectors,_q2_sectors,_q3_sectors,_q4_sectors]
@@ -882,7 +897,7 @@ def set_compass(engine, definition:CompassData) -> int:
                 print(f"Exception attempting to insert new compass definition: {ex}")
                 session.rollback()
         else:
-            logging.warning(f"Compass name {definition.name} already exists. Cannot add new compass definition.")
+            logger.warning(f"Compass name {definition.name} already exists. Cannot add new compass definition.")
             return -1   
 
     # if fails:
@@ -1016,7 +1031,7 @@ def _get_quadrant_models_from_db_models(
     _out = []
     _counter = 0
     for db_quadrant_model in db_quadrant_model_list:
-        logging.debug(db_quadrant_model)
+        logger.debug(db_quadrant_model)
 
         _titles = []
         # _titles.append(quadrant_titles_list[_counter][0])
@@ -1043,38 +1058,40 @@ def _get_quadrant_models_from_db_models(
             )
             _counter += 1
         except Exception as ex:
-            logging.warning(f"failed to add quadrant {ex}")
+            logger.warning(f"failed to add quadrant {ex}")
     return _out
 
 def _get_sector_models_from_db_models(quadrant_id:int, db_sector_model_list:list[DB_Sector],sector_title_model_list) -> list[Sector]:
     ''' retrieve the list of title parts for each set of sectors for supplied quadrant data '''
     _out = []
     _counter = 0
-    for db_sector_model in db_sector_model_list:
-        # print(db_sector_model)
-
-        _titles = []
-        for title_part in sector_title_model_list[_counter]:  # the sector titles
-            _titles.append(
-                SectorTitles(
-                    id=title_part.id,
-                    title_part=title_part.title_part,
-                    # coord_x=title_part.coord_x,
-                    # coord_y=title_part.coord_y,
-               )
+    
+    try:
+        if quadrant_id == 0:
+            raise IndexError
+        for db_sector_model in db_sector_model_list:
+            _titles = []
+            for title_part in sector_title_model_list[_counter]:  # the sector titles
+                _titles.append( SectorTitles(id=title_part.id, title_part=title_part.title_part,) )
+            _out.append(
+                Sector(
+                    id=db_sector_model.id,
+                    quadrant_id=quadrant_id,
+                    title=_titles,  # MAY NEED TO REMOVE THIS FORM THE MODEL!
+                    summary=db_sector_model.summary,
+                    description=db_sector_model.description,
+                )
             )
-
-        _out.append(
-            Sector(
-                id=db_sector_model.id,
-                quadrant_id=quadrant_id,
-                title=_titles,  # MAY NEED TO REMOVE THIS FORM THE MODEL!
-                summary=db_sector_model.summary,
-                description=db_sector_model.description,
-            )
-        )
-        _counter += 1
-    return _out
+            _counter += 1
+        return _out
+    except IndexError as ex:
+        logger.warning("IndexError raised due to quadrant_id of zero: '%s'", ex)
+        raise ex    # return to caller
+    except Exception as ex:
+        logger.warning("Exception raised: '%s'", ex)
+        raise ex
+        # return []   # maybe the error object?
+    
 
 def _get_rating_models_from_db_models(db_rating_model_list:list[DB_Rating]) -> list[Rating]:
     _out = []

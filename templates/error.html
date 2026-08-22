@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+	error
+	</title>
+		<link type="text/css" href="/static/css/styles2.css" rel="stylesheet" />
+		<link href="/static/images/favicon.jpg" rel="icon" />
+</head>
+<body data-page-x="user-data" data-page="svg_template">
+<div id="flyout" class="flyout">
+<h1>
+	<div class="button inline_block">
+		<a href="/" title="Home">
+			<img src="/static/images/home-2-64.png" alt="Home" title="Home" />
+		</a>
+	</div>
+
+	<div class="button inline_block">
+		<a href="#" title="Help">
+			<img src="/static/images/help-64.png" alt="Help" title="Help" />
+		</a>
+	</div>
+
+	ERROR
+</h1>
+
+{{exception}}
+
+</div>
+
+<!-- <img src='/static/compass_trans.png' id='test' alt='Craft Compass' title="Craft Compass" usemap="#testmap"> -->
+<img src='/static/compass_trans_blank_cropped.png' id='test' alt='Craft Compass' title='Craft Compass' usemap="#testmap">
+
+	
+	<!-- 
+	We superimpose an HTML imagemap on the image as well, so the relevant areas - as defined by the SVG above -
+	can be interactive elements (there was an issue with applying handlers directly to the SVG elems, but I can't
+	remember what that was...). This allows the colours to be applied.
+
+	The coord system is identical, so a `shape="rect"` area can be directly translated into an SVG
+	 -->
+
+	
+
+
+<div id="display">
+	<div>
+		<h2 id="quad_title">[quad title]</h2>
+		<div id="quad_description">[quad description]</div>
+		<h3 id="sector_title">[sector title]</h3>
+		<div id="sector_title_description" class="italic">[sector title description]</div>
+		<div id="sector_block_description">[sector block description]</div>
+	</div>
+	<div>
+		<h2>Rating</h2>
+		<div class="italic">How do you rate yourself?</div>
+		<div id="rating">
+		[data here]
+		</div>
+		<h3>All ratings</h3>
+		<div id="userdata">
+		
+		</div>
+	</div>
+</div>
+<a id="download_hidden_link"></a>
+</body>
+
+<script src="/static/js/common.js"></script> 
+<script src="/static/js/engine-index.js"></script>
+<script>
+</script>
+</html>
