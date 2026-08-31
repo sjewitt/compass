@@ -10,6 +10,8 @@ from fastapi.exceptions import RequestValidationError, ResponseValidationError
 
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
+
+from sqlite3 import OperationalError
 import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -225,7 +227,13 @@ def update_user(engine, user:User) -> User|None:
                 # raise UserNotFound("user with id %s not found" % user_id)
                 return user
             raise UserNotFound
-        except:
+        # added handler because passing in *nix style user:group cli args
+        # caused the database to be read-only from the container PoV.
+        except OperationalError as ex:
+            logger.warning(ex)
+            return None
+        except Exception as ex:
+            logger.warning(ex)
             return None
 
 ###########################################
